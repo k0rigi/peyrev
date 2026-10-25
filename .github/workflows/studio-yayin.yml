@@ -1,0 +1,53 @@
+name: Studio yayını
+
+# Peyrev Studio paketlerini peyrev.com/indir/ altına yayımlar: inspect (durum), publish (doğrulanmış arşiv), prune (yalnız
+# güncel sürüm kalır). Arşiv Studio deposundaki prepare_update_release.py --profile peyrev ile üretilir.
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: inspect, publish ya da prune
+        type: choice
+        options: [inspect, publish, prune]
+        default: inspect
+        required: true
+      version:
+        description: Sürüm, örneğin 1.0.0 (publish - yeni sürüm; prune - kalacak güncel sürüm)
+        type: string
+        required: false
+      bundle_url:
+        description: Kısa ömürlü HTTPS release-assets.githubusercontent.com arşiv adresi
+        type: string
+        required: false
+      bundle_sha256:
+        description: publish-bundle.tar.gz SHA-256 değeri
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: peyrev-sunucu
+  cancel-in-progress: false
+
+jobs:
+  yayinla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Araçlar
+        run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: Yalnız /indir klasörünü incele, yayımla ya da buda
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: python .github/scripts/studio-yayin.py
