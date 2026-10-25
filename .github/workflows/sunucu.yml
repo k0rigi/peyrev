@@ -12,6 +12,8 @@ on:
         type: choice
         options:
           - inceleme
+          - kurulum-deneme
+          - kurulum
 
 permissions:
   contents: read
@@ -33,12 +35,25 @@ jobs:
           python-version: "3.12"
       - name: Araçlar
         run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: İşi seç
+        id: is
+        env:
+          ISLEM: ${{ inputs.islem }}
+        run: |
+          case "$ISLEM" in
+            inceleme)       betik=deploy/inceleme.sh; ortam='{}' ;;
+            kurulum-deneme) betik=deploy/kurulum.sh;  ortam='{"KIP":"deneme"}' ;;
+            kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
+            *) echo "Bilinmeyen iş"; exit 1 ;;
+          esac
+          { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
       - name: Sunucuda çalıştır
         env:
           HOST: ${{ secrets.HOST }}
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
-          BETIK: deploy/${{ inputs.islem }}.sh
+          BETIK: ${{ steps.is.outputs.betik }}
+          BETIK_ORTAMI: ${{ steps.is.outputs.ortam }}
           RAPOR: rapor.enc
         run: python .github/scripts/uzak.py
       - name: Şifreli raporu sakla
