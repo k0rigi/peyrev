@@ -1,7 +1,10 @@
-"""Yer tutucu: ortak model (LLM) uçları uygulanınca create_blueprint gerçek uçları döndürür."""
+"""Ortak model (LLM): Studio'nun /api/studio/ekip/llm/* uçları ve ayrı çalıştırıcı (python -m peyrev.llm.worker).
 
-from flask import Blueprint
+Çalıştırıcı yalnız standart kütüphane ve psycopg yükler; Flask uçları ancak create_blueprint çağrılınca içe aktarılır.
+"""
 
 
-def create_blueprint(core) -> Blueprint:
-    return Blueprint("studio_llm", __name__)
+def create_blueprint(core):
+    from .routes import create_blueprint as build
+
+    return build(core)
