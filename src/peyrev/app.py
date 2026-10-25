@@ -5,7 +5,8 @@ Uç haritası (yollar orkestrai.net ile aynı; Studio yalnız hostu değiştirir
   /api/rpa/lisans/*                lisans ve Studio oturumu          → peyrev.accounts
   /api/rpa/hesap/*, /api/rpa/basvuru  şifre işlemleri ve başvuru     → peyrev.accounts
   /api/rpa/destek/*                Studio destek talepleri            → peyrev.support
-  /api/studio/ekip/*               ajan ofisleri, onaylar, ortak model → peyrev.agents
+  /api/studio/ekip/*               ajan ofisleri, görevler, onaylar   → peyrev.agents
+  /api/studio/ekip/llm/*           ortak model (kapalıysa enabled:false) → peyrev.llm
   /api/yonetim/*                   yönetim paneli (yönetici oturumu)   → peyrev.admin
 """
 
@@ -42,9 +43,11 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     from .accounts import create_blueprint as accounts
     from .admin import create_blueprint as admin
     from .agents import create_blueprint as agents
+    from .llm import create_blueprint as llm
     from .support import create_blueprint as support
 
-    for blueprint in (health.create_blueprint(core), accounts(core), support(core), agents(core), admin(core)):
+    for blueprint in (health.create_blueprint(core), accounts(core), support(core), agents(core), llm(core),
+                      admin(core)):
         app.register_blueprint(blueprint)
     app.config["PEYREV_VERSION"] = __version__
     return app
