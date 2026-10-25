@@ -1,0 +1,51 @@
+name: Sunucu işleri
+
+# Elle başlatılır. Depo herkese açık olduğundan sunucu çıktısı günlüğe yazılmaz: uzak.py bütün çıktıyı sahibinin açık
+# anahtarıyla şifreler ve yapıt olarak saklar; günlükte yalnız "GENEL: " satırları ve çıkış kodu görünür.
+
+on:
+  workflow_dispatch:
+    inputs:
+      islem:
+        description: Yapılacak iş
+        required: true
+        type: choice
+        options:
+          - inceleme
+
+permissions:
+  contents: read
+
+concurrency:
+  group: peyrev-sunucu
+  cancel-in-progress: false
+
+jobs:
+  calistir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Araçlar
+        run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: Sunucuda çalıştır
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          BETIK: deploy/${{ inputs.islem }}.sh
+          RAPOR: rapor.enc
+        run: python .github/scripts/uzak.py
+      - name: Şifreli raporu sakla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapor-${{ inputs.islem }}
+          path: rapor.enc
+          retention-days: 3
+          if-no-files-found: ignore
