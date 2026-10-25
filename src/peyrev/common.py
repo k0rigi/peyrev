@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import json
 import logging
+import math
+import traceback
 from collections.abc import Iterable
 from typing import Any
 
@@ -51,21 +53,37 @@ def _no_constant(_value: str) -> Any:
     raise ValueError("NaN/Infinity")
 
 
+def _finite(text: str) -> float:
+    value = float(text)
+    if math.isinf(value):  # 1e999 parses to infinity; databases and digests refuse it later
+        raise ValueError("number out of range")
+    return value
+
+
+def _text(value: str) -> str:
+    value.encode("utf-8")  # a lone surrogate ("\\ud800") would fail later in the database or a digest
+    return value
+
+
 def _bounded(value: Any, depth: int = 0, budget: list[int] | None = None) -> None:
     budget = [10000] if budget is None else budget
     budget[0] -= 1
     if depth > 20 or budget[0] < 0:
         raise ValueError("too deep or too many values")
     if isinstance(value, dict):
-        for item in value.values():
+        for key, item in value.items():
+            _text(key)
             _bounded(item, depth + 1, budget)
     elif isinstance(value, list):
         for item in value:
             _bounded(item, depth + 1, budget)
+    elif isinstance(value, str):
+        _text(value)
 
 
 def parse_json(raw: bytes) -> Any:
-    return json.loads(raw.decode("utf-8"), object_pairs_hook=_unique, parse_constant=_no_constant)
+    return json.loads(raw.decode("utf-8"), object_pairs_hook=_unique, parse_constant=_no_constant,
+                      parse_float=_finite)
 
 
 def json_body(allowed: Iterable[str], required: Iterable[str] = (), *, limit: int = BODY_LIMIT,
@@ -111,8 +129,11 @@ def register(app: Flask) -> None:
 
     @app.errorhandler(Exception)
     def unexpected(error: Exception):
-        # Neither SQL nor exception text reaches the client; the log keeps the type and location only.
-        LOG.exception("Beklenmeyen hata: %s %s", request.method, request.path)
+        # Neither SQL nor exception text reaches the client or the log (it may carry query parts and user
+        # values); the log keeps the type and the innermost location only.
+        frame = traceback.extract_tb(error.__traceback__)[-1] if error.__traceback__ else None
+        where = f"{frame.filename.rsplit('/', 1)[-1]}:{frame.lineno}" if frame else "?"
+        LOG.error("Beklenmeyen hata: %s %s (%s, %s)", request.method, request.path, type(error).__name__, where)
         return fail(ApiError("İşlem şu anda tamamlanamadı. Daha sonra tekrar deneyin.", 503, "SUNUCU"))
 
     @app.after_request

@@ -96,3 +96,32 @@ def test_new_accounts_get_a_workspace_id_that_cannot_clash_with_migrated_ones(co
     fresh = make_user(core, "h@x.test")
     assert migrated["alan_id"] == 2 and fresh["alan_id"] >= 1000000
     assert date.today()  # keeps the import used
+
+
+def test_bodies_with_values_the_database_would_refuse_are_invalid_input(app):
+    from flask import request as current
+
+    from peyrev.common import json_body, ok
+
+    @app.post("/api/deneme-govde")
+    def echo():
+        assert current.path == "/api/deneme-govde"
+        return ok(alan=json_body({"alan"})["alan"])
+
+    client = app.test_client()
+    assert client.post("/api/deneme-govde", data=b'{"alan": 1.5}', content_type="application/json").status_code == 200
+    for raw in (b'{"alan": 1e999}', b'{"alan": "\\ud800"}', b'{"\\udfff": 1}', b'{"alan": NaN}'):
+        answer = client.post("/api/deneme-govde", data=raw, content_type="application/json")
+        assert answer.status_code == 400 and answer.get_json()["kod"] == "GECERSIZ", raw
+
+
+def test_unexpected_errors_log_only_the_type_and_place(app, caplog):
+    @app.get("/api/deneme-hata")
+    def broken():
+        raise RuntimeError("SELECT gizli_deger FROM tablo")
+
+    answer = app.test_client().get("/api/deneme-hata")
+    assert answer.status_code == 503 and answer.get_json()["kod"] == "SUNUCU"
+    logged = " ".join(record.getMessage() for record in caplog.records)
+    assert "RuntimeError" in logged and "test_core.py" in logged and "gizli_deger" not in logged
+    assert not any(record.exc_info for record in caplog.records)
