@@ -12,6 +12,7 @@ on:
         type: choice
         options:
           - inceleme
+          - kaynak-inceleme
           - kurulum-deneme
           - kurulum
           - bakim-ac
@@ -44,6 +45,7 @@ jobs:
         run: |
           case "$ISLEM" in
             inceleme)       betik=deploy/inceleme.sh; ortam='{}' ;;
+            kaynak-inceleme) betik=deploy/kaynak-inceleme.sh; ortam='{}' ;;
             kurulum-deneme) betik=deploy/kurulum.sh;  ortam='{"KIP":"deneme"}' ;;
             kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
             bakim-ac)       betik=deploy/bakim.sh;    ortam='{"KIP":"ac"}' ;;
