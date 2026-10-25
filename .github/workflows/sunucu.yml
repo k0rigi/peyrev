@@ -19,6 +19,7 @@ on:
           - bakim-kapat
           - tasima-prova
           - tasima-gercek
+          - deneme-hesabi-kapat
 
 permissions:
   contents: read
@@ -54,6 +55,7 @@ jobs:
             bakim-kapat)    betik=deploy/bakim.sh;    ortam='{"KIP":"kapat"}' ;;
             tasima-prova)   betik=deploy/tasima.sh;   ortam='{"KIP":"prova"}' ;;
             tasima-gercek)  betik=deploy/tasima.sh;   ortam='{"KIP":"gercek"}' ;;
+            deneme-hesabi-kapat) betik=deploy/deneme-hesabi.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
