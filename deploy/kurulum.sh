@@ -240,7 +240,8 @@ set -euo pipefail
 umask 077
 D=/var/backups/peyrev
 T=$(date +%Y%m%d-%H%M%S)
-runuser -u postgres -- pg_dump -Fc peyrev > "$D/.peyrev-$T.dump"
+# Ortak model kuyruğu (UNLOGGED) istek ve yanıt içeriği taşıyabilir; yedeğe girmez.
+runuser -u postgres -- pg_dump -Fc --no-unlogged-table-data peyrev > "$D/.peyrev-$T.dump"
 mv "$D/.peyrev-$T.dump" "$D/peyrev-$T.dump"
 tar -C /etc -czf "$D/.sirlar-$T.tar.gz" peyrev
 mv "$D/.sirlar-$T.tar.gz" "$D/sirlar-$T.tar.gz"
