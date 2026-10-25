@@ -13,6 +13,7 @@ import io
 import json
 import os
 import subprocess
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -34,10 +35,23 @@ def token() -> str:
     return next(line.split("=", 1)[1] for line in answer.splitlines() if line.startswith("password="))
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def get(url: str, secret: str) -> bytes:
+    """GitHub API isteği; yapıt indirmesindeki yönlendirme hedefine belirteç gönderilmez."""
     request = urllib.request.Request(url, headers={"Authorization": f"Bearer {secret}",
                                                    "Accept": "application/vnd.github+json"})
-    with urllib.request.urlopen(request, timeout=60) as response:
+    try:
+        with urllib.request.build_opener(_NoRedirect).open(request, timeout=60) as response:
+            return response.read()
+    except urllib.error.HTTPError as error:
+        if error.code not in (301, 302, 303, 307, 308):
+            raise
+        location = error.headers["Location"]
+    with urllib.request.urlopen(location, timeout=120) as response:
         return response.read()
 
 
