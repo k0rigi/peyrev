@@ -1,0 +1,73 @@
+name: Destek bildirim ayarları
+
+# Telegram ve e-posta bilgileri yalnız bu deponun Secrets bölümünde durur (DESTEK_TELEGRAM_TOKEN, DESTEK_TELEGRAM_CHAT,
+# DESTEK_SMTP_HOST, DESTEK_SMTP_PORT, DESTEK_SMTP_USER, DESTEK_SMTP_PASSWORD, DESTEK_EPOSTA_GONDEREN, DESTEK_EPOSTA_ALICI).
+# İş akışı onları sunucuda /etc/peyrev/destek.env dosyasına (root:peyrev 0640) yazar ve deneme bildirimi gönderir.
+# Günlüğe yalnız kanal durumları yazılır; belirteç, şifre veya adres yazılmaz.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: peyrev-sunucu
+  cancel-in-progress: false
+
+jobs:
+  ayarla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Araçlar
+        run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: Aktarım dosyası
+        env:
+          DESTEK_TELEGRAM_TOKEN: ${{ secrets.DESTEK_TELEGRAM_TOKEN }}
+          DESTEK_TELEGRAM_CHAT: ${{ secrets.DESTEK_TELEGRAM_CHAT }}
+          DESTEK_SMTP_HOST: ${{ secrets.DESTEK_SMTP_HOST }}
+          DESTEK_SMTP_PORT: ${{ secrets.DESTEK_SMTP_PORT }}
+          DESTEK_SMTP_USER: ${{ secrets.DESTEK_SMTP_USER }}
+          DESTEK_SMTP_PASSWORD: ${{ secrets.DESTEK_SMTP_PASSWORD }}
+          DESTEK_EPOSTA_GONDEREN: ${{ secrets.DESTEK_EPOSTA_GONDEREN }}
+          DESTEK_EPOSTA_ALICI: ${{ secrets.DESTEK_EPOSTA_ALICI }}
+        run: |
+          umask 077
+          python - <<'PY'
+          import os
+          keys = ["DESTEK_TELEGRAM_TOKEN", "DESTEK_TELEGRAM_CHAT", "DESTEK_SMTP_HOST", "DESTEK_SMTP_PORT", "DESTEK_SMTP_USER",
+                  "DESTEK_SMTP_PASSWORD", "DESTEK_EPOSTA_GONDEREN", "DESTEK_EPOSTA_ALICI"]
+          lines = [f"{key}={os.environ[key]}" for key in keys if os.environ.get(key, "").strip()]
+          if any("\n" in line or "\r" in line for line in lines):
+              raise SystemExit("Ayar değerleri satır sonu içeremez.")
+          with open("destek.env.yeni", "w", encoding="utf-8") as handle:
+              handle.write("\n".join(lines) + "\n")
+          print(f"{len(lines)} ayar hazırlandı.")
+          PY
+      - name: Sunucuya yaz ve dene
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          BETIK: deploy/destek-ayarlari.sh
+          DOSYALAR: '[{"yerel": "destek.env.yeni", "uzak": "/var/tmp/peyrev-aktarim/destek.env.yeni"}]'
+          RAPOR: rapor.enc
+        run: python .github/scripts/uzak.py
+      - name: Aktarım dosyasını sil
+        if: always()
+        run: rm -f destek.env.yeni
+      - name: Şifreli raporu sakla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapor-destek-ayarlari
+          path: rapor.enc
+          retention-days: 3
+          if-no-files-found: ignore
