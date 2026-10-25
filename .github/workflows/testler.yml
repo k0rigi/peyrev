@@ -1,8 +1,9 @@
 name: Testler
 
+# main'deki push'ları Dağıtım iş akışı test eder; burası çekme istekleri ve diğer dallar içindir.
 on:
   push:
-    branches: [main]
+    branches-ignore: [main]
   pull_request:
 
 permissions:

@@ -1,0 +1,91 @@
+name: Dağıtım
+
+# main'e her push'ta: testler (PostgreSQL 16) → sunucuya dağıtım. Depo herkese açık olduğundan sunucu çıktısı günlüğe
+# yazılmaz (uzak.py: şifreli yapıt). Dağıtım, depo değişkeni DAGITIM_ACIK=1 olduğunda yapılır (sunucu kurulumundan sonra).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          # Yalnız bu iş için açılıp kapanan test kapsayıcısı; gerçek bir sır değildir.
+          POSTGRES_USER: peyrev
+          POSTGRES_PASSWORD: ci-yerel
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U peyrev" --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      PEYREV_TEST_DATABASE_URL: postgresql://peyrev:ci-yerel@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bağımlılıklar
+        run: python -m pip install --disable-pip-version-check -q -e ".[mysql]" pytest ruff "paramiko>=3.5,<5"
+      - name: Ruff
+        run: ruff check .
+      - name: Testler (PostgreSQL 16)
+        run: python -m pytest -p no:cacheprovider -q
+
+  dagit:
+    needs: test
+    if: vars.DAGITIM_ACIK == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: peyrev-sunucu
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Araçlar
+        run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: Arşiv
+        id: arsiv
+        run: |
+          git archive --format=tar.gz -o peyrev.tar.gz HEAD src web deploy/requirements.lock pyproject.toml
+          echo "sha=$(sha256sum peyrev.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Sunucuya dağıt
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          BETIK: deploy/dagitim.sh
+          DOSYALAR: '[{"yerel": "peyrev.tar.gz", "uzak": "/var/tmp/peyrev-aktarim/peyrev-${{ github.sha }}.tar.gz"}]'
+          BETIK_ORTAMI: '{"SURUM": "${{ github.sha }}", "ARSIV": "/var/tmp/peyrev-aktarim/peyrev-${{ github.sha }}.tar.gz", "ARSIV_SHA256": "${{ steps.arsiv.outputs.sha }}"}'
+          RAPOR: rapor.enc
+        run: python .github/scripts/uzak.py
+      - name: Şifreli raporu sakla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapor-dagitim
+          path: rapor.enc
+          retention-days: 3
+          if-no-files-found: ignore
+      - name: Dışarıdan denetim
+        run: |
+          fail=0
+          for u in https://peyrev.com/api/saglik https://orkestrai.net/ https://orkestrai.net/api/rpa/lisans/anahtar; do
+            c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || true)
+            echo "$u -> $c"; [ "$c" = 200 ] || fail=1
+          done
+          exit $fail

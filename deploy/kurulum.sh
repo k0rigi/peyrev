@@ -201,6 +201,7 @@ User=peyrev
 Group=peyrev
 WorkingDirectory=$ROOT/current
 Environment=PEYREV_SECRETS_DIR=$SECRETS
+Environment=PYTHONPATH=$ROOT/current/src
 Environment=PYTHONUNBUFFERED=1
 ExecStart=$ROOT/current/venv/bin/gunicorn --bind 127.0.0.1:$PORT --workers 3 --timeout 60 --graceful-timeout 30 --max-requests 2000 --max-requests-jitter 200 --access-logfile - --error-logfile - peyrev.wsgi:app
 Restart=always

@@ -1,0 +1,6 @@
+# peyrev.com: tarayıcılar için www ve http istekleri https://peyrev.com adresine yönlenir (API istemcileri zaten bunu kullanır).
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\.peyrev\.com$ [NC]
+RewriteRule ^(.*)$ https://peyrev.com/$1 [R=301,L]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://peyrev.com/$1 [R=301,L]
