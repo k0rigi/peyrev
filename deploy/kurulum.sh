@@ -262,13 +262,23 @@ CERT=/etc/letsencrypt/live/$SITE/fullchain.pem
 sans() { openssl x509 -in "$CERT" -noout -ext subjectAltName 2>/dev/null | tr ',' '\n' | sed -n 's/.*DNS://p' | sort | tr '\n' ' '; }
 printf '  sertifika: %s | %s\n' "$(sans)" "$(openssl x509 -in "$CERT" -noout -enddate 2>/dev/null)"
 if [ "$KIP" = uygula ] && ! sans | grep -qw "www.$SITE"; then
+  # CyberPanel's issueSSL only renews an existing certificate, so the www name is added with the same acme.sh account,
+  # key type and webroot CyberPanel uses; renewals then keep both names (acme.sh cron).
+  ACME=/root/.acme.sh/acme.sh
+  [ -x "$ACME" ] || { echo "acme.sh bulunamadı"; exit 1; }
   pre=$(snapshot)
   cp -a "$VHOST" "$BACKUPS/vhost.conf.$(date +%Y%m%d-%H%M%S).ssl"
-  cyberpanel issueSSL --domainName "$SITE" 2>&1 | tail -5 | sed 's/^/    /' || true
-  sleep 8
+  cp -aL "/etc/letsencrypt/live/$SITE" "$BACKUPS/sertifika.$(date +%Y%m%d-%H%M%S)"
+  rc=0
+  "$ACME" --issue --server letsencrypt -d "$SITE" -d "www.$SITE" --webroot "$LSWS/Example/html" --keylength ec-256 \
+    --force 2>&1 | tail -12 | sed 's/^/    /' || rc=$?
+  "$ACME" --install-cert -d "$SITE" --ecc --key-file "/etc/letsencrypt/live/$SITE/privkey.pem" \
+    --fullchain-file "/etc/letsencrypt/live/$SITE/fullchain.pem" --reloadcmd "$LSWS/bin/lswsctrl restart" 2>&1 \
+    | tail -6 | sed 's/^/    /' || rc=$?
+  sleep 10
   printf '  yeni sertifika: %s | %s\n' "$(sans)" "$(openssl x509 -in "$CERT" -noout -enddate 2>/dev/null)"
   if ! require_same "$pre"; then echo "SSL sonrası site durumları değişti."; genel "SSL sonrası site durumları değişti"; exit 1; fi
-  sans | grep -qw "www.$SITE" || { echo "www için sertifika alınamadı."; genel "www için sertifika alınamadı"; exit 1; }
+  sans | grep -qw "www.$SITE" || { echo "www için sertifika alınamadı (acme.sh $rc)."; genel "www için sertifika alınamadı"; exit 1; }
   genel "SSL: peyrev.com ve www.peyrev.com"
 fi
 
