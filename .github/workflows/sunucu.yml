@@ -14,6 +14,8 @@ on:
           - inceleme
           - kurulum-deneme
           - kurulum
+          - bakim-ac
+          - bakim-kapat
 
 permissions:
   contents: read
@@ -44,6 +46,8 @@ jobs:
             inceleme)       betik=deploy/inceleme.sh; ortam='{}' ;;
             kurulum-deneme) betik=deploy/kurulum.sh;  ortam='{"KIP":"deneme"}' ;;
             kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
+            bakim-ac)       betik=deploy/bakim.sh;    ortam='{"KIP":"ac"}' ;;
+            bakim-kapat)    betik=deploy/bakim.sh;    ortam='{"KIP":"kapat"}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
