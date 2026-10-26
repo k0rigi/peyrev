@@ -525,10 +525,31 @@ def test_a_failed_sign_in_checks_one_hash_of_each_kind_whatever_the_name(client,
     for name in ("yok@ornek.test", "yok", "yeni", "eski@ornek.test", "ayse"):
         checked.clear()
         assert login(client, kullanici=name, sifre="Yanlis12345").get_json()["kod"] == "HATALI_GIRIS", name
-        assert sorted(checked) == sorted(rules.HASH_METHODS), name
-    # The right password needs nothing more.
+        assert sorted(checked) == sorted(rules.hash_methods()), name
+    # The right password needs nothing more; the first method is the one new hashes use.
     checked.clear()
-    assert login(client, kullanici="yeni").status_code == 200 and checked == ["scrypt:32768:8:1"]
+    assert login(client, kullanici="yeni").status_code == 200 and checked == [rules.hash_methods()[0]]
+    with core.db.transaction() as cur:
+        assert users.find_by_login(cur, "yeni")[0]["sifre_hash"].startswith(rules.hash_methods()[0] + "$")
+    assert rules.hash_methods()[1] == "pbkdf2:sha256:260000"
+
+
+def test_a_short_name_of_several_accounts_counts_against_each_of_them(client, core):
+    """Kısa adla yapılan hatalı deneme eşleşen her hesabın şifresini dener ve her hesabın sayacına girer; e-postanın
+    tamamına ya da büyük harfli (İ dahil) yazımına geçmek yeni deneme hakkı vermez."""
+    make_user(core, "ali@a.test", modules={users.RPA: None})
+    make_user(core, "ali@b.test", modules={users.RPA: None})
+    for index in range(5):
+        assert login(client, kullanici="ali", sifre="Yanlis12345", address=f"10.0.2.{index}").status_code == 401
+    for index in range(5):
+        assert login(client, kullanici="ALİ@A.TEST", sifre="Yanlis12345", address=f"10.0.3.{index}").status_code == 401
+    with core.db.transaction() as cur:
+        cur.execute("SELECT giris, count(*) AS n FROM giris_denemeleri GROUP BY giris ORDER BY giris")
+        assert [(row["giris"], row["n"]) for row in cur.fetchall()] == [("ali", 5), ("ali@a.test", 5)]
+    # ali@a.test has had ten guesses (five as 'ali', five by its address), ali@b.test five.
+    for name in ("ali@a.test", "Ali@A.Test", "ali"):
+        assert login(client, kullanici=name, address="10.0.4.1").status_code == 429, name
+    assert login(client, kullanici="ali@b.test", address="10.0.4.2").status_code == 200
 
 
 def test_a_migrated_werkzeug_hash_signs_in_and_stays_as_it_is(client, core):

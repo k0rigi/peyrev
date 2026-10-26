@@ -77,8 +77,8 @@ def main(argv: list[str] | None = None, *, environ: Mapping[str, str] = os.envir
     parser.add_argument("--kaynak-ayar", required=True, type=Path, metavar="DB_PY",
                         help="orkestrai'nin api/db.py dosyası (çalıştırılmaz, DB_CONFIG okunur)")
     parser.add_argument("--yeniden", action="store_true",
-                        help="gerçek taşıma daha önce yapılmışsa yeniden çalıştırır: taşınmış hesaplarda Peyrev'de "
-                             "yapılan değişiklikler kaynağın değerine döner")
+                        help="gerçek taşıma daha önce yapılmışsa yeniden çalıştırır: taşınmış kayıtlarda Peyrev'de "
+                             "yapılan değişiklikler kaynağın değerine döner (" + target.REVERTED + ")")
     args = parser.parse_args(argv)
     try:
         settings = read_settings(args.kaynak_ayar, environ)

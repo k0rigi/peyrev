@@ -12,7 +12,8 @@ from .target import GERCEK, Outcome, state_text
 
 def render(outcome: Outcome) -> str:
     moment = outcome.now.astimezone(TR)
-    lines = [f"Peyrev taşıması (orkestrai → Peyrev): kip {outcome.mode}, hedef veritabanı {outcome.database or '-'}",
+    again = " (yeniden)" if outcome.again else ""
+    lines = [f"Peyrev taşıması (orkestrai → Peyrev): kip {outcome.mode}{again}, hedef veritabanı {outcome.database or '-'}",
              f"Taşıma anı {moment:%Y-%m-%d %H:%M:%S} (Türkiye saati); lisans günü {moment.date().isoformat()}"]
     plan = outcome.plan
     if plan is not None:

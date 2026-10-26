@@ -4,9 +4,9 @@ Giriş (POST /api/yonetim/giris {giris, sifre, kod?}):
 - Yalnız durumu 'aktif' ve rolü 'yonetici' olan hesap girer. Giriş adı kuralı Studio'yla aynıdır (users.find_by_login),
   şifre Werkzeug özetiyle denetlenir (rules.matches); aynı şifreyle birden çok hesap eşleşirse 409 BELIRSIZ.
 - Deneme sınırı Studio girişiyle ortak sayaçtır (giris_denemeleri): 15 dakikada hesap başına 10, adres başına 30 hatalı
-  deneme; sınırdaki doğru şifre de 429 COK_DENEME alır. Hesap sayacında hem yazılan ada hem eşleşen hesapların asıl
-  giriş adına bakılır ve tek hesaba inen hatalı deneme asıl adla yazılır: kısa ad ile e-postanın tamamı arasında geçmek
-  yeni deneme hakkı vermez. Yanlış iki adımlı kod da hatalı denemedir.
+  deneme; sınırdaki doğru şifre de 429 COK_DENEME alır. Hesap sayacı eşleşen her hesabın asıl adıyla ya da @ öncesiyle
+  yazılmış hatalı denemeleri toplar (rules.login_attempts_left): kısa ad ile e-postanın tamamı arasında geçmek yeni
+  deneme hakkı vermez. Yanlış iki adımlı kod da hatalı denemedir.
 - Hesapta iki adımlı doğrulama açıksa (kullanicilar.totp_gizli) kod şifre doğrulandıktan sonra istenir: kod yoksa
   401 KOD_GEREKLI, yanlış ya da daha önce kullanılmışsa 401 KOD_HATALI.
 
@@ -169,8 +169,7 @@ def sign_in(core, cur: Cursor, login: str, password: str, code: Any, address: st
     """(çerez belirteci, yönetici, oturum) ya da hatalı denemeyi yazmış ret (işlem kaydedildikten sonra fırlatılır)."""
     moment = core.clock.now()
     candidates = users.find_by_login(cur, login)
-    for name in rules.login_names(login, candidates):
-        rules.login_attempts_left(cur, name, address, moment)
+    rules.login_attempts_left(cur, login, address, moment, candidates)
     matched = [user for user in candidates if rules.matches(user["sifre_hash"], password)]
     if len(matched) > 1:
         raise ApiError(rules.AMBIGUOUS, 409, "BELIRSIZ")
@@ -251,7 +250,7 @@ def _current(cur: Cursor, admin_id: int) -> dict[str, Any]:
 
 def _check_password(cur: Cursor, admin: dict[str, Any], password: Any, address: str,
                     moment: datetime) -> ApiError | None:
-    rules.login_attempts_left(cur, admin["giris"], address, moment)
+    rules.login_attempts_left(cur, admin["giris"], address, moment, [admin])
     if isinstance(password, str) and 0 < len(password) <= 256 and rules.matches(admin["sifre_hash"], password):
         return None
     rules.login_failed(cur, admin["giris"], address, moment)
@@ -286,7 +285,7 @@ def confirm_two_factor(core, cur: Cursor, admin_id: int, session_id: str, code: 
     secret = totp.unseal(core.keys, admin_id, pending.get("totp_bekleyen"))
     if secret is None or pending["totp_bekleyen_bitis"] <= moment:
         raise ApiError("Kurulumun süresi doldu. İki adımlı doğrulamayı yeniden başlatın.", 409, "KURULUM_YOK")
-    rules.login_attempts_left(cur, admin["giris"], address, moment)
+    rules.login_attempts_left(cur, admin["giris"], address, moment, [admin])
     step = totp.matching_step(secret, code, moment)
     if step is None:
         rules.login_failed(cur, admin["giris"], address, moment)

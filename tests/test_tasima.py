@@ -19,6 +19,7 @@ from psycopg.rows import dict_row
 from test_accounts import login, studio_agents, studio_license
 
 from peyrev import migrate, users
+from peyrev.accounts import admin as accounts_admin
 from peyrev.clock import TR
 from peyrev.db import Database
 from peyrev.tasima import plan as rules
@@ -498,7 +499,8 @@ def test_a_second_real_run_needs_the_explicit_option_and_keeps_the_areas(core, s
     refused = transfer(core, source)
     assert refused.error.startswith("Gerçek taşıma bu veritabanında daha önce yapılmış (6 taşınmış hesap); hiçbir şey "
                                     "yazılmadı.")
-    assert "--yeniden" in refused.error and not refused.ok and not refused.committed and refused.plan is None
+    assert "--yeniden" in refused.error and target.REVERTED in refused.error
+    assert not refused.ok and not refused.committed and refused.plan is None
     assert snapshot(core.db) == before
     assert "SONUÇ: BAŞARISIZ (gercek, hata); gerçek veritabanında hiçbir değişiklik kalmadı" in report.render(refused)
     # Meanwhile the account moves to another firm in orkestrai: its area (Studio's firma_id) stays the first one.
@@ -511,6 +513,30 @@ def test_a_second_real_run_needs_the_explicit_option_and_keeps_the_areas(core, s
     assert (account["sifre_hash"], account["alan_id"]) == (password_hash("Eski12345"), 2)
     modules = {(row["kullanici_id"], row["modul"]): row["bitis"] for row in rows(core.db, "kullanici_modulleri")}
     assert modules[(4, RPA)] == date(2026, 11, 15) and modules[(4, AGENTS)] == date(2026, 12, 31)
+
+
+def test_a_rerun_keeps_the_decisions_peyrev_made_on_migrated_applications(core, source):
+    company(source)
+    first, second = hex_id("basvuru", "ilk"), hex_id("basvuru", "ikinci")
+    for application, email, day in ((first, "aday1@ornek.test", 15), (second, "aday2@ornek.test", 16)):
+        source.add("SYS_RpaBasvurulari", BasvuruID=application, Eposta=email, SifreHash=password_hash("Aday12345"),
+                   Olusturma=datetime(2026, 9, day, 10, 0))
+    assert transfer(core, source).ok
+    opened = accounts_admin.approve_application(core, 1, first, bitis="2027-01-31")
+    accounts_admin.reject_application(core, 1, second, note="Ödeme gelmedi")
+    before = keyed(rows(core.db, "basvurular"))
+    outcome = transfer(core, source, again=True)
+    assert outcome.ok and outcome.committed, report.render(outcome)
+    after = keyed(rows(core.db, "basvurular"))
+    assert after == before                      # row versions included: neither decision was rewritten
+    assert (after[first]["durum"], after[first]["kullanici_id"], after[first]["sifre_hash"]) == (
+        "onaylandi", opened["kullanici_id"], "")
+    assert (after[second]["durum"], after[second]["sifre_hash"]) == ("reddedildi", "")
+    assert outcome.plan.tables["basvurular"].skipped == {rules.PEYREV_DECIDED: 2}
+    text = report.render(outcome)
+    assert text.startswith("Peyrev taşıması (orkestrai → Peyrev): kip gercek (yeniden), hedef veritabanı peyrev_test")
+    audit = execute(core.db, "SELECT ayrinti FROM yonetim_olaylari WHERE tur = 'tasima' ORDER BY id")
+    assert [row["ayrinti"]["yeniden"] for row in audit] == [False, True]
 
 
 def test_rows_born_in_peyrev_are_never_touched(core, source):

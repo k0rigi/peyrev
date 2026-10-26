@@ -2,7 +2,8 @@
 
 Studio hesap adresini lisans adresinden türetir (…/rpa/lisans → …/rpa/hesap). Her etkin hesapta çalışır; lisans aranmaz.
 Yeni şifre hesabın şifre izini değiştirir: Studio yenileme, ajan ve destek belirteçleri bir sonraki kullanımda geçersizdir
-(oturum satırı kapatılmaz). Hatalı denemeler hesap ve adres başına sayılır (rules.password_attempts_left).
+(oturum satırı kapatılmaz). Hatalı denemeler girişteki ad kuralıyla hesap ve adres başına sayılır
+(rules.password_attempts_left); yanlış mevcut şifrede, ad bulunsun ya da bulunmasın, girişteki kadar özet denetlenir.
 """
 
 from __future__ import annotations
@@ -21,12 +22,14 @@ from . import rules
 
 def _change(core, cur: Cursor, login: str, current: str, new: Any, address: str) -> ApiError | None:
     moment = core.clock.now()
-    rules.password_attempts_left(cur, login, address, moment)
-    matched = [user for user in users.find_by_login(cur, login) if rules.matches(user["sifre_hash"], current)]
+    candidates = users.find_by_login(cur, login)
+    rules.password_attempts_left(cur, login, address, moment, candidates)
+    matched = [user for user in candidates if rules.matches(user["sifre_hash"], current)]
     if len(matched) > 1:
         raise ApiError(rules.AMBIGUOUS, 409, "BELIRSIZ")
     if not matched:
-        rules.password_failed(cur, login, address, moment)
+        rules.equalize([user["sifre_hash"] for user in candidates], current)
+        rules.password_failed(cur, rules.failed_name(login, candidates), address, moment)
         return ApiError("Kullanıcı adı veya mevcut şifre hatalı.", 401, "HATALI_GIRIS")
     user = matched[0]
     # Checked only now: a wrong current password with a weak new one answers 401, not 400.
@@ -40,17 +43,16 @@ def _change(core, cur: Cursor, login: str, current: str, new: Any, address: str)
 
 def _reset(core, cur: Cursor, login: str, code: str, password: str, address: str) -> ApiError | None:
     moment = core.clock.now()
-    rules.password_attempts_left(cur, login, address, moment)
     found = users.find_by_login(cur, login)
-    matched = None
+    rules.password_attempts_left(cur, login, address, moment, found)
     # Only a single account can take a code: no account or several accounts count as a wrong code (401, not 409).
-    if len(found) == 1:
-        cur.execute("SELECT id, kod_ozeti FROM sifre_kodlari WHERE kullanici_id = %s AND kullanildi IS NULL "
-                    "AND gecerlilik > %s FOR UPDATE", (found[0]["id"], moment))
-        matched = next((row for row in cur.fetchall()
-                        if hmac.compare_digest(row["kod_ozeti"], rules.code_digest(code, row["id"]))), None)
+    # The code query runs either way (for no account when the name is not a single account's).
+    cur.execute("SELECT id, kod_ozeti FROM sifre_kodlari WHERE kullanici_id = %s AND kullanildi IS NULL "
+                "AND gecerlilik > %s FOR UPDATE", (found[0]["id"] if len(found) == 1 else 0, moment))
+    matched = next((row for row in cur.fetchall()
+                    if hmac.compare_digest(row["kod_ozeti"], rules.code_digest(code, row["id"]))), None)
     if matched is None:
-        rules.password_failed(cur, login, address, moment)
+        rules.password_failed(cur, rules.failed_name(login, found), address, moment)
         return ApiError("Kullanıcı adı veya şifre kodu hatalı ya da kodun süresi dolmuş.", 401, "KOD_HATALI")
     user_id = found[0]["id"]
     cur.execute("UPDATE kullanicilar SET sifre_hash = %s, guncelleme = %s WHERE id = %s",

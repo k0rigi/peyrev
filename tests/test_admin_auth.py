@@ -177,7 +177,7 @@ def test_an_unknown_name_checks_as_many_hashes_as_a_wrong_password(client, core,
     for name in ("yok@peyrev.test", "yonetici"):
         checked.clear()
         assert sign_in(client, name, "Yanlis12345").status_code == 401
-        assert sorted(checked) == sorted(rules.HASH_METHODS), name
+        assert sorted(checked) == sorted(rules.hash_methods()), name
 
 
 def test_failed_sign_ins_are_limited_per_address(app, client, core, manager):

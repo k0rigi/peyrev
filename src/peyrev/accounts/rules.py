@@ -5,10 +5,11 @@ gösterir. Doğrulama hataları 400 GECERSIZ'dir.
 
 Deneme sınırları iki ayrı sayaçtır (orkestrai'deki gibi), ikisinde de 15 dakikada hesap başına 10, adres başına 30 hatalı
 deneme; sınıra şifre denetiminden önce bakılır, yani sınırdaki doğru şifre de 429 alır:
-- giris_denemeleri: Studio lisans girişi ve yönetim paneli; giriş adı (büyük/küçük harf duyarsız) ve adres sayılır.
-  Sınıra hem yazılan ada hem eşleşen hesapların asıl giriş adına bakılır, tek hesaba inen hatalı deneme asıl adla
-  yazılır: kısa ad ile e-postanın tamamı arasında geçmek yeni deneme hakkı vermez.
+- giris_denemeleri: Studio lisans girişi ve yönetim paneli.
 - hesap_izleri: şifre değiştirme ve şifre kodu ("sifre"), başvurular ("basvuru").
+Hesap sayacı yazılan ada ve eşleşen her hesap için o hesabın asıl giriş adıyla ya da @ öncesiyle yazılmış hatalı
+denemelerin toplamına bakar; tek hesaba inen hatalı deneme asıl adla yazılır, adlar veritabanında küçük harfe indirilir
+(find_by_login gibi). Kısa ad, e-postanın tamamı ve büyük/küçük harf yazımları arasında geçmek yeni deneme hakkı vermez.
 """
 
 from __future__ import annotations
@@ -40,8 +41,8 @@ KEEP_LOGIN_ATTEMPTS = timedelta(days=1)
 KEEP_TRACES = timedelta(days=2)
 TOO_MANY_ATTEMPTS = "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin."
 AMBIGUOUS = "Bu kullanıcı adı birden fazla hesapla eşleşiyor. E-posta adresinizin tamamını yazın."
-# Peyrev'in özetleri (Werkzeug varsayılanı) ve orkestrai'den taşınanlar; denetim süreleri farklıdır.
-HASH_METHODS = ("scrypt:32768:8:1", "pbkdf2:sha256:260000")
+# orkestrai'den taşınan özetlerin biçimi (Werkzeug 2.0); Peyrev'in kendi özetleri Werkzeug'un varsayılanıdır.
+MIGRATED_METHOD = "pbkdf2:sha256:260000"
 
 
 def text(value: object, label: str, minimum: int, maximum: int) -> str:
@@ -99,22 +100,32 @@ def matches(password_hash: str | None, candidate: str) -> bool:
 
 
 @functools.cache
-def _decoy(method: str) -> str:
-    return generate_password_hash(secrets.token_urlsafe(16), method=method)
+def _decoys() -> dict[str, str]:
+    """Özet biçimi → sahte özet: Werkzeug'un varsayılanı (bir sürüm yükseltmesi değiştirse de) ve taşınan biçim."""
+    made = (generate_password_hash(secrets.token_urlsafe(16)),
+            generate_password_hash(secrets.token_urlsafe(16), method=MIGRATED_METHOD))
+    return {value.split("$", 1)[0]: value for value in made}
+
+
+def hash_methods() -> tuple[str, ...]:
+    """Denetim süresi eşitlenen özet biçimleri; ilki yeni özetlerinki."""
+    return tuple(_decoys())
 
 
 def equalize(checked: Iterable[str | None], candidate: str) -> None:
     """Eşleşmeyen girişin süresi hesabın varlığını ve özetinin biçimini belli etmesin: bu denemede denetlenmemiş her
-    özet biçimi için bir sahte özet denetlenir. Yanlış şifre, bilinmeyen ad ve bekleyen başvuru aynı sürede yanıtlanır."""
+    özet biçimi için bir sahte özet denetlenir. Bilinmeyen ad, tek hesaba ya da tek bekleyen başvuruya uyan ad aynı
+    sayıda özet denetler; birden çok hesaba (ya da hesap ve başvuruya) uyan kısa ad her fazla eşleşme için bir tane daha."""
     seen = {(value or "").split("$", 1)[0] for value in checked}
-    for method in HASH_METHODS:
+    for method, decoy in _decoys().items():
         if method not in seen:
-            matches(_decoy(method), candidate)
+            matches(decoy, candidate)
 
 
-def login_names(login: str, accounts: Iterable[dict]) -> list[str]:
-    """Deneme sınırına bakılan adlar: yazılan ad ve eşleşen hesapların asıl giriş adları."""
-    return list(dict.fromkeys([login] + [account["giris"] for account in accounts]))
+def _account_names(accounts: Iterable[dict]) -> list[list[str]]:
+    """Her hesap için o hesaba sayılan adlar: asıl giriş adı ve @ öncesi (saklandıkları gibi kırpılmış)."""
+    return [list(dict.fromkeys([account["giris"][:150], account["giris"].split("@", 1)[0][:150]]))
+            for account in accounts]
 
 
 def failed_name(login: str, accounts: list[dict]) -> str:
@@ -142,11 +153,20 @@ def stamp(value: datetime | None) -> str | None:
     return value.astimezone(TR).strftime("%Y-%m-%d %H:%M") if value is not None else None
 
 
-def login_attempts_left(cur: Cursor, login: str, address: str, moment: datetime) -> None:
+def login_attempts_left(cur: Cursor, login: str, address: str, moment: datetime, accounts: Iterable[dict] = ()) -> None:
+    """`accounts`: yazılan adla eşleşen hesaplar (find_by_login); her biri için kendi toplamına bakılır."""
+    since = moment - ATTEMPT_WINDOW
     cur.execute("SELECT count(*) FILTER (WHERE lower(giris) = lower(%s)) AS hesap, count(*) FILTER (WHERE ip = %s) AS adres"
-                " FROM giris_denemeleri WHERE zaman > %s", (login[:150], address, moment - ATTEMPT_WINDOW))
+                " FROM giris_denemeleri WHERE zaman > %s", (login[:150], address, since))
     row = cur.fetchone()
-    if row["hesap"] >= ATTEMPTS_PER_ACCOUNT or row["adres"] >= ATTEMPTS_PER_ADDRESS:
+    exhausted = row["hesap"] >= ATTEMPTS_PER_ACCOUNT or row["adres"] >= ATTEMPTS_PER_ADDRESS
+    for names in _account_names(accounts):
+        if exhausted:
+            break
+        cur.execute("SELECT count(*) AS n FROM giris_denemeleri WHERE zaman > %s "
+                    "AND lower(giris) IN (SELECT lower(name) FROM unnest(%s::text[]) AS name)", (since, names))
+        exhausted = cur.fetchone()["n"] >= ATTEMPTS_PER_ACCOUNT
+    if exhausted:
         raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
 
 
@@ -169,15 +189,22 @@ def forget_old_traces(cur: Cursor, moment: datetime) -> None:
     cur.execute("DELETE FROM hesap_izleri WHERE zaman < %s", (moment - KEEP_TRACES,))
 
 
-def password_attempts_left(cur: Cursor, account: str, address: str, moment: datetime) -> None:
-    """Şifre değiştirme ve şifre kodu aynı sayacı paylaşır (anahtarda giriş adı küçük harfe indirilir)."""
+def password_attempts_left(cur: Cursor, login: str, address: str, moment: datetime,
+                           accounts: Iterable[dict] = ()) -> None:
+    """Şifre değiştirme ve şifre kodu aynı sayacı paylaşır; ad kuralı girişteki gibidir (login_attempts_left)."""
     since = moment - ATTEMPT_WINDOW
-    if (count(cur, "sifre", "hesap:" + account.lower(), since) >= ATTEMPTS_PER_ACCOUNT
-            or count(cur, "sifre", "adres:" + address, since) >= ATTEMPTS_PER_ADDRESS):
+    for names in [[login[:150]]] + _account_names(accounts):
+        cur.execute("SELECT count(*) AS n FROM hesap_izleri WHERE tur = 'sifre' AND zaman > %s "
+                    "AND anahtar IN (SELECT 'hesap:' || lower(name) FROM unnest(%s::text[]) AS name)", (since, names))
+        if cur.fetchone()["n"] >= ATTEMPTS_PER_ACCOUNT:
+            raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
+    if count(cur, "sifre", "adres:" + address, since) >= ATTEMPTS_PER_ADDRESS:
         raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
 
 
 def password_failed(cur: Cursor, account: str, address: str, moment: datetime) -> None:
-    trace(cur, "sifre", "hesap:" + account.lower(), moment)
+    # Lowered by the database like the lookups ('İ' becomes 'i' there; Python's lower() gives 'i̇').
+    cur.execute("INSERT INTO hesap_izleri (tur, anahtar, zaman) VALUES ('sifre', 'hesap:' || lower(%s), %s)",
+                (account[:150], moment))
     trace(cur, "sifre", "adres:" + address, moment)
     forget_old_traces(cur, moment)

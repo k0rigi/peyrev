@@ -171,8 +171,7 @@ def _login(core, cur: Cursor, data: dict, login: str, password: str, device: str
     moment = core.clock.now()
     # The same user name may belong to several accounts (ali@a.test, ali@b.test): the password picks one.
     candidates = users.find_by_login(cur, login)
-    for name in rules.login_names(login, candidates):
-        rules.login_attempts_left(cur, name, address, moment)
+    rules.login_attempts_left(cur, login, address, moment, candidates)
     matched = [user for user in candidates if rules.matches(user["sifre_hash"], password)]
     if len(matched) > 1:
         raise ApiError(rules.AMBIGUOUS, 409, "BELIRSIZ")

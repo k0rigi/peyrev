@@ -6,15 +6,16 @@
   (ON CONFLICT ... DO UPDATE, yalnız bir değer değiştiyse). Hedefte taşınmış hesap varsa (gerçek taşıma daha önce
   yapılmışsa) `again` verilmedikçe hiçbir şey yazılmaz. Peyrev'de doğan satırlara dokunulmaz: kimliği, giriş adı,
   talep numarası ya da (aynı sahipte) ofis adı hedefteki başka bir kayıtla çakışan kaynak kaydı yazılmaz ve sorun
-  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma ve
+  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru ve Peyrev'de karara bağlanmış
+  (onay ya da ret) taşınmış başvuru atlanır. Okuma, yazma ve
   doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır. Kimlik dizileri
   (setval geri alınamaz) yalnız doğrulama tuttuysa ilerletilir.
 
 Yeniden çalıştırma (again): aynı kaynakla hedefte hiçbir satır değişmez. Daha önce taşınmış hesap kaynakta hakkını
-yitirse de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış hesapta Peyrev'de değişen alanlar (şifre,
-modül hakları ve süreleri, ofis adı, talep durumu) kaynağın değerine döner; bu yüzden yeniden çalıştırma açıkça
-istenir. Hesabın alan_id'si ilk taşımadaki değerinde kalır (Studio yerel ajan verisini onunla bölümler). Kaynakta silinen
-kayıtlar (talep, mesaj, ofis, görev) hedeften silinmez: hangisinin Peyrev'de doğduğu ayırt edilemez.
+yitirse de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış kayıtlarda kaynaktan gelen her alan
+kaynağın değerine döner (REVERTED); bu yüzden yeniden çalıştırma açıkça istenir. Hesabın alan_id'si ilk taşımadaki
+değerinde kalır (Studio yerel ajan verisini onunla bölümler); Peyrev'de karara bağlanan başvurular korunur. Kaynakta
+silinen kayıtlar (talep, mesaj, ofis, görev) hedeften silinmez: hangisinin Peyrev'de doğduğu ayırt edilemez.
 
 Doğrulama yazılan her satırı hedeften geri okuyup planla karşılaştırır; planın yazmadığı bütün satırların (Peyrev'de
 doğanlar) yazmadan önceki ve sonraki özetlerini karşılaştırır; şifre özetlerinin SHA-256 toplamını, ofis kimliklerini,
@@ -39,7 +40,7 @@ from .. import migrate, users
 from ..accounts.applications import PENDING
 from ..agents.entitlement import MAX_OFFICES
 from ..db import Database
-from .plan import CONFLICT, MODULES, PEYREV_PENDING, TARGETS, Plan, build, label
+from .plan import CONFLICT, MODULES, PEYREV_DECIDED, PEYREV_PENDING, TARGETS, Plan, build, label
 
 PROVA, GERCEK = "prova", "gercek"
 MODES = (PROVA, GERCEK)
@@ -74,6 +75,12 @@ ROW_TEXT = {"destek_ekleri": "(t.id, t.talep_no, t.tur, t.ad, t.bicim, t.boyut, 
 SPARE_LOGIN = "'tasima.' || k.id || '@gecici.invalid'"
 
 
+# Yeniden çalıştırmanın taşınmış kayıtlarda kaynağın değerine döndürdükleri (ret metni ve README aynı listeyi verir).
+REVERTED = ("hesap durumu (Peyrev'de pasif yapılan hesap yeniden aktif olur) ve rolü, ad soyad, şifre, modül hakları ve "
+            "süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu, görev ve onay durumları (sürüm "
+            "geriler), talep durumu")
+
+
 class TargetError(Exception):
     """Hedef hazır değil ya da kullanılamıyor. Metin adres, değer ya da satır içeriği taşımaz."""
 
@@ -97,6 +104,7 @@ class Sequence:
 class Outcome:
     mode: str
     now: datetime
+    again: bool = False
     database: str = ""
     plan: Plan | None = None
     # Uygun satırlardan hedefte birebir aynı olanlar ve hedef tablodaki bütün satırlar.
@@ -128,7 +136,7 @@ def run(url: str, mode: str, tables: dict[str, list[dict[str, Any]]], now: datet
     `again`: gerçek kipte, hedefte taşınmış hesaplar varken de çalışır (taşınmış hesapları kaynakla yeniden eşitler)."""
     if mode not in MODES:
         raise ValueError("kip prova ya da gercek olmalı")
-    outcome = Outcome(mode=mode, now=now)
+    outcome = Outcome(mode=mode, now=now, again=again)
     try:
         with psycopg.connect(url, autocommit=True, row_factory=dict_row) as connection:
             connection.execute("SET TIME ZONE 'UTC'")
@@ -202,9 +210,9 @@ def _require_first_run(cur: psycopg.Cursor) -> None:
     migrated = cur.fetchone()["n"]
     if migrated:
         raise TargetError(f"Gerçek taşıma bu veritabanında daha önce yapılmış ({migrated} taşınmış hesap); hiçbir şey "
-                          "yazılmadı. Yeniden çalıştırmak taşınmış hesaplarda Peyrev'de yapılan değişiklikleri (şifre, "
-                          "modül hakları, ofis adı, talep durumu) kaynaktaki değerlere döndürür; bilerek yapılıyorsa "
-                          "--yeniden ile (Sunucu işleri → tasima-gercek-yeniden) çalıştırın.")
+                          "yazılmadı. Yeniden çalıştırmak taşınmış kayıtlarda Peyrev'de yapılan değişiklikleri kaynaktaki "
+                          f"değerlere döndürür: {REVERTED}. Bilerek yapılıyorsa --yeniden ile (Sunucu işleri → "
+                          "tasima-gercek-yeniden) çalıştırın.")
 
 
 # --- Plan ve çakışmalar ------------------------------------------------------------------------------------------
@@ -253,6 +261,14 @@ def _conflicts(cur: psycopg.Cursor, plan: Plan) -> dict[tuple[str, Any], tuple[s
                     "(büyük/küçük harf duyarsız).")
             found.setdefault(("kullanicilar", row["id"]), (CONFLICT, text))
     applications = plan.tables["basvurular"].rows
+    if applications:
+        # A migrated application decided in Peyrev, or linked to an account opened there, keeps Peyrev's state.
+        cur.execute("SELECT b.id, b.durum, k.kaynak FROM basvurular b LEFT JOIN kullanicilar k ON k.id = b.kullanici_id "
+                    "WHERE b.id = ANY(%s::text[]) ORDER BY b.id", (list(applications),))
+        for row in cur.fetchall():
+            decided_here = row["durum"] != PENDING and applications[row["id"]]["durum"] == PENDING
+            if decided_here or (row["kaynak"] is not None and row["kaynak"] != ORKESTRAI):
+                found[("basvurular", row["id"])] = (PEYREV_DECIDED, None)
     waiting = [key for key, values in applications.items() if values["durum"] == PENDING]
     if waiting:
         cur.execute("SELECT p.id FROM unnest(%s::text[], %s::text[]) AS p(id, eposta) WHERE EXISTS (SELECT 1 FROM "
@@ -434,8 +450,8 @@ def _audit(cur: psycopg.Cursor, outcome: Outcome) -> None:
     counts = {table: {"kaynak": rows.source, "uygun": len(rows.rows), "hedef": outcome.matched.get(table, 0),
                       "atlanan": sum(rows.skipped.values())} for table, rows in plan.tables.items()}
     cur.execute("INSERT INTO yonetim_olaylari (yonetici_id, tur, hedef, ayrinti, zaman) VALUES (NULL, 'tasima', %s, %s, %s)",
-                (outcome.mode, Jsonb({"sonuc": "basarili" if outcome.ok else "basarisiz", "tablolar": counts,
-                                      "pasif_yapilan": len(plan.gone)}), plan.now))
+                (outcome.mode, Jsonb({"sonuc": "basarili" if outcome.ok else "basarisiz", "yeniden": outcome.again,
+                                      "tablolar": counts, "pasif_yapilan": len(plan.gone)}), plan.now))
 
 
 # --- Doğrulama ---------------------------------------------------------------------------------------------------

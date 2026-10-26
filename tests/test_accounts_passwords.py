@@ -7,7 +7,7 @@ from test_accounts import login, renew
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from peyrev import users
-from peyrev.accounts import admin
+from peyrev.accounts import admin, rules
 
 
 def change(client, current, new="Yepyeni2027", user="calisan"):
@@ -42,7 +42,8 @@ def test_password_change_needs_the_current_password(client, core):
     make_user(core, "calisan@baska.test", password="Yepyeni2027")
     ambiguous = change(client, "Yepyeni2027", "Sonraki2028")
     assert ambiguous.status_code == 409 and ambiguous.get_json()["kod"] == "BELIRSIZ"
-    for _ in range(9):
+    # The two failures through the short name counted for this account too: eight more reach the limit of ten.
+    for _ in range(7):
         change(client, "Yanlis123", user="calisan@firma.test")
     assert change(client, "Yanlis123", user="calisan@firma.test").status_code == 401  # the tenth failure
     blocked = change(client, "Yepyeni2027", "Sonraki2028", user="calisan@firma.test")
@@ -163,6 +164,46 @@ def test_code_guessing_stops_after_ten_failures_and_shares_the_counter_with_pass
                                                           "yeni_sifre": "Sonraki2028"},
                             headers={"X-Forwarded-For": "10.0.0.7"})
     assert elsewhere.status_code == 200
+
+
+def test_a_wrong_current_password_checks_as_many_hashes_as_a_sign_in(client, core, monkeypatch):
+    """Oturumsuz şifre değiştirme de hesabın varlığını ya da özetinin biçimini yanıt süresinden belli etmez."""
+    make_user(core, "yeni@ornek.test")
+    old = make_user(core, "eski@ornek.test")
+    with core.db.transaction() as cur:
+        cur.execute("UPDATE kullanicilar SET sifre_hash = %s WHERE id = %s",
+                    (generate_password_hash("Eski12345", method="pbkdf2:sha256:260000"), old["id"]))
+    checked = []
+    original = rules.matches
+
+    def spy(password_hash, candidate):
+        checked.append((password_hash or "").split("$", 1)[0])
+        return original(password_hash, candidate)
+
+    monkeypatch.setattr(rules, "matches", spy)
+    for name in ("yok", "yok@ornek.test", "yeni", "eski@ornek.test"):
+        checked.clear()
+        assert change(client, "Yanlis123", "kisa", user=name).get_json()["kod"] == "HATALI_GIRIS", name
+        assert sorted(checked) == sorted(rules.hash_methods()), name
+
+
+def test_password_attempts_count_per_account_whatever_the_spelling(client, core):
+    """Şifre değiştirme ve şifre kodu: kısa ad, e-postanın tamamı ve İ/I yazımları aynı hesabın tek sayacıdır."""
+    ali = make_user(core, "ali@x.test", password="Dogru12345")
+    with core.db.transaction() as cur:
+        assert [row["id"] for row in users.find_by_login(cur, "ALİ@X.TEST")] == [ali["id"]]  # lowered by the database
+    for index, name in enumerate(["ali@x.test", "ali", "ALİ@X.TEST", "ALİ"] * 2 + ["Ali", "ALI@X.TEST"]):
+        headers = {"X-Forwarded-For": f"10.0.5.{index}"}
+        wrong = client.post("/api/rpa/hesap/sifre", json={"kullanici": name, "sifre": "Yanlis123", "yeni_sifre": "x"},
+                            headers=headers)
+        assert wrong.status_code == 401, name
+    for name in ("ali", "ALİ", "ali@x.test"):
+        blocked = reset(client, name, "AAAA-BBBB-CCCC")
+        assert blocked.status_code == 429 and blocked.get_json()["kod"] == "COK_DENEME", name
+        assert change(client, "Dogru12345", user=name).status_code == 429, name
+    with core.db.transaction() as cur:
+        cur.execute("SELECT DISTINCT anahtar FROM hesap_izleri WHERE anahtar LIKE 'hesap:%'")
+        assert [row["anahtar"] for row in cur.fetchall()] == ["hesap:ali@x.test"]
 
 
 def test_password_errors_never_carry_database_details(client, core, monkeypatch):

@@ -23,11 +23,13 @@ modül hakları, şifre kodu, Studio oturumları, ajan ofisleri), Başvurular, D
 satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
 
 - **Giriş:** yalnız durumu `aktif`, rolü `yonetici` olan hesap girer. Giriş adı ve şifre Studio'yla aynıdır, hatalı
-  deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). Hesap sayacı hesabın asıl giriş adına
-  bakar: kısa ad ile e-postanın tamamı arasında geçmek yeni deneme hakkı vermez. Hatalı girişte, ad bulunsun ya da
-  bulunmasın, aynı sayıda şifre özeti denetlenir; yanıt süresi hesabın varlığını belli etmez. İlk yönetici taşımayla
-  gelen orkestrai `Admin` hesabıdır (rolü `yonetici` olur, şifresi aynen taşınır); başka yönetici panelde rol verilerek
-  açılır. Yönetici kendi hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
+  deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). Hesap sayacı, hesabın asıl giriş adıyla ya
+  da @ öncesiyle yapılan hatalı denemeleri toplar: kısa ad, e-postanın tamamı ve büyük/küçük harf yazımları arasında
+  geçmek yeni deneme hakkı vermez (Studio'nun şifre değiştirme ve şifre kodu uçlarında da). Hatalı girişte bilinmeyen
+  ad ile tek hesaba uyan ad aynı sayıda şifre özeti denetler, yanıt süresi hesabın varlığını belli etmez; birden çok
+  hesaba uyan kısa ad her fazla hesap için bir özet daha denetler. İlk yönetici taşımayla gelen orkestrai `Admin`
+  hesabıdır (rolü `yonetici` olur, şifresi aynen taşınır); başka yönetici panelde rol verilerek açılır. Yönetici kendi
+  hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
 - **İki adımlı doğrulama:** isteğe bağlıdır ve Hesabım'dan açılır (TOTP; Google Authenticator, Microsoft Authenticator
   gibi uygulamalar). Açıkken girişte 6 haneli kod istenir ve her kod bir kez geçer. Kodunu kaybeden yöneticinin
   doğrulamasını başka bir yönetici, kullanıcı ayrıntısından sıfırlar.
@@ -95,8 +97,9 @@ python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar /home/orkestrai.net
 - Hedef `/etc/peyrev/db.env`'dendir. `prova`: `PROVA_DATABASE_URL`, public şeması silinip geçişlerle baştan kurulur;
   doğrulama tutmasa da yazılanlar incelemek için kalır. Adı gerçek veritabanınınkiyle aynıysa prova çalışmaz.
   `gercek`: `DATABASE_URL`; yalnız `kaynak='orkestrai'` hesapları ve kayıtları eklenir ya da kaynakla eşitlenir
-  (değeri değişmeyen satır yeniden yazılmaz). Peyrev'de açılan hesaplara ve onların kayıtlarına dokunulmaz; taşınmış
-  hesaplar ise kaynakla eşitlenir (aşağıda). Hedefte taşınmış hesap varsa gerçek kip yalnız `--yeniden` ile
+  (değeri değişmeyen satır yeniden yazılmaz). Peyrev'de açılan hesaplara ve onların kayıtlarına (Peyrev'de karara
+  bağlanan taşınmış başvurular dahil) dokunulmaz; taşınmış kayıtlar ise kaynakla eşitlenir (aşağıda). Hedefte taşınmış
+  hesap varsa gerçek kip yalnız `--yeniden` ile
   (`tasima-gercek-yeniden`) çalışır, yoksa hiçbir şey yazmadan durur. Okuma, yazma ve doğrulama tek işlemdir; bir
   sorun ya da uyuşmazlıkta hepsi geri alınır, kimlik dizileri de ilerletilmez.
 - Çıkış: `0` bütün denetimler tuttu, `1` sorun, uyuşmazlık ya da hata, `2` komut satırı hatası.
@@ -105,7 +108,7 @@ python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar /home/orkestrai.net
 | --- | --- | --- |
 | `kullanicilar` | `SYS_Kullanicilar` | MOD_RPA ya da MOD_AJAN satırı olan ya da rolü Admin olan hesaplar. Kimlik, giriş adı (Eposta) ve Werkzeug şifre özeti aynen; Admin → `yonetici`, diğerleri (firma yöneticisi Yonetici dahil) → `kullanici`; `alan_id` = FirmaID |
 | `kullanici_modulleri` | `SYS_KullaniciModulleri` | Hesabın ve firmasının aynı modül satırı gerekir; bitiş ikisinin erkeni (boş: süresiz), başlangıç firmanınki. Pasif firmanın ya da ajan kaydı kapalı firmanın MOD_AJAN'ı taşınmaz; orkestrai'nin RPA kuralı firmanın durumuna bakmadığından MOD_RPA taşınır |
-| `basvurular` | `SYS_RpaBasvurulari` | Hepsi; aynı e-postalı bekleyenlerden en eskisi. Karar verilmiş başvurunun şifre özeti boş yazılır |
+| `basvurular` | `SYS_RpaBasvurulari` | Hepsi; aynı e-postalı bekleyenlerden en eskisi. Karar verilmiş başvurunun şifre özeti boş yazılır; Peyrev'de karara bağlanan taşınmış başvuru yeniden çalıştırmada korunur |
 | `destek_*` | `SYS_RpaTalep*` | Hesabı taşınanların talepleri numarasıyla; mesaj ve ekler (baytı baytına) talepleriyle |
 | `ajan_ofisleri` | `SYS_AjanOfisleri` | Sahibi YetkiliID; sıra sahibin üyelik zamanından. Diğer üyelikler taşınmaz |
 | `ajan_gorevleri`, `ajan_onaylari`, `ajan_olaylari` | `SYS_AjanEkip*` | Sahibi ofisin yetkilisi (ofis yoksa oluşturan / onaycı); onaylardan yalnız `rejected` ve `consumed`, olaylardan yalnız görev, onay ve ofis olayları |
@@ -129,10 +132,12 @@ Operatör notları:
 - Gerçek taşımadan önce Peyrev'de hesap açılmamalıdır: yeni hesaplar 1'den numaralanır ve orkestrai kimlikleriyle
   çakışır. Çakışan hesap, giriş adı, talep numarası ya da ofis adı sorun olarak yazılır ve taşıma yapılmaz; Peyrev
   tarafı düzeltilip yeniden çalıştırılır.
-- Gerçek taşıma bir kez yapılır. Yeniden çalıştırmak (`tasima-gercek-yeniden`) taşınmış hesapları kaynakla eşitler:
-  Peyrev'de bu hesaplarda yapılan değişiklikler (şifre, modül hakları ve süreleri, ofis adı, talep durumu) kaynağın
-  değerine döner. Hesabın `alan_id`'si (Studio'nun firma kimliği) ilk taşımadaki değerinde kalır. Kaynakta silinen
-  hesap pasif olur, kayıtları kalır.
+- Gerçek taşıma bir kez yapılır. Yeniden çalıştırmak (`tasima-gercek-yeniden`) taşınmış kayıtları kaynakla eşitler;
+  Peyrev'de yapılan değişiklikler kaynağın değerine döner: hesap durumu (Peyrev'de pasif yapılan hesap yeniden aktif
+  olur) ve rolü, ad soyad, şifre, modül hakları ve süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu,
+  görev ve onay durumları (sürüm geriler), talep durumu. Hesabın `alan_id`'si (Studio'nun firma kimliği) ilk
+  taşımadaki değerinde kalır, Peyrev'de karara bağlanan başvurular korunur. Yeniden çalıştırmadan sonra pasif yapılan
+  hesaplar ve yönetici rolleri panelden yeniden denetlenir. Kaynakta silinen hesap pasif olur, kayıtları kalır.
 - Taşınan herkes Studio'da yeniden giriş yapar; açık şifre kodu olan hesaplara (raporda kimlikleriyle) yönetim
   panelinden yeni kod üretilir.
 
