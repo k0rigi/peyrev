@@ -8,13 +8,32 @@ peyrev.com'un merkezi sunucusu. Peyrev Studio (masaüstü akış stüdyosu) şu 
 - ajan ofisleri, görevler, onaylar ve ortak model erişimi,
 - imzalı güncelleme dosyaları ve indirme sayfası (`/indir/`).
 
-Yönetim paneli `/yonetim/` adresindedir.
+Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
 - Python 3.12, Flask 3, Gunicorn, PostgreSQL 16 (psycopg 3).
 - Firma kavramı yoktur: her hesap bir kullanıcıdır. Modül hakları (`MOD_RPA`, `MOD_AJAN`) kullanıcıya bitiş tarihiyle
   verilir; `bitis` boşsa süresizdir ve bitiş günü (Türkiye saati) dahildir.
 - Sırlar (veritabanı şifresi, JWT ve lisans imza anahtarları, bildirim bilgileri) depoya girmez. Sunucuda
   `/etc/peyrev/` altında `root:peyrev 0640` dosyalarda durur ve GitHub Secrets ile yönetilir.
+
+## Yönetim paneli
+
+`https://peyrev.com/yonetim/`; uçları `/api/yonetim/*` (`src/peyrev/admin/`). Bölümler: Özet, Kullanıcılar (hesap açma,
+modül hakları, şifre kodu, Studio oturumları, ajan ofisleri), Başvurular, Destek, Olaylar ve Hesabım. Sayfa da API'den,
+satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
+
+- **Giriş:** yalnız durumu `aktif`, rolü `yonetici` olan hesap girer. Giriş adı ve şifre Studio'yla aynıdır, hatalı
+  deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). İlk yönetici taşımayla gelen orkestrai
+  `Admin` hesabıdır (rolü `yonetici` olur, şifresi aynen taşınır); başka yönetici panelde rol verilerek açılır.
+  Yönetici kendi hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
+- **İki adımlı doğrulama:** isteğe bağlıdır ve Hesabım'dan açılır (TOTP; Google Authenticator, Microsoft Authenticator
+  gibi uygulamalar). Açıkken girişte 6 haneli kod istenir ve her kod bir kez geçer. Kodunu kaybeden yöneticinin
+  doğrulamasını başka bir yönetici, kullanıcı ayrıntısından sıfırlar.
+- **Oturum:** girişten 12 saat sonra ya da 2 saat işlem yapılmazsa biter; yönetici başına en çok 10 oturum açık kalır.
+  Belirteç yalnız `peyrev_yonetim` çerezindedir (HttpOnly, Secure, SameSite=Strict), sunucu özetini saklar. Şifre
+  değişince, hesap pasifleşince ya da yönetici rolü kalkınca oturum kapanır.
+- Durum değiştiren her istek `X-Peyrev-Yonetim: 1` başlığını ve `https://peyrev.com` kökenini taşır (CSRF). Her
+  değişiklik `yonetim_olaylari`'na yazılır ve Olaylar bölümünde görünür; şifre, kod ve yanıt metni yazılmaz.
 
 ## Geliştirme
 

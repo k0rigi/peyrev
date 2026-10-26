@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Peyrev yönetimi</title>
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="stylesheet" href="/yonetim/panel.css">
+<script src="/yonetim/panel.js" defer></script>
+</head>
+<body>
+<p class="boot" id="acilis" role="status">Panel açılıyor…</p>
+
+<main class="login" id="giris" hidden>
+  <div class="login-card">
+    <div class="brand">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="40" height="40">
+      <span class="brand-name">Peyrev</span>
+    </div>
+    <form class="login-form" id="giris-formu" novalidate aria-labelledby="giris-baslik">
+      <h1 id="giris-baslik">Yönetim paneli</h1>
+      <p class="muted">Yalnız platform yöneticileri girebilir.</p>
+      <label class="field">Kullanıcı adı veya e-posta
+        <input name="giris" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="150" required>
+      </label>
+      <label class="field">Şifre
+        <input name="sifre" type="password" autocomplete="current-password" maxlength="256" required>
+      </label>
+      <label class="field" id="kod-alani" hidden>Doğrulama kodu
+        <input name="kod" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+        <span class="hint">Doğrulama uygulamanızdaki 6 haneli kod.</span>
+      </label>
+      <p class="notice notice-error" id="giris-durumu" role="alert" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit">Giriş yap</button>
+      <button class="btn btn-quiet btn-block" type="button" id="kod-ac" aria-controls="sifre-kodu-formu">Şifre kodum var</button>
+    </form>
+    <form class="login-form" id="sifre-kodu-formu" novalidate aria-labelledby="sifre-kodu-baslik" hidden>
+      <h1 id="sifre-kodu-baslik" tabindex="-1">Şifre kodu</h1>
+      <p class="muted">Size verilen tek kullanımlık kodla kendi şifrenizi belirleyin. Kod bir kez kullanılır; şifre
+        değişince açık Peyrev ve panel oturumlarınız kapanır.</p>
+      <label class="field">Kullanıcı adı veya e-posta
+        <input name="kullanici" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="150" required>
+      </label>
+      <label class="field">Şifre kodu
+        <input name="kod" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="32"
+          placeholder="XXXX-XXXX-XXXX" required>
+      </label>
+      <label class="field">Yeni şifre
+        <input name="yeni_sifre" type="password" autocomplete="new-password" maxlength="128" required
+          aria-describedby="sifre-kurali">
+        <span class="hint" id="sifre-kurali">8-128 karakter; en az bir harf ve bir rakam.</span>
+      </label>
+      <label class="field">Yeni şifre (tekrar)
+        <input name="tekrar" type="password" autocomplete="new-password" maxlength="128" required>
+      </label>
+      <p class="notice notice-error" id="sifre-kodu-durumu" role="alert" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit">Şifremi belirle</button>
+      <button class="btn btn-quiet btn-block" type="button" id="kod-kapat">Girişe dön</button>
+    </form>
+  </div>
+</main>
+
+<div class="app" id="uygulama" hidden>
+  <a class="skip" href="#icerik">İçeriğe geç</a>
+  <header class="topbar">
+    <a class="brand" href="#ozet">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="32" height="32">
+      <span class="brand-name">Peyrev</span>
+      <span class="brand-sub">Yönetim</span>
+    </a>
+    <div class="who">
+      <span class="who-name" id="yonetici-adi"></span>
+      <button class="btn btn-quiet" type="button" id="cikis">Çıkış</button>
+    </div>
+  </header>
+  <nav class="sections" aria-label="Bölümler">
+    <a href="#ozet" data-section="ozet">Özet</a>
+    <a href="#kullanicilar" data-section="kullanicilar">Kullanıcılar</a>
+    <a href="#basvurular" data-section="basvurular">Başvurular <span class="badge" id="rozet-basvuru" hidden></span></a>
+    <a href="#destek" data-section="destek">Destek <span class="badge" id="rozet-destek" hidden></span></a>
+    <a href="#olaylar" data-section="olaylar">Olaylar</a>
+    <a href="#hesabim" data-section="hesabim">Hesabım</a>
+  </nav>
+  <main class="content" id="icerik" tabindex="-1"></main>
+  <div class="toast" id="bildirim-alani">
+    <p class="toast-text" id="bildirim" role="status" aria-live="polite"></p>
+    <p class="toast-text" id="uyari" role="alert"></p>
+    <button class="toast-close" type="button" id="bildirim-kapat" aria-label="Bildirimi kapat" hidden>×</button>
+  </div>
+</div>
+
+<noscript><p class="boot">Yönetim paneli için tarayıcınızda JavaScript açık olmalıdır.</p></noscript>
+</body>
+</html>
