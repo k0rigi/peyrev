@@ -48,6 +48,10 @@ ROOT = Path('/home/peyrev.com/public_html/indir')
 BASE_URL = 'https://peyrev.com/indir/'
 LIMIT = 1024**3
 VERSION_PATTERN = r'(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)'
+# Studio 1.1.0 and later read guncelleme.manifest, published with the download page. 1.0.x reads stable.manifest,
+# published alone: it stays with the release that moves those installations to the new names.
+PAGE_FEED = 'guncelleme.manifest'
+FEEDS = ('stable.manifest', PAGE_FEED)
 
 def ensure_root(create=False):
     if ROOT.parent.resolve() != ROOT.parent or ROOT.is_symlink() or ROOT.resolve() != ROOT:
@@ -87,8 +91,8 @@ def manifest_payload(raw):
         raise ValueError('Invalid manifest payload.')
     return payload
 
-def current_version():
-    path = ROOT / 'stable.manifest'
+def current_version(feed=PAGE_FEED):
+    path = ROOT / feed
     if not path.exists():
         return None
     if path.is_symlink() or not path.is_file() or path.stat().st_size > 128 * 1024:
@@ -115,19 +119,21 @@ def inspect_root():
             'readable': os.access(ROOT if ROOT.exists() else ROOT.parent, os.R_OK),
             'writable': os.access(ROOT if ROOT.exists() else ROOT.parent, os.W_OK),
             'current_version': current_version(),
+            'transition_version': current_version('stable.manifest'),
             'versions': published_versions() if ROOT.exists() else [],
             'python_version': '.'.join(str(part) for part in sys.version_info[:3])}
 
 def prune(keep):
     # Older installers stay downloadable by their guessable address, including builds that
-    # predate the license gate. Only the current stable version may be kept.
+    # predate the license gate. Only the versions the current feeds name are kept.
     ensure_root()
-    if not re.fullmatch(VERSION_PATTERN, keep) or current_version() != keep:
-        raise ValueError('Only the current stable version can be kept.')
+    kept = set(version for version in (current_version(feed) for feed in FEEDS) if version)
+    if not re.fullmatch(VERSION_PATTERN, keep) or keep not in kept:
+        raise ValueError('Only a version a current feed names can be kept.')
     package = r'[A-Za-z0-9][A-Za-z0-9._-]{0,199}\.(?:exe|dmg)'
     plan = []
     for name in published_versions():
-        if name == keep:
+        if name in kept:
             continue
         entry = ROOT / 'releases' / name
         if entry.is_symlink() or not entry.is_dir() or not re.fullmatch(VERSION_PATTERN, name):
@@ -142,7 +148,7 @@ def prune(keep):
         for item in files:
             item.unlink()
         entry.rmdir()
-    return {'ok': True, 'action': 'prune', 'kept': keep, 'removed': [entry.name for entry, _ in plan]}
+    return {'ok': True, 'action': 'prune', 'kept': sorted(kept), 'removed': [entry.name for entry, _ in plan]}
 
 def utc_timestamp(value):
     # The publisher emits UTC Z timestamps. strptime also works on Python 3.6,
@@ -165,9 +171,9 @@ def unpack_verified(bundle, staging, version):
         for member in archive:
             name = member.name
             if (not member.isfile() or name in known or len(known) >= 5
-                    or not (name in {'index.html', 'stable.manifest'} or re.fullmatch(pattern, name))):
+                    or not (name == 'index.html' or name in FEEDS or re.fullmatch(pattern, name))):
                 raise ValueError('Archive contains an unexpected member or link.')
-            limit = 128 * 1024 if name == 'stable.manifest' else (256 * 1024 if name == 'index.html' else LIMIT)
+            limit = 128 * 1024 if name in FEEDS else (256 * 1024 if name == 'index.html' else LIMIT)
             total += member.size
             if not 0 < member.size <= limit or total > LIMIT:
                 raise ValueError('Archive exceeds publication size limits.')
@@ -192,9 +198,14 @@ def unpack_verified(bundle, staging, version):
                 raise ValueError('Archive member is incomplete.')
             target.chmod(0o644)
             known[name] = (count, value.hexdigest())
-    if not {'index.html', 'stable.manifest'} <= set(known):
+    feeds = [feed for feed in FEEDS if feed in known]
+    if len(feeds) != 1:
+        raise ValueError('The archive must hold exactly one manifest.')
+    feed = feeds[0]
+    # The download page belongs to the current feed; the transition feed has none.
+    if (feed == PAGE_FEED) != ('index.html' in known):
         raise ValueError('Publication page or manifest is missing.')
-    data = manifest_payload((staging / 'stable.manifest').read_bytes())
+    data = manifest_payload((staging / feed).read_bytes())
     if data.get('schema') != 1 or data.get('channel') != 'stable' or data.get('version') != version:
         raise ValueError('Manifest does not describe the requested stable version.')
     now = datetime.now(timezone.utc)
@@ -208,7 +219,7 @@ def unpack_verified(bundle, staging, version):
     if (not isinstance(assets, dict) or not {'windows-x64', 'macos-arm64'} <= set(assets)
             or set(assets) - set(types)):
         raise ValueError('Required platform packages are missing.')
-    expected = {'index.html', 'stable.manifest'}
+    expected = set(name for name in known if name == 'index.html' or name in FEEDS)
     for platform, asset in assets.items():
         if not isinstance(asset, dict) or asset.get('type') != types[platform]:
             raise ValueError('Unexpected platform package type.')
@@ -224,7 +235,7 @@ def unpack_verified(bundle, staging, version):
         expected.add(relative)
     if set(known) != expected:
         raise ValueError('The archive has files not declared by the manifest.')
-    return known
+    return known, feed
 
 def publish(version, expected_hash, token):
     if (not re.fullmatch(VERSION_PATTERN, version) or not re.fullmatch(r'[0-9a-f]{64}', expected_hash)
@@ -237,12 +248,12 @@ def publish(version, expected_hash, token):
     try:
         if digest(bundle) != expected_hash:
             raise ValueError('Uploaded bundle checksum does not match.')
-        old = current_version()
-        if old and tuple(map(int, version.split('.'))) < tuple(map(int, old.split('.'))):
-            raise ValueError('Publishing an older stable version is not permitted.')
         with tempfile.TemporaryDirectory(prefix='.publish-', dir=ROOT) as temporary:
             staging = Path(temporary)
-            known = unpack_verified(bundle, staging, version)
+            known, feed = unpack_verified(bundle, staging, version)
+            old = current_version(feed)
+            if old and tuple(map(int, version.split('.'))) < tuple(map(int, old.split('.'))):
+                raise ValueError('Publishing an older stable version is not permitted.')
             releases = ROOT / 'releases'
             if releases.is_symlink() or (releases.exists() and not releases.is_dir()):
                 raise ValueError('Existing releases path is not a directory.')
@@ -252,21 +263,27 @@ def publish(version, expected_hash, token):
             source.chmod(0o755)
             expected_names = {Path(name).name for name in known if name.startswith('releases/')}
             if target.exists() or target.is_symlink():
-                if (target.is_symlink() or not target.is_dir()
-                        or {item.name for item in target.iterdir()} != expected_names):
+                # The other feed's bundle of the same version may be there already: a package both carry must be
+                # the same bytes, one only this bundle carries is added. Nothing published is ever replaced.
+                if target.is_symlink() or not target.is_dir():
                     raise ValueError('Existing version is immutable and differs from this publication.')
-                for name in expected_names:
+                for name in sorted(expected_names):
                     existing = target / name
                     info = known['releases/' + version + '/' + name]
-                    if (existing.is_symlink() or not existing.is_file()
-                            or (existing.stat().st_size, digest(existing)) != info):
-                        raise ValueError('Existing version is immutable and differs from this publication.')
+                    if existing.exists() or existing.is_symlink():
+                        if (existing.is_symlink() or not existing.is_file()
+                                or (existing.stat().st_size, digest(existing)) != info):
+                            raise ValueError('Existing version is immutable and differs from this publication.')
+                    else:
+                        os.rename(source / name, existing)
             else:
                 os.rename(source, target)
             # Publish the discoverable feed only after every package is in place.
-            os.replace(staging / 'index.html', ROOT / 'index.html')
-            os.replace(staging / 'stable.manifest', ROOT / 'stable.manifest')
-        return {'ok': True, 'action': 'publish', 'version': version, 'package_count': len(expected_names)}
+            if 'index.html' in known:
+                os.replace(staging / 'index.html', ROOT / 'index.html')
+            os.replace(staging / feed, ROOT / feed)
+        return {'ok': True, 'action': 'publish', 'version': version, 'feed': feed,
+                'package_count': len(expected_names)}
     finally:
         try:
             bundle.unlink()
@@ -359,8 +376,8 @@ def validate_local_bundle(bundle: Path, version: str) -> None:
         raise ValueError("Invalid publication bundle.")
     with tempfile.TemporaryDirectory(prefix="peyrev-verify-") as temporary:
         staging = Path(temporary)
-        namespace["unpack_verified"](bundle, staging, version)
-        envelope = json.loads((staging / "stable.manifest").read_bytes())
+        _, feed = namespace["unpack_verified"](bundle, staging, version)
+        envelope = json.loads((staging / feed).read_bytes())
         signature = base64.b64decode(envelope["signature"], validate=True)
         payload = base64.b64decode(envelope["payload"], validate=True)
         for public in UPDATE_PUBLIC_KEYS:
@@ -443,7 +460,7 @@ def main() -> int:
             print(json.dumps(remote(client, "inspect")))
             return 0
         if action == "prune":
-            # RPA_VERSION is the one version to keep; the server refuses anything but the current stable one.
+            # RPA_VERSION must be a version a current feed names; every version neither feed names is removed.
             print(json.dumps(remote(client, "prune", config["version"])))
             return 0
         with tempfile.TemporaryDirectory(prefix="peyrev-publish-") as folder:

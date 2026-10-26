@@ -55,8 +55,8 @@ def sessions_of(core, user):
         return cur.fetchall()
 
 
-def studio_license(client, response, device=DEVICE, nonce=None):
-    """Studio 1.0.0 licensing.verify_license ve _request ile aynı denetimler; imzalı iddiaları döndürür."""
+def studio_license(client, response, device=DEVICE, nonce=None, product=licensing.EARLIER_PRODUCT):
+    """Studio licensing.verify_license ve _request ile aynı denetimler (varsayılan 1.0.x); imzalı iddiaları döndürür."""
     body = response.get_json()
     assert response.status_code == 200 and body["success"] is True, body
     assert re.fullmatch(r"[A-Za-z0-9_\-.]{20,4096}", body["yenileme"])
@@ -71,7 +71,7 @@ def studio_license(client, response, device=DEVICE, nonce=None):
     key = client.get("/api/rpa/lisans/anahtar").get_json()["anahtar"]
     Ed25519PublicKey.from_public_bytes(base64.b64decode(key, validate=True)).verify(signature, payload)
     claims = json.loads(payload.decode("utf-8"))
-    assert (claims["surum"], claims["urun"], claims["modul"]) == (1, "rpa-orkestrai", "MOD_RPA")
+    assert (claims["surum"], claims["urun"], claims["modul"]) == (1, product, "MOD_RPA")
     assert isinstance(claims["kullanici"], str) and type(claims["kullanici_id"]) is int and type(claims["firma_id"]) is int
     for name in ("verildi", "gecerlilik"):
         assert isinstance(claims[name], str) and len(claims[name]) <= 40
@@ -741,3 +741,14 @@ def test_closing_all_sessions_of_an_account_or_one_of_them(core):
     assert [(row["id"], row["kapanma_nedeni"]) for row in sessions_of(core, ali)] == [
         (first, "YONETICI"), (second, "YONETICI")]
     assert sessions_of(core, veli)[0]["durum"] == "aktif"
+
+
+def test_studio_1_1_and_later_get_the_peyrev_product_and_earlier_ones_keep_theirs(client, core):
+    make_user(core, "ali@ornek.test", modules={users.RPA: None})
+    # Studio 1.0.x accepts only the product name it was built with; 1.1.0 and later only "peyrev".
+    studio_license(client, login(client, surum="1.0.0"))
+    first = login(client, surum="1.1.0")
+    assert studio_license(client, first, product="peyrev")["urun"] == "peyrev"
+    renewed = renew(client, first.get_json()["yenileme"], surum="1.1.0")
+    assert studio_license(client, renewed, product="peyrev")["urun"] == "peyrev"
+    assert studio_license(client, login(client, surum="2.0.0"), product="peyrev")["urun"] == "peyrev"

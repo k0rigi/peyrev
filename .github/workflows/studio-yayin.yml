@@ -1,7 +1,9 @@
 name: Studio yayını
 
 # Peyrev Studio paketlerini peyrev.com/indir/ altına yayımlar: inspect (durum), publish (doğrulanmış arşiv), prune (yalnız
-# güncel sürüm kalır). Arşiv Studio deposundaki prepare_update_release.py --profile peyrev ile üretilir.
+# güncel bildirimlerin andığı sürümler kalır). Arşivler Studio deposundaki prepare_update_release.py ile üretilir:
+# --profile peyrev indirme sayfası ve guncelleme.manifest (1.1.0 ve sonrası), --profile gecis yalnız stable.manifest
+# (1.0.x kurulumlarını yeni adlara geçiren sürüm). Aynı sürümün iki arşivi aynı releases/<sürüm> klasörünü paylaşır.
 
 on:
   workflow_dispatch:
@@ -13,7 +15,7 @@ on:
         default: inspect
         required: true
       version:
-        description: Sürüm, örneğin 1.0.0 (publish - yeni sürüm; prune - kalacak güncel sürüm)
+        description: Sürüm, örneğin 1.1.0 (publish - yeni sürüm; prune - güncel bildirimlerden birinin sürümü)
         type: string
         required: false
       bundle_url:

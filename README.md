@@ -8,6 +8,8 @@ peyrev.com'un merkezi sunucusu. Peyrev Studio (masaüstü akış stüdyosu) şu 
 - ajan ofisleri, görevler, onaylar ve ortak model erişimi,
 - imzalı güncelleme dosyaları ve indirme sayfası (`/indir/`).
 
+İmzalı lisanstaki ürün adı Studio 1.1.0 ve sonrasına `peyrev`dir; daha eski sürümler kurulurken gömülen adı alır ve asgari sürüm 1.1.0'ı geçince bu ayrım kalkar.
+
 Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
 - Python 3.12, Flask 3, Gunicorn, PostgreSQL 16 (psycopg 3).
@@ -80,7 +82,7 @@ günlüğünde sürümle durum özeti (JSON) görünür. Sunucu SSH anahtarı be
 | Testler | Çekme isteklerinde ve main dışındaki dallarda testler (PostgreSQL 16) |
 | Dağıtım | main'e her push'ta testler, ardından dağıtım (`deploy/dagitim.sh`): sürüm klasörü, özet denetimli bağımlılıklar, geçişler, yeniden başlatma, sağlık denetimi ve gerekirse önceki sürüme dönüş. `DAGITIM_ACIK=1` depo değişkeniyle açılır |
 | Sunucu işleri | `inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır), `orkestrai-envanter` (salt okunur; bkz. Eski sistem) |
-| Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`) |
+| Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`). İki bildirim vardır: `guncelleme.manifest` (Studio 1.1.0 ve sonrası) indirme sayfasıyla, `stable.manifest` (1.0.x) sayfasız yayımlanır; aynı sürümün iki arşivi `releases/<sürüm>` klasörünü paylaşır, yayımlanmış dosya değişmez. `prune` yalnız iki bildirimin andığı sürümleri bırakır |
 | Destek bildirim ayarları | Telegram ve e-posta bilgilerini Secrets'tan `/etc/peyrev/destek.env` dosyasına yazar ve deneme bildirimi gönderir |
 
 Kurulum, aynı sunucudaki diğer sitelerin durum kodlarını karşılaştırır ve fark görürse o adımı geri alır.
