@@ -70,4 +70,118 @@ if [ "$KIP" != gercek ]; then
   genel "prova tamamlandı; hiçbir şey değiştirilmedi"
   exit 0
 fi
-echo "Gerçek kaldırma bu sürümde etkin değil." ; genel "gerçek kaldırma henüz etkin değil"; exit 1
+
+BACKUP=/root/orkestrai-kaldirma-$(date +%Y%m%d-%H%M%S)
+install -d -m 0700 "$BACKUP"
+for f in "$OLS_CONF" /etc/dovecot/dovecot.conf /etc/postfix/vmail_ssl.map /etc/opendkim/KeyTable /etc/opendkim/SigningTable \
+         /etc/opendkim/TrustedHosts; do
+  [ -f "$f" ] && cp -a "$f" "$BACKUP/$(echo "$f" | tr / _)"
+done
+echo "  yapılandırma kopyası: $BACKUP"
+SITE_USER=$(stat -c %U /home/$D 2>/dev/null || true)
+FAILED=0
+step() { printf '\n-- %s\n' "$*"; }
+fail() { echo "  HATA: $*"; FAILED=1; }
+
+step "Servis"
+systemctl disable --now orkestrai_api.service 2>&1 | indent
+rm -f /etc/systemd/system/orkestrai_api.service /etc/systemd/system/multi-user.target.wants/orkestrai_api.service
+systemctl daemon-reload; systemctl reset-failed orkestrai_api.service 2>/dev/null
+systemctl list-unit-files --no-pager | grep -qi orkestrai && fail "servis kaydı kaldı" || echo "  orkestrai_api kaldırıldı"
+
+step "CyberPanel sitesi (site, alt alan, veritabanı, e-posta alanı, DNS bölgesi)"
+cyberpanel deleteWebsite --domainName "$D" 2>&1 | tail -5 | indent
+
+step "Kalanlar: veritabanı ve kullanıcıları"
+sql -e "DROP DATABASE IF EXISTS \`$DB\`" || fail "veritabanı silinemedi"
+for host in $(sql -e "SELECT Host FROM mysql.user WHERE User = '$DBUSER'"); do
+  sql -e "DROP USER IF EXISTS '$DBUSER'@'$host'" || fail "kullanıcı silinemedi: $host"
+done
+sql cyberpanel -e "DELETE FROM databases_databases WHERE dbName = '$DB'" 2>/dev/null
+echo "  kalan: $(sql -e "SELECT COUNT(*) FROM mysql.user WHERE User = '$DBUSER'") kullanıcı, $(sql -e "SHOW DATABASES LIKE '$DB'" | wc -l) veritabanı"
+
+step "Kalanlar: CyberPanel kayıtları"
+sql cyberpanel -e "DELETE FROM e_users WHERE emailOwner_id = '$D'" 2>/dev/null
+sql cyberpanel -e "DELETE FROM e_domains WHERE domain = '$D'" 2>/dev/null
+for id in $(sql cyberpanel -e "SELECT id FROM domains WHERE name = '$D'"); do
+  sql cyberpanel -e "DELETE FROM records WHERE domain_id = $id" && sql cyberpanel -e "DELETE FROM domains WHERE id = $id" || fail "DNS bölgesi silinemedi"
+done
+sql cyberpanel -e "DELETE FROM websiteFunctions_childdomains WHERE domain LIKE '%.$D'" 2>/dev/null
+sql cyberpanel -e "DELETE FROM websiteFunctions_websites WHERE domain = '$D'" 2>/dev/null || fail "site kaydı silinemedi (bağlı kayıt var)"
+for q in "websiteFunctions_websites WHERE domain LIKE '%orkestrai%'" "websiteFunctions_childdomains WHERE domain LIKE '%orkestrai%'" \
+         "e_domains WHERE domain LIKE '%orkestrai%'" "domains WHERE name LIKE '%orkestrai%'" "records WHERE name LIKE '%orkestrai%'"; do
+  printf '  %s: %s\n' "${q%% *}" "$(sql cyberpanel -e "SELECT COUNT(*) FROM $q")"
+done
+
+step "OpenLiteSpeed"
+if grep -qi orkestrai "$OLS_CONF"; then
+  awk '/^virtualHost .*orkestrai/{skip=1} skip{ if (/^}/) skip=0; next } !/^[ \t]*map[ \t].*orkestrai/' "$OLS_CONF" > "$OLS_CONF.yeni" \
+    && cat "$OLS_CONF.yeni" > "$OLS_CONF" && rm -f "$OLS_CONF.yeni"
+fi
+rm -rf "$LSWS/conf/vhosts/$D" "$LSWS/conf/vhosts/mail.$D" "$LSWS/cachedata/$D" "$LSWS/cachedata/mail.$D"
+grep -ci orkestrai "$OLS_CONF" | sed 's/^/  httpd_config.conf içinde kalan satır: /'
+"$LSWS/bin/lswsctrl" restart 2>&1 | tail -1 | indent
+
+step "Dovecot"
+awk '/^local_name [^ ]*orkestrai\.net *\{/{skip=1} skip{ if (/^}/) skip=0; next } {print}' /etc/dovecot/dovecot.conf > /etc/dovecot/dovecot.conf.yeni
+if doveconf -n -c /etc/dovecot/dovecot.conf.yeni >/dev/null 2>&1; then
+  cat /etc/dovecot/dovecot.conf.yeni > /etc/dovecot/dovecot.conf
+  systemctl reload dovecot && echo "  dovecot yeniden yüklendi" || fail "dovecot yeniden yüklenemedi"
+else
+  fail "yeni dovecot yapılandırması doğrulanamadı; değiştirilmedi"
+fi
+rm -f /etc/dovecot/dovecot.conf.yeni
+
+step "Postfix"
+grep -vi 'orkestrai\.net' /etc/postfix/vmail_ssl.map > /etc/postfix/vmail_ssl.map.yeni && cat /etc/postfix/vmail_ssl.map.yeni > /etc/postfix/vmail_ssl.map
+rm -f /etc/postfix/vmail_ssl.map.yeni
+if postmap -F hash:/etc/postfix/vmail_ssl.map && postfix check; then
+  systemctl reload postfix && echo "  postfix yeniden yüklendi" || fail "postfix yeniden yüklenemedi"
+else
+  cp -a "$BACKUP/_etc_postfix_vmail_ssl.map" /etc/postfix/vmail_ssl.map; postmap -F hash:/etc/postfix/vmail_ssl.map
+  fail "postfix denetimi geçmedi; eski harita geri yüklendi"
+fi
+
+step "OpenDKIM"
+for t in KeyTable SigningTable TrustedHosts; do
+  grep -vi 'orkestrai\.net' "/etc/opendkim/$t" > "/etc/opendkim/$t.yeni" && cat "/etc/opendkim/$t.yeni" > "/etc/opendkim/$t"; rm -f "/etc/opendkim/$t.yeni"
+done
+rm -rf "/etc/opendkim/keys/$D"
+systemctl restart opendkim && echo "  opendkim yeniden başlatıldı" || fail "opendkim başlatılamadı"
+
+step "Sertifikalar"
+for name in "$D" "mail.$D"; do
+  /root/.acme.sh/acme.sh --remove -d "$name" --ecc --home /root/.acme.sh >/dev/null 2>&1
+  rm -rf "/root/.acme.sh/${name}_ecc" "/etc/letsencrypt/live/$name" "/etc/letsencrypt/archive/$name" \
+         "/etc/letsencrypt/renewal/$name.conf" "/etc/letsencrypt/accounts/$name.key"
+done
+/root/.acme.sh/acme.sh --list --home /root/.acme.sh 2>/dev/null | grep -ci orkestrai | sed 's/^/  acme.sh içinde kalan: /'
+
+step "Dosyalar ve kullanıcı"
+rm -rf "/home/$D" "/home/vmail/$D" /etc/orkestrai /opt/orkestrai-ollama /var/lib/orkestrai-ollama /var/lib/orkestrai-llm-management \
+       "/home/cyberpanel/$D.bwmeta" "/home/cyberpanel/git/$D"
+if [ -n "$SITE_USER" ] && [ "$SITE_USER" != root ] && id "$SITE_USER" >/dev/null 2>&1 \
+   && [ "$(getent passwd "$SITE_USER" | cut -d: -f6)" = "/home/$D" ]; then
+  userdel "$SITE_USER" 2>&1 | indent; echo "  site kullanıcısı silindi"
+fi
+if [ -S /root/.pm2/rpc.sock ]; then pm2 kill >/dev/null 2>&1; echo "  boş pm2 süreci durduruldu"; fi
+
+step "Kalan izler (yalnız adlar)"
+grep -rlI -i orkestrai /etc /usr/local/lsws/conf /var/spool/cron 2>/dev/null | grep -v "^$BACKUP" | indent
+find / -xdev \( -path /proc -o -path /sys -o -path "$BACKUP" \) -prune -o -iname '*orkestrai*' -print 2>/dev/null | head -20 | indent
+
+section "Siteler (son)"
+for i in 1 2 3 4 5 6 7 8 9 10; do   # OpenLiteSpeed yeniden başladı: kısa dalgalanmaya izin
+  AFTER=$(snapshot); [ "$AFTER" = "$BEFORE" ] && break; sleep 3
+done
+echo "  $AFTER"
+for svc in lsws dovecot postfix opendkim mariadb pdns peyrev; do printf '  %s: %s\n' "$svc" "$(systemctl is-active "$svc" 2>/dev/null)"; done
+[ "$AFTER" = "$BEFORE" ] || fail "site durumları değişti (önce: $BEFORE)"
+for u in "https://orkestrai.net/"; do
+  printf '  yerel %s -> %s\n' "$u" "$(curl -sk -o /dev/null -w '%{http_code}' --max-time 8 --resolve orkestrai.net:443:127.0.0.1 "$u" </dev/null)"
+done
+if [ "$FAILED" = 0 ]; then
+  genel "orkestrai.net kaldırıldı; diğer siteler değişmedi: $AFTER"
+else
+  genel "kaldırmada sorun var; rapora bakın"; exit 1
+fi
