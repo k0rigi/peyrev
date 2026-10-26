@@ -238,6 +238,8 @@ if [ "$KIP" = uygula ]; then
 # Peyrev gece yedeği: veritabanı (pg_dump -Fc) ve /etc/peyrev sırları; 14 gün saklanır. /etc/cron.d/peyrev-yedek çalıştırır.
 set -euo pipefail
 umask 077
+# cron runs /etc/cron.d jobs with PATH=/usr/bin:/bin; runuser lives in /usr/sbin.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 D=/var/backups/peyrev
 T=$(date +%Y%m%d-%H%M%S)
 # Ortak model kuyruğu (UNLOGGED) istek ve yanıt içeriği taşıyabilir; yedeğe girmez.
@@ -248,9 +250,12 @@ mv "$D/.sirlar-$T.tar.gz" "$D/sirlar-$T.tar.gz"
 find "$D" -maxdepth 1 -type f \( -name 'peyrev-*.dump' -o -name 'sirlar-*.tar.gz' \) -mtime +13 -delete
 EOF
   chmod 0700 "$ROOT/bin/yedek.sh"
-  printf '30 3 * * * root %s/bin/yedek.sh >>/var/log/peyrev-yedek.log 2>&1\n' "$ROOT" > /etc/cron.d/peyrev-yedek
+  printf 'SHELL=/bin/bash\nPATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\n30 3 * * * root %s/bin/yedek.sh >>/var/log/peyrev-yedek.log 2>&1\n' "$ROOT" > /etc/cron.d/peyrev-yedek
   chmod 0644 /etc/cron.d/peyrev-yedek
-  "$ROOT/bin/yedek.sh"
+  echo "  önceki gece yedeği günlüğü (son satırlar):"; tail -5 /var/log/peyrev-yedek.log 2>/dev/null | sed 's/^/    /' || true
+  grep -h "peyrev-yedek\|yedek.sh" /var/log/cron 2>/dev/null | tail -4 | sed 's/^/    cron: /' || true
+  # The trial runs in cron's own bare environment, so a job that only works from an interactive shell is caught here.
+  env -i HOME=/root SHELL=/bin/sh PATH=/usr/bin:/bin LANG=C "$ROOT/bin/yedek.sh"
   last=$(ls -1t "$BACKUPS"/peyrev-*.dump | head -1)
   runuser -u postgres -- pg_restore --list < "$last" >/dev/null
   ls -l "$BACKUPS" | sed 's/^/    /'
