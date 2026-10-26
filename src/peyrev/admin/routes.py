@@ -187,9 +187,9 @@ def api_blueprint(core) -> Blueprint:
 
     @blueprint.post("/kullanicilar/<int:user_id>/bilgiler")
     def user_details(user_id: int):
-        data = json_body({"ad_soyad", "telefon"}, {"ad_soyad"})
+        data = json_body({"ad_soyad", "telefon", "giris"}, {"ad_soyad"})
         return ok(kullanici=service.update_details(core, me(), user_id, ad_soyad=data["ad_soyad"],
-                                                   telefon=data.get("telefon")))
+                                                   telefon=data.get("telefon"), giris=data.get("giris")))
 
     @blueprint.post("/kullanicilar/<int:user_id>/rol")
     def user_role(user_id: int):

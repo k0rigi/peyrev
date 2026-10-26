@@ -534,8 +534,8 @@ def test_name_and_phone_changes_are_recorded_without_their_values(core, world, b
     path = f"kullanicilar/{world.ayse['id']}/bilgiler"
     changed = post(browser, path, {"ad_soyad": "  Ayşe   Demir ", "telefon": "+90 (532) 111 22 33"})
     assert changed.get_json() == {"success": True, "kullanici": {
-        "kullanici_id": world.ayse["id"], "ad_soyad": "Ayşe Demir", "telefon": "+90 (532) 111 22 33",
-        "degisti": True}}
+        "kullanici_id": world.ayse["id"], "giris": "ayse@ornek.test", "ad_soyad": "Ayşe Demir",
+        "telefon": "+90 (532) 111 22 33", "degisti": True}}
     same = post(browser, path, {"ad_soyad": "Ayşe Demir", "telefon": "+90 (532) 111 22 33"})
     assert same.get_json()["kullanici"]["degisti"] is False
     assert post(browser, path, {"ad_soyad": "Ayşe Demir"}).get_json()["kullanici"]["telefon"] is None
@@ -544,6 +544,30 @@ def test_name_and_phone_changes_are_recorded_without_their_values(core, world, b
         (world.manager["id"], "bilgiler_degisti", f"kullanici:{world.ayse['id']}", {"alanlar": ["telefon"]})]
     assert "Demir" not in json.dumps([event["ayrinti"] for event in audit(core)], ensure_ascii=False)
     assert get(browser, f"kullanicilar/{world.ayse['id']}").get_json()["kullanici"]["ad_soyad"] == "Ayşe Demir"
+
+
+def test_the_login_name_changes_only_to_a_free_valid_name_and_signs_in_with_it(core, world, browser):
+    path = f"kullanicilar/{world.ayse['id']}/bilgiler"
+    other = make_user(core, "veli@ornek.test")
+    make_user(core, "kisa")
+    taken = [("veli@ornek.test", 409), ("VELI@ornek.test", 409), ("veli", 409), ("kisa", 409)]
+    for name, status in taken:
+        answer = post(browser, path, {"giris": name, "ad_soyad": "Ayşe Yılmaz"})
+        assert answer.status_code == status and answer.get_json()["kod"] == "HESAP_VAR", name
+    for bad in ("ay", "ayşe", "a b", "x@y", "<b>"):
+        assert post(browser, path, {"giris": bad, "ad_soyad": "Ayşe Yılmaz"}).status_code == 400, bad
+    changed = post(browser, path, {"giris": "ayse.yeni@peyrev.test", "ad_soyad": "Ayşe Yılmaz"}).get_json()["kullanici"]
+    assert changed["giris"] == "ayse.yeni@peyrev.test" and changed["degisti"] is True
+    with core.db.transaction() as cur:
+        assert [row["id"] for row in users.find_by_login(cur, "ayse.yeni@peyrev.test")] == [world.ayse["id"]]
+        assert users.find_by_login(cur, "ayse@ornek.test") == []
+    assert [entry[3] for entry in new_events(core, 0) if entry[1] == "bilgiler_degisti"][-1] == {"alanlar": ["giris"]}
+    assert "ayse.yeni" not in json.dumps([event["ayrinti"] for event in audit(core)], ensure_ascii=False)
+    # Leaving the field out keeps the name; the same name is no change.
+    assert post(browser, path, {"ad_soyad": "Ayşe Yılmaz"}).get_json()["kullanici"]["giris"] == "ayse.yeni@peyrev.test"
+    assert post(browser, path, {"giris": "ayse.yeni@peyrev.test", "ad_soyad": "Ayşe Yılmaz"}).get_json()[
+        "kullanici"]["degisti"] is False
+    assert other["giris"] == "veli@ornek.test"
 
 
 def test_roles_are_given_and_taken_and_a_lost_role_ends_the_panel_sessions(app, core, world, browser):

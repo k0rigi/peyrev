@@ -676,10 +676,15 @@
   function accountSection(user, path, refresh) {
     const id = 'bolum-hesap';
     const self = user.kullanici_id === state.admin.kullanici_id;
+    const login = input('giris', { value: user.giris, maxlength: 150, required: true, autocomplete: 'off' });
     const name = input('ad_soyad', { value: user.ad_soyad, maxlength: 120, required: true });
     const tel = input('telefon', { type: 'tel', value: user.telefon || '', maxlength: 32 });
-    const details = form([field('Ad soyad', name), field('Telefon', tel)], 'Bilgileri kaydet', async () => {
-      const result = await api(path + '/bilgiler', { ad_soyad: name.value.trim(), telefon: tel.value.trim() });
+    const details = form([field('Giriş adı', login, {
+      hint: 'Studio\'ya ve bu panele bu adla girilir. Şifre ve haklar değişmez.',
+    }), field('Ad soyad', name), field('Telefon', tel)], 'Bilgileri kaydet', async () => {
+      const result = await api(path + '/bilgiler', {
+        giris: login.value.trim(), ad_soyad: name.value.trim(), telefon: tel.value.trim(),
+      });
       say(result.kullanici.degisti ? 'Bilgiler kaydedildi.' : 'Değişiklik yok.', 'ok');
       refresh(id);
     });

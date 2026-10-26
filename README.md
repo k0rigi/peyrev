@@ -33,7 +33,8 @@ satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
   geçmek yeni deneme hakkı vermez (Studio'nun şifre değiştirme ve şifre kodu uçlarında da). Hatalı girişte bilinmeyen
   ad ile tek hesaba uyan ad aynı sayıda şifre özeti denetler, yanıt süresi hesabın varlığını belli etmez; birden çok
   hesaba uyan kısa ad her fazla hesap için bir özet daha denetler. İlk yönetici eski sistemden taşınan yönetici
-  hesabıdır; başka yönetici panelde rol verilerek açılır. Yönetici kendi
+  hesabıdır; başka yönetici panelde rol verilerek açılır. Hesabın giriş adı, ad soyadı ve telefonu kullanıcı ayrıntısındaki Bilgiler bölümünden değişir; giriş adı başka bir
+  hesabın adı ya da kısa adı olamaz, şifre ve haklar değişmez. Yönetici kendi
   hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
 - **İki adımlı doğrulama:** isteğe bağlıdır ve Hesabım'dan açılır (TOTP; Google Authenticator, Microsoft Authenticator
   gibi uygulamalar). Açıkken girişte 6 haneli kod istenir ve her kod bir kez geçer. Kodunu kaybeden yöneticinin

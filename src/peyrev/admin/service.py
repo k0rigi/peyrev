@@ -12,12 +12,14 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
+import psycopg
 from psycopg import Cursor
 
 from .. import users
 from ..accounts import applications, rules
 from ..agents import admin as agents_admin
 from ..common import ApiError
+from ..db import advisory_lock
 from ..support import unread_count
 from . import auth, events
 
@@ -116,20 +118,41 @@ def user_detail(core, admin_id: int, user_id: int) -> dict[str, Any]:
                 "karar": rules.stamp(application["karar_zamani"])}}
 
 
-def update_details(core, admin_id: int, user_id: int, *, ad_soyad: Any, telefon: Any) -> dict[str, Any]:
-    """Ad soyad ve telefon (kurallar yönetimden hesap açmayla aynı: 2-120 karakter, telefon isteğe bağlı)."""
+def update_details(core, admin_id: int, user_id: int, *, ad_soyad: Any, telefon: Any, giris: Any = None) -> dict[str, Any]:
+    """Ad soyad, telefon ve isteğe bağlı giriş adı (kurallar yönetimden hesap açmayla aynı: 2-120 karakter, telefon
+    isteğe bağlı; giriş adı 3-64 karakter ya da e-posta ve başka bir hesabın adı veya kısa adı olamaz). Giriş adı
+    Studio'da ve panelde yeni adla girilir; şifre, haklar ve açık oturumlar değişmez."""
     name = rules.text(ad_soyad, "Ad soyad", 2, 120)
     phone = rules.phone(telefon)
+    if giris is not None and (not isinstance(giris, str) or not rules.LOGIN.fullmatch(giris)):
+        raise ApiError("Kullanıcı adı 3-64 karakter (harf, rakam, . _ + -) ya da geçerli bir e-posta olmalıdır.")
     with core.db.transaction() as cur:
         require_admin(cur, admin_id)
         user = _account(cur, user_id)
-        changed = [field for field, value in (("ad_soyad", name), ("telefon", phone)) if user[field] != value]
+        login = user["giris"] if giris is None else giris
+        changed = [field for field, value in (("giris", login), ("ad_soyad", name), ("telefon", phone))
+                   if user[field] != value]
+        if "giris" in changed:
+            # Same rule as opening an account: a short name also signs in as the part before "@" of an address.
+            short = login.split("@", 1)[0].lower()
+            advisory_lock(cur, f"peyrev-giris-{short}")
+            if "@" in login:
+                cur.execute("SELECT 1 FROM kullanicilar WHERE lower(giris) = lower(%s) AND id <> %s LIMIT 1",
+                            (login, user_id))
+            else:
+                cur.execute("SELECT 1 FROM kullanicilar WHERE (lower(giris) = lower(%s) "
+                            "OR lower(split_part(giris, '@', 1)) = lower(%s)) AND id <> %s LIMIT 1", (login, login, user_id))
+            if cur.fetchone():
+                raise ApiError("Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin.", 409, "HESAP_VAR")
         if changed:
-            cur.execute("UPDATE kullanicilar SET ad_soyad = %s, telefon = %s, guncelleme = %s WHERE id = %s",
-                        (name, phone, core.clock.now(), user_id))
+            try:
+                cur.execute("UPDATE kullanicilar SET giris = %s, ad_soyad = %s, telefon = %s, guncelleme = %s "
+                            "WHERE id = %s", (login, name, phone, core.clock.now(), user_id))
+            except psycopg.errors.UniqueViolation:
+                raise ApiError("Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin.", 409, "HESAP_VAR") from None
             # Only the names of the fields: the event log keeps no personal values.
             events.record(core, cur, admin_id, "bilgiler_degisti", f"kullanici:{user_id}", alanlar=changed)
-    return {"kullanici_id": user_id, "ad_soyad": name, "telefon": phone, "degisti": bool(changed)}
+    return {"kullanici_id": user_id, "giris": login, "ad_soyad": name, "telefon": phone, "degisti": bool(changed)}
 
 
 def set_role(core, admin_id: int, user_id: int, rol: Any) -> dict[str, Any]:
