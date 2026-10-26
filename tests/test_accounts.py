@@ -20,7 +20,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from werkzeug.security import generate_password_hash
 
 from peyrev import tokens, users
-from peyrev.accounts import licensing, sessions
+from peyrev.accounts import licensing, rules, sessions
 from peyrev.agents import entitlement
 from peyrev.common import ApiError
 from peyrev.db import advisory_lock
@@ -199,7 +199,11 @@ def test_failed_sign_ins_are_limited_per_login_name_and_per_address(client, core
         assert response.status_code == 401
     blocked = login(client, kullanici="Ali")  # the right password from a fresh address: the name is at its limit
     assert blocked.status_code == 429 and blocked.get_json() == {"success": False, "kod": "COK_DENEME", "message": TOO_MANY}
-    assert login(client, kullanici="ali@ornek.test").status_code == 200  # the typed name is counted: another counter
+    # The failures were written with the account's own name: the whole address gives no new attempts either.
+    assert login(client, kullanici="ali@ornek.test").status_code == 429
+    with core.db.transaction() as cur:
+        cur.execute("SELECT DISTINCT giris FROM giris_denemeleri")
+        assert [row["giris"] for row in cur.fetchall()] == ["ali@ornek.test"]
     core.clock.advance(minutes=15, seconds=1)
     assert login(client, kullanici="ali").status_code == 200
     for index in range(30):
@@ -497,6 +501,34 @@ def test_a_token_that_cannot_be_issued_never_costs_the_license(client, core, mon
     response = login(client)
     studio_license(client, response)
     assert "ajan_erisim" not in response.get_json() and "destek_erisim" not in response.get_json()
+
+
+def test_a_failed_sign_in_checks_one_hash_of_each_kind_whatever_the_name(client, core, monkeypatch):
+    """Bilinmeyen ad, yanlış şifre (yeni ya da taşınmış özet) ve bekleyen başvuru aynı işi yapar: yanıt süresi hesabın
+    varlığını ya da özetinin biçimini belli etmez."""
+    make_user(core, "yeni@ornek.test", modules={users.RPA: None})
+    old = make_user(core, "eski@ornek.test", modules={users.RPA: None})
+    with core.db.transaction() as cur:
+        cur.execute("UPDATE kullanicilar SET sifre_hash = %s WHERE id = %s",
+                    (generate_password_hash(PASSWORD, method="pbkdf2:sha256:260000"), old["id"]))
+    application = {"ad_soyad": "Ayşe Yılmaz", "eposta": "ayse@ornek.test", "sifre": "Guclu2026", "paket": "rpa",
+                   "onay": True}
+    assert client.post("/api/rpa/basvuru", json=application).status_code == 201
+    checked = []
+    original = rules.matches
+
+    def spy(password_hash, candidate):
+        checked.append((password_hash or "").split("$", 1)[0])
+        return original(password_hash, candidate)
+
+    monkeypatch.setattr(rules, "matches", spy)
+    for name in ("yok@ornek.test", "yok", "yeni", "eski@ornek.test", "ayse"):
+        checked.clear()
+        assert login(client, kullanici=name, sifre="Yanlis12345").get_json()["kod"] == "HATALI_GIRIS", name
+        assert sorted(checked) == sorted(rules.HASH_METHODS), name
+    # The right password needs nothing more.
+    checked.clear()
+    assert login(client, kullanici="yeni").status_code == 200 and checked == ["scrypt:32768:8:1"]
 
 
 def test_a_migrated_werkzeug_hash_signs_in_and_stays_as_it_is(client, core):

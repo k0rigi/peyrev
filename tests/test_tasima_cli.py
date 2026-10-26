@@ -47,15 +47,15 @@ def secrets(tmp_path, **values):
     return {"PEYREV_SECRETS_DIR": str(folder)}
 
 
-def run(mode, db_py, environ, source=None, factory=None):
+def run(mode, db_py, environ, source=None, factory=None, extra=()):
     out, seen = io.StringIO(), []
 
     def connect(settings):
         seen.append(settings)
         return source
 
-    code = main(["--hedef", mode, "--kaynak-ayar", str(db_py)], environ=environ, source_factory=factory or connect,
-                clock=lambda: START, out=out)
+    code = main(["--hedef", mode, "--kaynak-ayar", str(db_py), *extra], environ=environ,
+                source_factory=factory or connect, clock=lambda: START, out=out)
     return code, out.getvalue(), seen
 
 
@@ -69,6 +69,11 @@ def test_the_runner_takes_both_targets_from_db_env(core, source, prova_url, tmp_
     code, text, _ = run("gercek", db_py, environ, source)
     assert code == 0 and "kip gercek, hedef veritabanı peyrev_test" in text, text
     assert len(rows(core.db, "kullanicilar")) == 6
+    # Once the real migration is done, running it again needs --yeniden.
+    code, text, _ = run("gercek", db_py, environ, source)
+    assert code == 1 and "Gerçek taşıma bu veritabanında daha önce yapılmış (6 taşınmış hesap)" in text, text
+    code, text, _ = run("gercek", db_py, environ, source, extra=["--yeniden"])
+    assert code == 0 and text.endswith("veri yazıldı.\n"), text
     # An address in the environment comes first; a target that cannot be reached is a failure without the address.
     code, text, _ = run("prova", db_py, {**environ, "PEYREV_PROVA_DATABASE_URL": UNREACHABLE}, source)
     assert code == 1 and "Hata: PostgreSQL: veritabanına bağlanılamadı ya da bağlantı koptu" in text
@@ -120,7 +125,8 @@ def test_runner_errors_say_what_is_missing_and_exit_with_one(tmp_path, db_py, so
 
 def test_deploy_script_runs_the_module_with_these_options(tmp_path):
     script = (ROOT / "deploy" / "tasima.sh").read_text(encoding="utf-8")
-    assert '-m peyrev.tasima \\\n  --hedef "$KIP" --kaynak-ayar "$SOURCE"' in script
+    assert '-m peyrev.tasima \\\n  --hedef "$KIP" --kaynak-ayar "$SOURCE" "${again[@]}"' in script
+    assert '1) [ "$KIP" = gercek ] && again=(--yeniden) ;;' in script
     assert "PEYREV_SECRETS_DIR=/etc/peyrev" in script and "runuser -u peyrev" in script
     environ = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "PEYREV_SECRETS_DIR": str(tmp_path)}
     command = [sys.executable, "-m", "peyrev.tasima", "--hedef", "prova", "--kaynak-ayar", str(tmp_path / "db.py")]

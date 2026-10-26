@@ -8,8 +8,9 @@ Veritabanına dokunmaz. Eşlemeler geçiş dosyalarının başındaki tablolard�
   Daha önce taşınmış bir hesap (`kept`) hakkı kalkmış olsa da kaynakla eşitlenir; kaynakta artık yoksa `gone`
   listesine girer (hedef onu pasif yapar). Böylece bir kez taşınan hesap ve kayıtları Peyrev'de kalır.
 - Modül hakkı: hesabın satırı VE firmasının aynı modül satırı gerekir (orkestrai kuralı); bitiş ikisinin erkeni
-  (ikisi de boşsa süresiz), başlangıç firmanın başlangıcı. Firma pasifse hesabın hiçbir hakkı, firmanın ajan kaydı
-  (SYS_AjanOrganizasyonlari) kapalıysa MOD_AJAN taşınmaz. Admin'in satırsız RPA hakkını Peyrev'in yönetici rolü verir.
+  (ikisi de boşsa süresiz), başlangıç firmanın başlangıcı. Firma pasifse ya da firmanın ajan kaydı
+  (SYS_AjanOrganizasyonlari) kapalıysa MOD_AJAN taşınmaz; orkestrai'nin RPA kuralı firmanın durumuna bakmadığından
+  MOD_RPA taşınır. Admin'in satırsız RPA hakkını Peyrev'in yönetici rolü verir.
 - Başvurular: hepsi; aynı e-postayla birden çok bekleyen varsa en eskisi. Kararı verilmiş başvurunun şifre özeti
   boş yazılır; hesabı taşınmayan başvurunun kullanici_id'si boş kalır.
 - Destek talepleri: hesabı taşınanlar, numarası korunur; mesaj ve ekler talepleriyle gelir.
@@ -206,12 +207,15 @@ class _Index:
         self.offices = {row["OfisID"]: row for row in _rows(tables, "SYS_AjanOfisleri")}
 
     def withheld(self, user: dict[str, Any], module: str) -> str | None:
-        """Hesabın satırı olan bir modül neden taşınmıyor; taşınacaksa None."""
-        firm = self.firms.get(user["FirmaID"])
-        if firm is None or firm["Durum"] != ACTIVE:
-            return FIRM_CLOSED
-        if module == users.AGENTS and user["FirmaID"] in self.closed_agents:
-            return AGENTS_CLOSED
+        """Hesabın satırı olan bir modül neden taşınmıyor; taşınacaksa None. orkestrai'nin RPA kuralı
+        (_rpa_lisans_durumu) firmanın durumuna bakmaz, yalnız firmanın modül satırını arar; ajanlar (entitlement)
+        ayrıca firmanın ve ajan organizasyonunun aktif olmasını ister."""
+        if module == users.AGENTS:
+            firm = self.firms.get(user["FirmaID"])
+            if firm is None or firm["Durum"] != ACTIVE:
+                return FIRM_CLOSED
+            if user["FirmaID"] in self.closed_agents:
+                return AGENTS_CLOSED
         if (user["FirmaID"], module) not in self.firm_modules:
             return NO_FIRM_ROW
         return None
@@ -590,8 +594,8 @@ def _notes(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan) -
         plan.notes.append(f"Pasif taşınan hesaplar: {ids(passive)}.")
     closed = [firm_id for firm_id, firm in index.firms.items() if firm["Durum"] != ACTIVE]
     affected = [user_id for user_id in accounts if index.users[user_id]["FirmaID"] in closed
-                and index.user_modules.get(user_id)]
-    plan.notes.append(f"SYS_Firmalar: {len(index.firms)} firma, pasif: {ids(closed)}; modül hakları taşınmayan hesaplar: "
+                and users.AGENTS in index.user_modules.get(user_id, {})]
+    plan.notes.append(f"SYS_Firmalar: {len(index.firms)} firma, pasif: {ids(closed)}; ajan hakları taşınmayan hesaplar: "
                       f"{ids(affected)}.")
     organizations = _rows(tables, "SYS_AjanOrganizasyonlari")
     plan.notes.append(f"SYS_AjanOrganizasyonlari: {len(organizations)} kayıt (Peyrev'de tablo yok); ajan kaydı kapalı "

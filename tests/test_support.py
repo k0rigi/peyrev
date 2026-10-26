@@ -12,7 +12,7 @@ import jwt
 import pytest
 from conftest import DEVICE, START, make_user, open_session
 
-from peyrev import migrate, tokens, users
+from peyrev import migrate, support, tokens, users
 from peyrev.common import ApiError
 from peyrev.support import (
     answer_ticket,
@@ -173,6 +173,24 @@ def test_odd_bodies_are_refused_before_anything_is_stored(desk):
     too_big = post(b"{" + b" " * service.CREATE_BODY_LIMIT + b"}")
     assert too_big.status_code == 413 and too_big.get_json()["kod"] == "GOVDE_SINIRI"
     assert desk.count() == 0
+
+
+def test_a_new_ticket_body_is_read_only_after_the_caller_is_identified(desk, monkeypatch):
+    """Görselli gövde 7 MB'a varabilir: oturumsuz ya da lisanssız istekte gövde hiç okunmaz."""
+    read = []
+    original = support._create_body
+    monkeypatch.setattr(support, "_create_body", lambda: read.append(1) or original())
+    other = make_user(desk.core, "lisanssiz@firma.test")
+    unlicensed = {"Authorization": "Bearer " + tokens.issue(desk.core, "destek", other, DEVICE,
+                                                             open_session(desk.core, other))}
+    for headers, status, code in (({}, 401, "OTURUM_GEREKLI"), ({"Authorization": "Bearer x.y.z"}, 401, "OTURUM_GECERSIZ"),
+                                  (unlicensed, 403, "YETKI_YOK")):
+        for raw in (b"{", b"{" + b" " * service.CREATE_BODY_LIMIT + b"}"):
+            answer = desk.client.post("/api/rpa/destek/talepler", data=raw, content_type="application/json",
+                                      headers=headers)
+            assert (answer.status_code, answer.get_json()["kod"]) == (status, code)
+    assert read == [] and desk.count() == 0
+    assert desk.create().status_code == 201 and read == [1]
 
 
 def test_a_deeply_nested_or_long_flow_outline_is_accepted(desk):

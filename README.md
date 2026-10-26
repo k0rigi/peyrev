@@ -23,9 +23,11 @@ modül hakları, şifre kodu, Studio oturumları, ajan ofisleri), Başvurular, D
 satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
 
 - **Giriş:** yalnız durumu `aktif`, rolü `yonetici` olan hesap girer. Giriş adı ve şifre Studio'yla aynıdır, hatalı
-  deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). İlk yönetici taşımayla gelen orkestrai
-  `Admin` hesabıdır (rolü `yonetici` olur, şifresi aynen taşınır); başka yönetici panelde rol verilerek açılır.
-  Yönetici kendi hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
+  deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). Hesap sayacı hesabın asıl giriş adına
+  bakar: kısa ad ile e-postanın tamamı arasında geçmek yeni deneme hakkı vermez. Hatalı girişte, ad bulunsun ya da
+  bulunmasın, aynı sayıda şifre özeti denetlenir; yanıt süresi hesabın varlığını belli etmez. İlk yönetici taşımayla
+  gelen orkestrai `Admin` hesabıdır (rolü `yonetici` olur, şifresi aynen taşınır); başka yönetici panelde rol verilerek
+  açılır. Yönetici kendi hesabını pasif yapamaz, kendi yönetici rolünü kaldıramaz.
 - **İki adımlı doğrulama:** isteğe bağlıdır ve Hesabım'dan açılır (TOTP; Google Authenticator, Microsoft Authenticator
   gibi uygulamalar). Açıkken girişte 6 haneli kod istenir ve her kod bir kez geçer. Kodunu kaybeden yöneticinin
   doğrulamasını başka bir yönetici, kullanıcı ayrıntısından sıfırlar.
@@ -72,7 +74,7 @@ Sunucu SSH anahtarı betiklerde sabittir.
 | --- | --- |
 | Testler | Çekme isteklerinde ve main dışındaki dallarda testler (PostgreSQL 16) |
 | Dağıtım | main'e her push'ta testler, ardından dağıtım (`deploy/dagitim.sh`): sürüm klasörü, özet denetimli bağımlılıklar, geçişler, yeniden başlatma, sağlık denetimi ve gerekirse önceki sürüme dönüş. `DAGITIM_ACIK=1` depo değişkeniyle açılır |
-| Sunucu işleri | `inceleme` ve `kaynak-inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `bakim-ac` / `bakim-kapat` (orkestrai'de taşıma bakımı), `tasima-prova` / `tasima-gercek` |
+| Sunucu işleri | `inceleme` ve `kaynak-inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `bakim-ac` / `bakim-kapat` (orkestrai'de taşıma bakımı), `tasima-prova` / `tasima-gercek` / `tasima-gercek-yeniden` |
 | Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`) |
 | Destek bildirim ayarları | Telegram ve e-posta bilgilerini Secrets'tan `/etc/peyrev/destek.env` dosyasına yazar ve deneme bildirimi gönderir |
 
@@ -81,10 +83,10 @@ sunucudaki diğer sitelerin durum kodlarını da karşılaştırır ve fark gör
 
 ## Taşıma (orkestrai → Peyrev)
 
-`tasima-prova` ve `tasima-gercek` (`deploy/tasima.sh`) şunu `peyrev` hesabıyla çalıştırır:
+`tasima-prova`, `tasima-gercek` ve `tasima-gercek-yeniden` (`deploy/tasima.sh`) şunu `peyrev` hesabıyla çalıştırır:
 
 ```bash
-python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar /home/orkestrai.net/public_html/api/db.py
+python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar /home/orkestrai.net/public_html/api/db.py [--yeniden]
 ```
 
 - Kaynak bağlantısı `db.py`'deki `DB_CONFIG`'ten okunur; dosya çalıştırılmaz (yalnız sabitler ve
@@ -93,15 +95,16 @@ python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar /home/orkestrai.net
 - Hedef `/etc/peyrev/db.env`'dendir. `prova`: `PROVA_DATABASE_URL`, public şeması silinip geçişlerle baştan kurulur;
   doğrulama tutmasa da yazılanlar incelemek için kalır. Adı gerçek veritabanınınkiyle aynıysa prova çalışmaz.
   `gercek`: `DATABASE_URL`; yalnız `kaynak='orkestrai'` hesapları ve kayıtları eklenir ya da kaynakla eşitlenir
-  (değeri değişmeyen satır yeniden yazılmaz, tekrar çalıştırmak bir şey değiştirmez). Peyrev'de doğan satırlara
-  dokunulmaz. Okuma, yazma ve doğrulama tek işlemdir; bir sorun ya da uyuşmazlıkta hepsi geri alınır, kimlik dizileri
-  de ilerletilmez.
+  (değeri değişmeyen satır yeniden yazılmaz). Peyrev'de açılan hesaplara ve onların kayıtlarına dokunulmaz; taşınmış
+  hesaplar ise kaynakla eşitlenir (aşağıda). Hedefte taşınmış hesap varsa gerçek kip yalnız `--yeniden` ile
+  (`tasima-gercek-yeniden`) çalışır, yoksa hiçbir şey yazmadan durur. Okuma, yazma ve doğrulama tek işlemdir; bir
+  sorun ya da uyuşmazlıkta hepsi geri alınır, kimlik dizileri de ilerletilmez.
 - Çıkış: `0` bütün denetimler tuttu, `1` sorun, uyuşmazlık ya da hata, `2` komut satırı hatası.
 
 | Hedef | Kaynak | Kural |
 | --- | --- | --- |
 | `kullanicilar` | `SYS_Kullanicilar` | MOD_RPA ya da MOD_AJAN satırı olan ya da rolü Admin olan hesaplar. Kimlik, giriş adı (Eposta) ve Werkzeug şifre özeti aynen; Admin → `yonetici`, diğerleri (firma yöneticisi Yonetici dahil) → `kullanici`; `alan_id` = FirmaID |
-| `kullanici_modulleri` | `SYS_KullaniciModulleri` | Hesabın ve firmasının aynı modül satırı gerekir; bitiş ikisinin erkeni (boş: süresiz), başlangıç firmanınki. Pasif firmanın hiçbir hakkı, ajan kaydı kapalı firmanın MOD_AJAN'ı taşınmaz |
+| `kullanici_modulleri` | `SYS_KullaniciModulleri` | Hesabın ve firmasının aynı modül satırı gerekir; bitiş ikisinin erkeni (boş: süresiz), başlangıç firmanınki. Pasif firmanın ya da ajan kaydı kapalı firmanın MOD_AJAN'ı taşınmaz; orkestrai'nin RPA kuralı firmanın durumuna bakmadığından MOD_RPA taşınır |
 | `basvurular` | `SYS_RpaBasvurulari` | Hepsi; aynı e-postalı bekleyenlerden en eskisi. Karar verilmiş başvurunun şifre özeti boş yazılır |
 | `destek_*` | `SYS_RpaTalep*` | Hesabı taşınanların talepleri numarasıyla; mesaj ve ekler (baytı baytına) talepleriyle |
 | `ajan_ofisleri` | `SYS_AjanOfisleri` | Sahibi YetkiliID; sıra sahibin üyelik zamanından. Diğer üyelikler taşınmaz |
@@ -126,9 +129,10 @@ Operatör notları:
 - Gerçek taşımadan önce Peyrev'de hesap açılmamalıdır: yeni hesaplar 1'den numaralanır ve orkestrai kimlikleriyle
   çakışır. Çakışan hesap, giriş adı, talep numarası ya da ofis adı sorun olarak yazılır ve taşıma yapılmaz; Peyrev
   tarafı düzeltilip yeniden çalıştırılır.
-- Gerçek taşımayı yeniden çalıştırmak taşınmış hesapları kaynakla eşitler: Peyrev'de bu hesaplarda yapılan
-  değişiklikler (şifre, modül süresi, ofis adı, talep durumu) kaynağın değerine döner. Kaynakta silinen hesap pasif
-  olur, kayıtları kalır.
+- Gerçek taşıma bir kez yapılır. Yeniden çalıştırmak (`tasima-gercek-yeniden`) taşınmış hesapları kaynakla eşitler:
+  Peyrev'de bu hesaplarda yapılan değişiklikler (şifre, modül hakları ve süreleri, ofis adı, talep durumu) kaynağın
+  değerine döner. Hesabın `alan_id`'si (Studio'nun firma kimliği) ilk taşımadaki değerinde kalır. Kaynakta silinen
+  hesap pasif olur, kayıtları kalır.
 - Taşınan herkes Studio'da yeniden giriş yapar; açık şifre kodu olan hesaplara (raporda kimlikleriyle) yönetim
   panelinden yeni kod üretilir.
 

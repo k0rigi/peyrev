@@ -3,16 +3,18 @@
 - prova (PROVA_DATABASE_URL): public şeması silinip yeniden kurulur, geçişler (peyrev.migrate) uygulanır, plan boş
   şemaya yazılır. Doğrulama tutmasa da yazılanlar incelemek için kalır.
 - gercek (DATABASE_URL): yalnız kaynak='orkestrai' hesapları ve onların kayıtları eklenir ya da kaynakla eşitlenir
-  (ON CONFLICT ... DO UPDATE, yalnız bir değer değiştiyse). Peyrev'de doğan satırlara dokunulmaz: kimliği, giriş adı,
+  (ON CONFLICT ... DO UPDATE, yalnız bir değer değiştiyse). Hedefte taşınmış hesap varsa (gerçek taşıma daha önce
+  yapılmışsa) `again` verilmedikçe hiçbir şey yazılmaz. Peyrev'de doğan satırlara dokunulmaz: kimliği, giriş adı,
   talep numarası ya da (aynı sahipte) ofis adı hedefteki başka bir kayıtla çakışan kaynak kaydı yazılmaz ve sorun
   sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma ve
   doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır. Kimlik dizileri
   (setval geri alınamaz) yalnız doğrulama tuttuysa ilerletilir.
 
-Aynı kaynakla tekrar çalıştırmak hedefte hiçbir satırı değiştirmez. Daha önce taşınmış hesap kaynakta hakkını yitirse
-de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış hesapta Peyrev'de değişen alanlar (şifre, modül
-süresi, ofis adı, talep durumu) yeniden çalıştırmada kaynağın değerine döner. Kaynakta silinen kayıtlar (talep, mesaj,
-ofis, görev) hedeften silinmez: hangisinin Peyrev'de doğduğu ayırt edilemez.
+Yeniden çalıştırma (again): aynı kaynakla hedefte hiçbir satır değişmez. Daha önce taşınmış hesap kaynakta hakkını
+yitirse de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış hesapta Peyrev'de değişen alanlar (şifre,
+modül hakları ve süreleri, ofis adı, talep durumu) kaynağın değerine döner; bu yüzden yeniden çalıştırma açıkça
+istenir. Hesabın alan_id'si ilk taşımadaki değerinde kalır (Studio yerel ajan verisini onunla bölümler). Kaynakta silinen
+kayıtlar (talep, mesaj, ofis, görev) hedeften silinmez: hangisinin Peyrev'de doğduğu ayırt edilemez.
 
 Doğrulama yazılan her satırı hedeften geri okuyup planla karşılaştırır; planın yazmadığı bütün satırların (Peyrev'de
 doğanlar) yazmadan önceki ve sonraki özetlerini karşılaştırır; şifre özetlerinin SHA-256 toplamını, ofis kimliklerini,
@@ -121,8 +123,9 @@ class Outcome:
                 and not self.problems)
 
 
-def run(url: str, mode: str, tables: dict[str, list[dict[str, Any]]], now: datetime) -> Outcome:
-    """Planı kurar, yazar, doğrular. Hata fırlatmaz: veritabanı hatası Outcome.error'a güvenli metinle yazılır."""
+def run(url: str, mode: str, tables: dict[str, list[dict[str, Any]]], now: datetime, *, again: bool = False) -> Outcome:
+    """Planı kurar, yazar, doğrular. Hata fırlatmaz: veritabanı hatası Outcome.error'a güvenli metinle yazılır.
+    `again`: gerçek kipte, hedefte taşınmış hesaplar varken de çalışır (taşınmış hesapları kaynakla yeniden eşitler)."""
     if mode not in MODES:
         raise ValueError("kip prova ya da gercek olmalı")
     outcome = Outcome(mode=mode, now=now)
@@ -137,7 +140,7 @@ def run(url: str, mode: str, tables: dict[str, list[dict[str, Any]]], now: datet
                 _reset(connection, url)
             # The snapshot is taken by the first statement of the transaction, after the lock is held.
             connection.isolation_level = IsolationLevel.REPEATABLE_READ
-            _migrate(connection, tables, now, outcome)
+            _migrate(connection, tables, now, outcome, again=again)
     except TargetError as error:
         outcome.error = str(error)
     except psycopg.Error as error:
@@ -157,10 +160,12 @@ def _reset(connection: psycopg.Connection, url: str) -> None:
 
 
 def _migrate(connection: psycopg.Connection, tables: dict[str, list[dict[str, Any]]], now: datetime,
-             outcome: Outcome) -> None:
+             outcome: Outcome, *, again: bool = False) -> None:
     rolled_back = False
     with connection.transaction() as transaction, connection.cursor() as cur:
         _require_schema(cur)
+        if outcome.mode == GERCEK and not again:
+            _require_first_run(cur)
         plan = outcome.plan = _plan(cur, tables, now)
         written = _written(plan)
         before = _others(cur, written)
@@ -190,6 +195,16 @@ def _require_schema(cur: psycopg.Cursor) -> None:
     if missing:
         raise TargetError("Hedef şeması güncel değil, uygulanmamış geçişler: " + ", ".join(missing)
                           + " (önce dağıtım yapılmalı).")
+
+
+def _require_first_run(cur: psycopg.Cursor) -> None:
+    cur.execute("SELECT count(*) AS n FROM kullanicilar WHERE kaynak = %s", (ORKESTRAI,))
+    migrated = cur.fetchone()["n"]
+    if migrated:
+        raise TargetError(f"Gerçek taşıma bu veritabanında daha önce yapılmış ({migrated} taşınmış hesap); hiçbir şey "
+                          "yazılmadı. Yeniden çalıştırmak taşınmış hesaplarda Peyrev'de yapılan değişiklikleri (şifre, "
+                          "modül hakları, ofis adı, talep durumu) kaynaktaki değerlere döndürür; bilerek yapılıyorsa "
+                          "--yeniden ile (Sunucu işleri → tasima-gercek-yeniden) çalıştırın.")
 
 
 # --- Plan ve çakışmalar ------------------------------------------------------------------------------------------
@@ -291,6 +306,7 @@ def _office_limits(cur: psycopg.Cursor, plan: Plan) -> list[str]:
 def write(cur: psycopg.Cursor, plan: Plan) -> None:
     accounts = plan.tables["kullanicilar"].rows
     _fill_creation(cur, plan)
+    _keep_areas(cur, accounts)
     _free_logins(cur, accounts)
     _upsert(cur, "kullanicilar", accounts)
     if plan.gone:
@@ -312,6 +328,17 @@ def _fill_creation(cur: psycopg.Cursor, plan: Plan) -> None:
     existing = {row["id"]: row["olusturma"] for row in cur.fetchall()}
     for key in missing:
         accounts[key]["olusturma"] = existing.get(key, plan.now)
+
+
+def _keep_areas(cur: psycopg.Cursor, accounts: dict[Any, dict[str, Any]]) -> None:
+    """Taşınmış hesabın alan_id'si değişmez (lisanstaki firma_id; Studio yerel ajan verisini onunla bölümler): kaynakta
+    firması değişse de hedefteki değer yazılır, doğrulama da onu bekler."""
+    if not accounts:
+        return
+    cur.execute("SELECT id, alan_id FROM kullanicilar WHERE id = ANY(%s::bigint[]) AND kaynak = %s",
+                (list(accounts), ORKESTRAI))
+    for row in cur.fetchall():
+        accounts[row["id"]]["alan_id"] = row["alan_id"]
 
 
 def _free_logins(cur: psycopg.Cursor, accounts: dict[Any, dict[str, Any]]) -> None:

@@ -5,19 +5,23 @@ gösterir. Doğrulama hataları 400 GECERSIZ'dir.
 
 Deneme sınırları iki ayrı sayaçtır (orkestrai'deki gibi), ikisinde de 15 dakikada hesap başına 10, adres başına 30 hatalı
 deneme; sınıra şifre denetiminden önce bakılır, yani sınırdaki doğru şifre de 429 alır:
-- giris_denemeleri: Studio lisans girişi; yazılan giriş adı (büyük/küçük harf duyarsız) ve adres sayılır.
+- giris_denemeleri: Studio lisans girişi ve yönetim paneli; giriş adı (büyük/küçük harf duyarsız) ve adres sayılır.
+  Sınıra hem yazılan ada hem eşleşen hesapların asıl giriş adına bakılır, tek hesaba inen hatalı deneme asıl adla
+  yazılır: kısa ad ile e-postanın tamamı arasında geçmek yeni deneme hakkı vermez.
 - hesap_izleri: şifre değiştirme ve şifre kodu ("sifre"), başvurular ("basvuru").
 """
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import re
 import secrets
+from collections.abc import Iterable
 from datetime import date, datetime, timedelta
 
 from psycopg import Cursor
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from ..clock import TR
 from ..common import ApiError
@@ -36,6 +40,8 @@ KEEP_LOGIN_ATTEMPTS = timedelta(days=1)
 KEEP_TRACES = timedelta(days=2)
 TOO_MANY_ATTEMPTS = "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin."
 AMBIGUOUS = "Bu kullanıcı adı birden fazla hesapla eşleşiyor. E-posta adresinizin tamamını yazın."
+# Peyrev'in özetleri (Werkzeug varsayılanı) ve orkestrai'den taşınanlar; denetim süreleri farklıdır.
+HASH_METHODS = ("scrypt:32768:8:1", "pbkdf2:sha256:260000")
 
 
 def text(value: object, label: str, minimum: int, maximum: int) -> str:
@@ -90,6 +96,30 @@ def matches(password_hash: str | None, candidate: str) -> bool:
         return check_password_hash(password_hash or "", candidate)
     except ValueError:
         return False
+
+
+@functools.cache
+def _decoy(method: str) -> str:
+    return generate_password_hash(secrets.token_urlsafe(16), method=method)
+
+
+def equalize(checked: Iterable[str | None], candidate: str) -> None:
+    """Eşleşmeyen girişin süresi hesabın varlığını ve özetinin biçimini belli etmesin: bu denemede denetlenmemiş her
+    özet biçimi için bir sahte özet denetlenir. Yanlış şifre, bilinmeyen ad ve bekleyen başvuru aynı sürede yanıtlanır."""
+    seen = {(value or "").split("$", 1)[0] for value in checked}
+    for method in HASH_METHODS:
+        if method not in seen:
+            matches(_decoy(method), candidate)
+
+
+def login_names(login: str, accounts: Iterable[dict]) -> list[str]:
+    """Deneme sınırına bakılan adlar: yazılan ad ve eşleşen hesapların asıl giriş adları."""
+    return list(dict.fromkeys([login] + [account["giris"] for account in accounts]))
+
+
+def failed_name(login: str, accounts: list[dict]) -> str:
+    """Hatalı denemenin yazıldığı ad: tek hesaba inen ad o hesabın asıl giriş adıdır."""
+    return accounts[0]["giris"] if len(accounts) == 1 else login
 
 
 def code_digest(code: str, salt: str) -> str:

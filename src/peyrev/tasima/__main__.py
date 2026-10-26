@@ -1,10 +1,11 @@
-"""Taşıma çalıştırıcısı: `python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar <orkestrai api/db.py>`.
+"""Taşıma çalıştırıcısı: `python -m peyrev.tasima --hedef {prova,gercek} --kaynak-ayar <orkestrai api/db.py> [--yeniden]`.
 
 deploy/tasima.sh (Sunucu işleri → tasima-prova / tasima-gercek) bunu peyrev hesabıyla çalıştırır. Kaynak bağlantısı
 db.py'deki DB_CONFIG'ten ast ile okunur (dosya çalıştırılmaz) ve orkestrai veritabanı tek tutarlı, salt okunur işlemde
 okunur. Hedef adresi PEYREV_SECRETS_DIR (varsayılan /etc/peyrev) altındaki db.env'dendir: gercek → DATABASE_URL,
 prova → PROVA_DATABASE_URL; ortamda PEYREV_DATABASE_URL / PEYREV_PROVA_DATABASE_URL varsa önce onlar kullanılır.
-Prova adresi gerçek veritabanının adını taşıyorsa hiçbir şey yapılmaz (prova şemayı siler).
+Prova adresi gerçek veritabanının adını taşıyorsa hiçbir şey yapılmaz (prova şemayı siler). Gerçek taşıma daha önce
+yapılmışsa (hedefte taşınmış hesap varsa) yalnız --yeniden ile yeniden çalışır.
 
 Rapor stdout'a yazılır, kişisel veri içermez. Çıkış: 0 bütün denetimler tuttu; 1 sorun, uyuşmazlık ya da hata (gerçek
 kipte işlem geri alınmıştır); 2 komut satırı hatası.
@@ -75,12 +76,15 @@ def main(argv: list[str] | None = None, *, environ: Mapping[str, str] = os.envir
                         help="prova: PROVA_DATABASE_URL şeması silinip baştan kurulur; gercek: DATABASE_URL")
     parser.add_argument("--kaynak-ayar", required=True, type=Path, metavar="DB_PY",
                         help="orkestrai'nin api/db.py dosyası (çalıştırılmaz, DB_CONFIG okunur)")
+    parser.add_argument("--yeniden", action="store_true",
+                        help="gerçek taşıma daha önce yapılmışsa yeniden çalıştırır: taşınmış hesaplarda Peyrev'de "
+                             "yapılan değişiklikler kaynağın değerine döner")
     args = parser.parse_args(argv)
     try:
         settings = read_settings(args.kaynak_ayar, environ)
         url = target_url(args.hedef, environ)
         tables = source_factory(settings).read()
-        outcome = target.run(url, args.hedef, tables, clock() if clock else datetime.now(UTC))
+        outcome = target.run(url, args.hedef, tables, clock() if clock else datetime.now(UTC), again=args.yeniden)
     except (SourceError, target.TargetError) as error:
         print(f"Taşıma yapılmadı: {error}", file=out)
         return 1

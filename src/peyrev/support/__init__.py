@@ -68,9 +68,12 @@ def create_blueprint(core) -> Blueprint:
         with core.db.transaction() as cur:
             return work(cur, service.studio_user(core, cur, request.headers.get("Authorization")))
 
-    # Bodies and identifiers are checked before the database is touched, as on orkestrai.net.
+    # Bodies and identifiers are checked before the database is touched, as on orkestrai.net; only a new ticket's body
+    # (up to 7 MB with images) is read after the caller has been identified, and the identity is checked again with
+    # the write.
     @blueprint.post("/api/rpa/destek/talepler")
     def studio_create():
+        studio(lambda cur, user: None)
         fields = service.new_ticket(_create_body())
         ticket, notice = studio(lambda cur, user: service.create(core, cur, user, fields))
         notify.deliver(core, *notice)

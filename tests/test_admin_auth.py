@@ -9,6 +9,7 @@ from conftest import START, make_user
 from test_accounts import login as studio_login
 
 from peyrev import users
+from peyrev.accounts import rules
 from peyrev.admin import auth, totp
 
 PASSWORD = "Gizli12345"
@@ -162,6 +163,21 @@ def test_failed_sign_ins_are_limited_per_account_and_shared_with_studio(app, cli
     assert panel_sessions(core) == []
     core.clock.advance(minutes=15, seconds=1)
     assert sign_in(client).status_code == 200
+
+
+def test_an_unknown_name_checks_as_many_hashes_as_a_wrong_password(client, core, manager, monkeypatch):
+    checked = []
+    original = rules.matches
+
+    def spy(password_hash, candidate):
+        checked.append((password_hash or "").split("$", 1)[0])
+        return original(password_hash, candidate)
+
+    monkeypatch.setattr(rules, "matches", spy)
+    for name in ("yok@peyrev.test", "yonetici"):
+        checked.clear()
+        assert sign_in(client, name, "Yanlis12345").status_code == 401
+        assert sorted(checked) == sorted(rules.HASH_METHODS), name
 
 
 def test_failed_sign_ins_are_limited_per_address(app, client, core, manager):

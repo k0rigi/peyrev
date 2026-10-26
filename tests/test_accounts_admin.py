@@ -90,7 +90,7 @@ def test_approval_opens_the_account_with_the_applicants_password_and_module_rows
     claims = studio_license(client, login(client, kullanici="ayse", sifre="Guclu2026"))
     assert claims["bitis"] == "2027-10-26" and studio_agents(claims)["aktif"] is True
     with core.db.transaction() as cur:
-        assert not applications.pending(cur, "ayse", "Guclu2026")  # no longer a waiting application
+        assert applications.pending_hashes(cur, "ayse") == []  # no longer a waiting application
     second = refused(admin.approve_application, core, manager["id"], application, bitis="2027-10-26")
     assert (second.status, second.kod) == (409, "SONUCLANDI")
     assert admin.list_applications(core, manager["id"]) == []  # approved ones are not in the default list

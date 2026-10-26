@@ -7,6 +7,7 @@ from conftest import make_user
 from werkzeug.security import check_password_hash
 
 from peyrev.accounts import applications
+from peyrev.support import notify
 
 RECEIVED = ("Başvurunuz alındı. Fiyat ve ödeme bilgisini başvurudaki e-posta veya telefonla size iletiyoruz. "
             "Ödemeniz onaylandığında hesabınız açılır; Peyrev'e bu e-posta adresi ve belirlediğiniz şifreyle "
@@ -143,6 +144,37 @@ def test_a_failing_notice_keeps_the_application(client, core):
     assert apply(client).status_code == 201 and len(stored(core)) == 1
     core.notifier = None
     assert apply(client, eposta="sessiz@ornek.test").status_code == 201 and len(stored(core)) == 2
+
+
+def test_without_a_notifier_the_notice_goes_through_the_support_channels(client, core, monkeypatch):
+    """Üretimde core.notifier yoktur: bildirim destek talepleriyle aynı ayar dosyasından (Telegram, e-posta) gider."""
+    sent = []
+
+    class Channels:
+        def __init__(self, settings):
+            self.settings = settings
+
+        def send(self, subject, text):
+            sent.append((subject, text, self.settings()))
+
+    monkeypatch.setattr(notify, "Notifier", Channels)
+    monkeypatch.setattr(notify, "read_settings", lambda path: {"dosya": str(path)})
+    core.notifier = None
+    assert apply(client).status_code == 201
+    assert sent == [("Yeni Peyrev başvurusu", "Ayşe Yılmaz · Peyrev\nOnay bekliyor: https://peyrev.com/yonetim/",
+                     {"dosya": str(core.settings.support_settings_path)})]
+
+
+def test_an_address_that_has_an_account_is_hashed_like_a_new_application(client, core, monkeypatch):
+    """Yanıt süresi de adresin hesabı olduğunu belli etmez: şifre her başvuruda bir kez özetlenir."""
+    hashed = []
+    original = applications.generate_password_hash
+    monkeypatch.setattr(applications, "generate_password_hash", lambda value: hashed.append(1) or original(value))
+    make_user(core, "hesapli@ornek.test")
+    for address in ("hesapli@ornek.test", "yeni@ornek.test", "yeni@ornek.test"):
+        hashed.clear()
+        assert apply(client, eposta=address).status_code == 201 and hashed == [1], address
+    assert [row["eposta"] for row in stored(core)] == ["yeni@ornek.test"]
 
 
 def test_application_errors_never_carry_database_details(client, core, monkeypatch):

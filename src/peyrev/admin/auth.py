@@ -28,7 +28,6 @@ gösterilir (10 dakika), ardından doğru kodla onaylanır; açılınca yönetic
 
 from __future__ import annotations
 
-import functools
 import hashlib
 import hmac
 import re
@@ -39,7 +38,6 @@ from typing import Any
 
 from flask import Response, request
 from psycopg import Cursor
-from werkzeug.security import generate_password_hash
 
 from .. import users
 from ..accounts import rules
@@ -120,12 +118,6 @@ def sessions_of(cur: Cursor, admin_id: int, current_id: str) -> list[dict[str, A
 
 
 # ----- giriş ve oturum ---------------------------------------------------------------------------
-@functools.cache
-def _decoy() -> str:
-    """Giriş adı bulunmadığında da bir özet denetlenir: yanıt süresi adın varlığını belli etmez."""
-    return generate_password_hash(secrets.token_urlsafe(16))
-
-
 def _agent(value: str | None) -> str:
     return "".join(char for char in (value or "") if char.isprintable())[:200]
 
@@ -177,15 +169,15 @@ def sign_in(core, cur: Cursor, login: str, password: str, code: Any, address: st
     """(çerez belirteci, yönetici, oturum) ya da hatalı denemeyi yazmış ret (işlem kaydedildikten sonra fırlatılır)."""
     moment = core.clock.now()
     candidates = users.find_by_login(cur, login)
-    for name in dict.fromkeys([login] + [user["giris"] for user in candidates]):
+    for name in rules.login_names(login, candidates):
         rules.login_attempts_left(cur, name, address, moment)
     matched = [user for user in candidates if rules.matches(user["sifre_hash"], password)]
-    if not candidates:
-        rules.matches(_decoy(), password)
     if len(matched) > 1:
         raise ApiError(rules.AMBIGUOUS, 409, "BELIRSIZ")
     if not matched:
-        rules.login_failed(cur, candidates[0]["giris"] if len(candidates) == 1 else login, address, moment)
+        # An unknown name takes as long as a wrong password (rules.equalize).
+        rules.equalize([user["sifre_hash"] for user in candidates], password)
+        rules.login_failed(cur, rules.failed_name(login, candidates), address, moment)
         return ApiError(WRONG_LOGIN, 401, "HATALI_GIRIS")
     admin = matched[0]
     if admin["rol"] != "yonetici":

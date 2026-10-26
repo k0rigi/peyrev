@@ -14,7 +14,8 @@ from flask import Blueprint
 from psycopg import Cursor
 from werkzeug.security import generate_password_hash
 
-from ..common import LOG, ApiError, client_ip, json_body, ok
+from ..common import ApiError, client_ip, json_body, ok
+from ..support import notify
 from . import rules
 
 PACKAGES = {"rpa": "Peyrev", "rpa_ajan": "Peyrev + Ajanlar"}
@@ -31,15 +32,16 @@ PENDING_MESSAGE = ("Başvurunuz alındı; ödemeniz onaylandığında hesabını
                    "giriş yapabilirsiniz.")
 
 
-def pending(cur: Cursor, login: str, password: str) -> bool:
-    """Bilgiler ödeme bekleyen bir başvurununsa doğru (girişte hatalı deneme sayılmaz, başvurunun beklediği söylenir)."""
+def pending_hashes(cur: Cursor, login: str) -> list[str]:
+    """Giriş adına uyan, ödeme bekleyen başvuruların şifre özetleri. Şifre bunlardan birini tutarsa giriş hatalı deneme
+    sayılmaz, başvurunun beklediği söylenir."""
     if "@" in login:
         cur.execute("SELECT sifre_hash FROM basvurular WHERE durum = 'bekliyor' AND lower(eposta) = lower(%s) LIMIT 5",
                     (login,))
     else:
         cur.execute("SELECT sifre_hash FROM basvurular WHERE durum = 'bekliyor' "
                     "AND lower(split_part(eposta, '@', 1)) = lower(%s) LIMIT 5", (login,))
-    return any(row["sifre_hash"] and rules.matches(row["sifre_hash"], password) for row in cur.fetchall())
+    return [row["sifre_hash"] for row in cur.fetchall() if row["sifre_hash"]]
 
 
 def forget_old(cur: Cursor, moment: datetime) -> None:
@@ -60,6 +62,8 @@ def _store(core, cur: Cursor, values: dict, address: str) -> bool:
     rules.trace(cur, "basvuru", key, moment)
     rules.forget_old_traces(cur, moment)
     forget_old(cur, moment)
+    # Hashed before the account check: an address that has an account is answered as slowly as a new one.
+    digest = generate_password_hash(values["sifre"])
     cur.execute("SELECT 1 FROM kullanicilar WHERE lower(giris) = lower(%s) LIMIT 1", (values["eposta"],))
     if cur.fetchone():
         return False
@@ -67,18 +71,14 @@ def _store(core, cur: Cursor, values: dict, address: str) -> bool:
     cur.execute("INSERT INTO basvurular (id, ad_soyad, eposta, telefon, sifre_hash, paket, ip, aydinlatma_surumu, olusturma)"
                 " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id",
                 (uuid.uuid4().hex, values["ad_soyad"], values["eposta"], values["telefon"],
-                 generate_password_hash(values["sifre"]), values["paket"], address, CONSENT_VERSION, moment))
+                 digest, values["paket"], address, CONSENT_VERSION, moment))
     return cur.fetchone() is not None
 
 
 def _notify(core, name: str, package: str) -> None:
-    if core.notifier is None:
-        return
-    try:
-        core.notifier.send("Yeni Peyrev başvurusu",
-                           f"{name} · {PACKAGES[package]}\nOnay bekliyor: {core.settings.public_base}/yonetim/")
-    except Exception as error:  # noqa: BLE001 - the application is kept even if the notice cannot be sent
-        LOG.warning("Başvuru bildirimi gönderilemedi (%s).", type(error).__name__)
+    """Destek bildirimleriyle aynı kanallardan (Telegram, e-posta); gönderilemese de başvuru kalır."""
+    notify.deliver(core, "Yeni Peyrev başvurusu",
+                   f"{name} · {PACKAGES[package]}\nOnay bekliyor: {core.settings.public_base}/yonetim/")
 
 
 def create_blueprint(core) -> Blueprint:

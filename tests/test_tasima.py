@@ -39,8 +39,8 @@ def source():
     return Orkestrai()
 
 
-def transfer(core, source, mode=target.GERCEK, url=None, now=START):
-    return target.run(url or core.db.url, mode, source.read(), now)
+def transfer(core, source, mode=target.GERCEK, url=None, now=START, again=False):
+    return target.run(url or core.db.url, mode, source.read(), now, again=again)
 
 
 def rows(where, name, condition="TRUE", params=()):
@@ -273,25 +273,28 @@ def test_a_module_ends_on_the_earlier_of_the_account_and_firm_dates(core, source
     assert all(item.actual == item.expected for item in outcome.licenses)
 
 
-def test_rights_need_an_open_firm_that_has_the_same_module(core, source):
+def test_rights_need_the_firm_row_of_the_same_module_and_agents_an_open_firm(core, source):
+    """orkestrai'nin RPA kuralı firmanın durumuna bakmaz (_rpa_lisans_durumu); ajanlar firmanın ve ajan kaydının
+    açık olmasını ister."""
     source.firm(21, modules={RPA: None})                 # the firm has no agent row
     source.firm(22, durum="Pasif")                       # passive firm
     source.firm(23)                                      # agents registration closed
     source.add("SYS_AjanOrganizasyonlari", FirmaID=23, Durum="Pasif")
-    for user_id, firm_id in ((211, 21), (221, 22), (231, 23)):
+    source.add("SYS_FirmaModulleri", FirmaID=24, ModulKodu=RPA, BaslangicTarihi=START, BitisTarihi=None)  # no firm row
+    for user_id, firm_id in ((211, 21), (221, 22), (231, 23), (241, 24)):
         source.user(user_id, firm_id, f"k{user_id}@ornek.test", modules={RPA: None, AGENTS: None})
     outcome = transfer(core, source)
     assert outcome.ok, report.render(outcome)
-    # The accounts move (they have rows); only the rights their firm would not give are left behind.
-    assert [row["id"] for row in rows(core.db, "kullanicilar")] == [211, 221, 231]
-    assert [(row["kullanici_id"], row["modul"]) for row in rows(core.db, "kullanici_modulleri")] == [(211, RPA),
-                                                                                                    (231, RPA)]
+    # The accounts move (they have rows); only the rights orkestrai would not give are left behind.
+    assert [row["id"] for row in rows(core.db, "kullanicilar")] == [211, 221, 231, 241]
+    assert [(row["kullanici_id"], row["modul"]) for row in rows(core.db, "kullanici_modulleri")] == [
+        (211, RPA), (221, RPA), (231, RPA), (241, RPA)]
     assert outcome.plan.tables["kullanici_modulleri"].skipped == {rules.NO_FIRM_ROW: 1, rules.FIRM_CLOSED: 2,
                                                                    rules.AGENTS_CLOSED: 1}
     assert {(item.user_id, item.module): item.expected[0] for item in outcome.licenses} == {
-        (211, RPA): users.ACTIVE, (211, AGENTS): users.MISSING, (221, RPA): users.MISSING, (221, AGENTS): users.MISSING,
-        (231, RPA): users.ACTIVE, (231, AGENTS): users.MISSING}
-    assert "SYS_Firmalar: 3 firma, pasif: 22; modül hakları taşınmayan hesaplar: 221." in outcome.plan.notes
+        (211, RPA): users.ACTIVE, (211, AGENTS): users.MISSING, (221, RPA): users.ACTIVE, (221, AGENTS): users.MISSING,
+        (231, RPA): users.ACTIVE, (231, AGENTS): users.MISSING, (241, RPA): users.ACTIVE, (241, AGENTS): users.MISSING}
+    assert "SYS_Firmalar: 3 firma, pasif: 22; ajan hakları taşınmayan hesaplar: 221." in outcome.plan.notes
     assert "SYS_AjanOrganizasyonlari: 1 kayıt (Peyrev'de tablo yok); ajan kaydı kapalı firmalar: 23." in outcome.plan.notes
 
 
@@ -307,7 +310,7 @@ def test_turkish_wall_clock_times_become_instants(core, source):
     # No creation time in the source: the moment of the migration, kept by later runs.
     assert created[4] == START
     assert rows(core.db, "ajan_gorevleri")[0]["olusturma"] == datetime(2026, 3, 2, 6, 30, 15, 123456, tzinfo=UTC)
-    later = transfer(core, source, now=datetime(2026, 10, 27, 9, 0, tzinfo=UTC))
+    later = transfer(core, source, now=datetime(2026, 10, 27, 9, 0, tzinfo=UTC), again=True)
     assert later.ok and keyed(rows(core.db, "kullanicilar"))[4]["olusturma"] == START
 
 
@@ -445,7 +448,7 @@ def test_running_the_real_migration_again_rewrites_no_row(core, source):
     first = transfer(core, source)
     assert first.ok and first.committed, report.render(first)
     before = snapshot(core.db)
-    second = transfer(core, source)
+    second = transfer(core, source, again=True)
     assert second.ok and second.committed, report.render(second)
     assert snapshot(core.db) == before          # row versions included: nothing was rewritten
     assert [item.advanced for item in second.sequences] == [False, False, False]
@@ -468,7 +471,7 @@ def test_a_later_real_run_brings_migrated_accounts_in_line_with_the_source(core,
         source.drop("SYS_KullaniciModulleri", KullaniciID=user_id, ModulKodu=module)
     source.drop("SYS_Kullanicilar", KullaniciID=5)
     source.user(11, 2, "yeni@firma.test", modules={RPA: None})
-    outcome = transfer(core, source)
+    outcome = transfer(core, source, again=True)
     assert outcome.ok, report.render(outcome)
     accounts = keyed(rows(core.db, "kullanicilar"))
     assert (accounts[3]["giris"], accounts[4]["giris"]) == ("mehmet@firma.test", "ayse@firma.test")
@@ -484,6 +487,30 @@ def test_a_later_real_run_brings_migrated_accounts_in_line_with_the_source(core,
             "eşitlendi, modül hakları kaldırıldı).") in outcome.plan.notes
     # Records stay with their accounts: the office of the account without rights is still its own.
     assert keyed(rows(core.db, "ajan_ofisleri"))[OFFICE_E]["sahip_id"] == 6
+
+
+def test_a_second_real_run_needs_the_explicit_option_and_keeps_the_areas(core, source):
+    company(source)
+    assert transfer(core, source).ok
+    # A change made in Peyrev to a migrated account would go back to the source value with a second run.
+    execute(core.db, "UPDATE kullanicilar SET sifre_hash = 'peyrev-ozeti' WHERE id = 4")
+    before = snapshot(core.db)
+    refused = transfer(core, source)
+    assert refused.error.startswith("Gerçek taşıma bu veritabanında daha önce yapılmış (6 taşınmış hesap); hiçbir şey "
+                                    "yazılmadı.")
+    assert "--yeniden" in refused.error and not refused.ok and not refused.committed and refused.plan is None
+    assert snapshot(core.db) == before
+    assert "SONUÇ: BAŞARISIZ (gercek, hata); gerçek veritabanında hiçbir değişiklik kalmadı" in report.render(refused)
+    # Meanwhile the account moves to another firm in orkestrai: its area (Studio's firma_id) stays the first one.
+    source.firm(9, modules={RPA: None, AGENTS: None})
+    source.add("SYS_AjanOrganizasyonlari", FirmaID=9)
+    source.find("SYS_Kullanicilar", KullaniciID=4)["FirmaID"] = 9
+    outcome = transfer(core, source, again=True)
+    assert outcome.ok and outcome.committed, report.render(outcome)
+    account = keyed(rows(core.db, "kullanicilar"))[4]
+    assert (account["sifre_hash"], account["alan_id"]) == (password_hash("Eski12345"), 2)
+    modules = {(row["kullanici_id"], row["modul"]): row["bitis"] for row in rows(core.db, "kullanici_modulleri")}
+    assert modules[(4, RPA)] == date(2026, 11, 15) and modules[(4, AGENTS)] == date(2026, 12, 31)
 
 
 def test_rows_born_in_peyrev_are_never_touched(core, source):
@@ -551,14 +578,14 @@ def test_an_office_named_like_a_peyrev_office_of_its_owner_stops_the_run(core, s
     execute(core.db, "INSERT INTO ajan_ofisleri (id, sahip_id, ad) VALUES (%s, 2, 'Arsiv')", (peyrev_office,))
     source.office(orkestrai_office, 2, "ARSIV")
     before = snapshot(core.db)
-    outcome = transfer(core, source)
+    outcome = transfer(core, source, again=True)
     assert not outcome.ok and not outcome.committed and snapshot(core.db) == before
     assert outcome.plan.problems == [(f"ajan_ofisleri {orkestrai_office}: sahibinin hedefte aynı adlı başka bir ofisi var "
                                      f"({peyrev_office}).")]
     # The limit per owner counts the offices opened in Peyrev too.
     source.drop("SYS_AjanOfisleri", OfisID=orkestrai_office)
     monkeypatch.setattr(target, "MAX_OFFICES", 2)
-    limited = transfer(core, source)
+    limited = transfer(core, source, again=True)
     assert limited.plan.problems == ["ajan_ofisleri: 2 numaralı hesabın taşımadan sonra 3 ofisi olur (en çok 2)."]
     assert not limited.committed
 
@@ -633,8 +660,8 @@ def test_new_ids_continue_above_every_orkestrai_id_and_never_go_back(core, sourc
     fresh = make_user(core, "yeni@peyrev.test")
     assert (fresh["id"], fresh["alan_id"]) == (41, 1000000)
     execute(core.db, "SELECT setval('kullanici_id_seq', 90)")
-    again = transfer(core, source)
-    assert again.ok and again.sequences[0] == target.Sequence("kullanici_id_seq", 91, False)
+    rerun = transfer(core, source, again=True)
+    assert rerun.ok and rerun.sequences[0] == target.Sequence("kullanici_id_seq", 91, False)
 
 
 def test_only_one_migration_runs_at_a_time(core, source):
