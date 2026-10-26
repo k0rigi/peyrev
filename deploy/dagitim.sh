@@ -100,6 +100,8 @@ for d in $(ls -1dt "$ROOT"/releases/*/ 2>/dev/null); do
 done
 
 adim "Denetim"
+# The nightly backup must keep running; its newest files are listed here (names and sizes only).
+ls -lt /var/backups/peyrev 2>/dev/null | sed -n 2,5p | awk '{print "  yedek:", $5, $6, $7, $8, $9}'
 s1=$(code "$SITE" /api/saglik); s2=$(code "$SITE"); o1=$(code orkestrai.net); o2=$(code orkestrai.net /api/rpa/lisans/anahtar)
 printf '  peyrev.com/api/saglik=%s peyrev.com/=%s orkestrai.net/=%s anahtar=%s\n' "$s1" "$s2" "$o1" "$o2"
 genel "peyrev.com/api/saglik -> $s1, peyrev.com/ -> $s2"
