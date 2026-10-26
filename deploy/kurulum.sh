@@ -95,11 +95,14 @@ fi
 
 if [ "$KIP" = uygula ]; then
   adim "PostgreSQL yapılandırması"
+  pg_changed=
   if [ ! -f /var/lib/pgsql/data/PG_VERSION ]; then
     PGSETUP_INITDB_OPTIONS="--encoding=UTF8 --locale=C.UTF-8 --auth-local=peer --auth-host=scram-sha-256" postgresql-setup --initdb
+    pg_changed=1
   fi
   conf=/var/lib/pgsql/data/postgresql.conf
   if ! grep -qF "$MARK_BEGIN" "$conf"; then
+    pg_changed=1
     cat >> "$conf" <<EOF
 
 $MARK_BEGIN
@@ -113,7 +116,8 @@ EOF
   fi
   grep -Ev '^\s*(#|$)' /var/lib/pgsql/data/pg_hba.conf | sed 's/^/    hba: /'
   systemctl enable --now postgresql >/dev/null 2>&1
-  systemctl restart postgresql
+  # Restart only for a new or changed configuration: the running API keeps its connections otherwise.
+  if [ -n "$pg_changed" ]; then systemctl restart postgresql; fi
   for _ in $(seq 1 30); do runuser -u postgres -- pg_isready -q && break; sleep 1; done
   runuser -u postgres -- pg_isready
   ss -H -ltn 'sport = :5432' | awk '{print "    dinleme: " $4}'
