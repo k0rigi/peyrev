@@ -81,12 +81,30 @@ def test_existing_accounts_open_applications_and_bots_get_the_same_answer_withou
     assert second.get_json() == existing.get_json() == bot.get_json() == fresh.get_json() == {"success": True,
                                                                                                 "message": RECEIVED}
     assert sorted(row["eposta"] for row in stored(core)) == ["ayse@ornek.test", "yeni@ornek.test"]
-    # The first application's password stays; only new rows notify the owner.
-    assert stored(core)[0]["sifre_hash"] == first_hash and len(core.notifier.messages) == 2
+    # The first application's password stays; new rows and the account's extension request notify the owner.
+    assert stored(core)[0]["sifre_hash"] == first_hash
+    assert [subject for subject, _ in core.notifier.messages] == ["Yeni Peyrev başvurusu", "Lisans uzatma isteği",
+                                                                   "Yeni Peyrev başvurusu"]
     # The bot was not even counted: four counted applications from this address.
     with core.db.transaction() as cur:
         cur.execute("SELECT count(*) AS n FROM hesap_izleri WHERE tur = 'basvuru'")
         assert cur.fetchone()["n"] == 4
+
+
+def test_lisansi_uzat_from_an_existing_account_reaches_the_panel_and_the_owner(client, core):
+    """Studio'daki "Lisansı uzat" başvuru formunu açar: hesabı olan adresin formu uzatma isteğidir; satır açılmaz, yanıt
+    aynıdır, istek hesabın olaylarında ve bildirimde görünür."""
+    account = make_user(core, "uzatacak@ornek.test", modules={"MOD_RPA": None})
+    answer = apply(client, eposta="Uzatacak@Ornek.test", paket="rpa_ajan", ad_soyad="Uzatacak Kişi")
+    assert answer.status_code == 201 and answer.get_json() == {"success": True, "message": RECEIVED}
+    assert stored(core) == []
+    with core.db.transaction() as cur:
+        cur.execute("SELECT yonetici_id, tur, hedef, ayrinti FROM yonetim_olaylari")
+        assert cur.fetchall() == [{"yonetici_id": None, "tur": "uzatma_istegi", "hedef": f"kullanici:{account['id']}",
+                                   "ayrinti": {"paket": "rpa_ajan"}}]
+    text = ("Uzatacak Kişi · Peyrev + Ajanlar (form; gönderen doğrulanmadı)\n"
+            f"Hesap: https://peyrev.com/yonetim/#kullanici-{account['id']}")
+    assert core.notifier.messages == [("Lisans uzatma isteği", text)]
 
 
 def test_applications_are_limited_per_address_and_per_day(client, core):

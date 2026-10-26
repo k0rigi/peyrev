@@ -25,6 +25,23 @@ def test_health_reaches_the_database_and_errors_keep_their_shape(client):
         "success": False, "kod": "BULUNAMADI", "message": "İstenen kayıt veya uç bulunamadı."}
 
 
+def test_www_and_plain_http_go_to_the_canonical_https_address(client):
+    """Vekil yolları (/api/, /yonetim/) .htaccess'e uğramaz: yönlendirmeyi uygulama yapar, yöntem ve gövde korunur."""
+    for host, proto in (("www.peyrev.com", "https"), ("www.peyrev.com", "http"), ("peyrev.com", "http"),
+                        ("WWW.PEYREV.COM:443", "https")):
+        headers = {"Host": host, "X-Forwarded-Proto": proto}
+        page = client.get("/yonetim/?sekme=destek", headers=headers)
+        assert (page.status_code, page.headers["Location"]) == (308, "https://peyrev.com/yonetim/?sekme=destek"), host
+        posted = client.post("/api/yonetim/giris", json={}, headers=headers)
+        assert (posted.status_code, posted.headers["Location"]) == (308, "https://peyrev.com/api/yonetim/giris"), host
+    # The canonical address, an https request and the server's own local checks are served as they are.
+    assert client.get("/api/saglik", headers={"Host": "peyrev.com", "X-Forwarded-Proto": "https"}).status_code == 200
+    assert client.get("/api/saglik", headers={"Host": "peyrev.com"}).status_code == 200
+    local = client.get("/api/saglik", headers={"Host": "127.0.0.1:5101"})
+    assert local.status_code == 200
+    assert local.headers["Strict-Transport-Security"] == "max-age=604800"
+
+
 def test_login_names_match_like_orkestrai(core):
     ayse = make_user(core, "Ayse@Firma.Test")
     make_user(core, "BASBUG_1")

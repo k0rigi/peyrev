@@ -3,6 +3,10 @@
 Başvuru lisans vermez: şifre yalnız özet olarak saklanır; yönetici ödemeyi görünce başvuruyu onaylar (admin.py) ve hesap,
 özet aynen taşınarak açılır. Yeni başvuru, var olan hesap, bekleyen başvuru ve bal küpü aynı yanıtı alır: form hangi
 adresin hesabı olduğunu belli etmez. Onaylanmayan (bekleyen ya da reddedilmiş) başvurular 90 gün sonra silinir.
+
+Studio'daki "Lisansı uzat" bu formu açar: hesabı olan adresin gönderdiği form uzatma isteğidir. Satır açılmaz; istek
+hesabın olaylarına (yonetim_olaylari, tür uzatma_istegi, istenen paketle) yazılır ve yöneticiye bildirilir. Form kimlik
+doğrulamaz: isteği hesabın sahibi göndermemiş olabilir, yönetici kişiyle görüşerek uzatır.
 """
 
 from __future__ import annotations
@@ -12,6 +16,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint
 from psycopg import Cursor
+from psycopg.types.json import Jsonb
 from werkzeug.security import generate_password_hash
 
 from ..common import ApiError, client_ip, json_body, ok
@@ -50,8 +55,9 @@ def forget_old(cur: Cursor, moment: datetime) -> None:
                 (moment - KEEP_APPLICATIONS,))
 
 
-def _store(core, cur: Cursor, values: dict, address: str) -> bool:
-    """Başvuruyu yazar; yeni satır açıldıysa doğru."""
+def _store(core, cur: Cursor, values: dict, address: str) -> tuple[str, int | None]:
+    """Başvuruyu yazar: ("yeni", None) yeni satır açıldı; ("uzatma", hesap) hesabı olan adresin uzatma isteği kaydedildi;
+    ("", None) yazılacak bir şey yok (aynı e-postayla bekleyen başvuru var)."""
     moment, key = core.clock.now(), "adres:" + address
     if (rules.count(cur, "basvuru", key, moment - timedelta(hours=1)) >= SIGNUPS_PER_HOUR
             or rules.count(cur, "basvuru", key, moment - timedelta(days=1)) >= SIGNUPS_PER_DAY):
@@ -65,21 +71,29 @@ def _store(core, cur: Cursor, values: dict, address: str) -> bool:
     forget_old(cur, moment)
     # Hashed before the account check: an address that has an account is answered as slowly as a new one.
     digest = generate_password_hash(values["sifre"])
-    cur.execute("SELECT 1 FROM kullanicilar WHERE lower(giris) = lower(%s) LIMIT 1", (values["eposta"],))
-    if cur.fetchone():
-        return False
+    cur.execute("SELECT id FROM kullanicilar WHERE lower(giris) = lower(%s) LIMIT 1", (values["eposta"],))
+    account = cur.fetchone()
+    if account:
+        cur.execute("INSERT INTO yonetim_olaylari (yonetici_id, tur, hedef, ayrinti, zaman) "
+                    "VALUES (NULL, 'uzatma_istegi', %s, %s, %s)",
+                    (f"kullanici:{account['id']}", Jsonb({"paket": values["paket"]}), moment))
+        return "uzatma", account["id"]
     # A second application while one waits opens no row; the first application's password stays.
     cur.execute("INSERT INTO basvurular (id, ad_soyad, eposta, telefon, sifre_hash, paket, ip, aydinlatma_surumu, olusturma)"
                 " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING RETURNING id",
                 (uuid.uuid4().hex, values["ad_soyad"], values["eposta"], values["telefon"],
                  digest, values["paket"], address, CONSENT_VERSION, moment))
-    return cur.fetchone() is not None
+    return ("yeni" if cur.fetchone() is not None else ""), None
 
 
-def _notify(core, name: str, package: str) -> None:
+def _notify(core, outcome: str, account: int | None, name: str, package: str) -> None:
     """Destek bildirimleriyle aynı kanallardan (Telegram, e-posta); gönderilemese de başvuru kalır."""
-    notify.deliver(core, "Yeni Peyrev başvurusu",
-                   f"{name} · {PACKAGES[package]}\nOnay bekliyor: {core.settings.public_base}/yonetim/")
+    base = core.settings.public_base
+    if outcome == "yeni":
+        notify.deliver(core, "Yeni Peyrev başvurusu", f"{name} · {PACKAGES[package]}\nOnay bekliyor: {base}/yonetim/")
+    elif outcome == "uzatma":
+        notify.deliver(core, "Lisans uzatma isteği", f"{name} · {PACKAGES[package]} (form; gönderen doğrulanmadı)\n"
+                                                     f"Hesap: {base}/yonetim/#kullanici-{account}")
 
 
 def create_blueprint(core) -> Blueprint:
@@ -102,9 +116,8 @@ def create_blueprint(core) -> Blueprint:
             raise ApiError("Başvuru için bilgilendirme metnini onaylamanız gerekir.")
         values = {"ad_soyad": name, "eposta": address, "telefon": phone, "paket": package, "sifre": password}
         with core.db.transaction() as cur:
-            created = _store(core, cur, values, client_ip())
-        if created:
-            _notify(core, name, package)
+            outcome, account = _store(core, cur, values, client_ip())
+        _notify(core, outcome, account, name, package)
         return ok(201, message=RESPONSE_RECEIVED)
 
     return blueprint

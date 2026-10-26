@@ -35,6 +35,7 @@ TYPES = {
     "oturumlar_kapatildi": "Studio oturumları kapatıldı",
     "basvuru_onaylandi": "Başvuru onaylandı",
     "basvuru_reddedildi": "Başvuru reddedildi",
+    "uzatma_istegi": "Lisans uzatma isteği (form)",
     "destek_yanit": "Destek talebi yanıtlandı",
     "destek_durum": "Destek talebinin durumu değişti",
     "ajan_ofisi_durumu": "Ajan ofisinin durumu değişti",

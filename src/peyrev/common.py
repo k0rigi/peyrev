@@ -1,4 +1,4 @@
-"""Bütün uçların ortak kuralları: hata biçimi, sıkı JSON okuma, istemci adresi, güvenlik başlıkları.
+"""Bütün uçların ortak kuralları: hata biçimi, sıkı JSON okuma, istemci adresi, güvenlik başlıkları, kanonik adres.
 
 Hata gövdesi her zaman {"success": false, "kod": "...", "message": "..."} biçimindedir; mesajlar Türkçedir ve
 gizli veri (SQL, istisna metni, anahtar) içermez. Beklenmeyen hata 503 SUNUCU döner: Studio 5xx'i
@@ -13,11 +13,15 @@ import math
 import traceback
 from collections.abc import Iterable
 from typing import Any
+from urllib.parse import urlsplit
 
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, current_app, jsonify, redirect, request
 from werkzeug.exceptions import HTTPException
 
 LOG = logging.getLogger("peyrev")
+# Tarayıcı peyrev.com'u bu süre boyunca yalnız https ile açar. İlk aşamada kısa tutulur; sorunsuz geçtiği görülünce
+# uzatılabilir (bir yıl yaygındır).
+HSTS_SECONDS = 7 * 24 * 3600
 BODY_LIMIT = 8 * 1024
 INVALID_FIELDS = "İstek alanları geçersiz."
 
@@ -136,10 +140,25 @@ def register(app: Flask) -> None:
         LOG.error("Beklenmeyen hata: %s %s (%s, %s)", request.method, request.path, type(error).__name__, where)
         return fail(ApiError("İşlem şu anda tamamlanamadı. Daha sonra tekrar deneyin.", 503, "SUNUCU"))
 
+    @app.before_request
+    def canonical_address():
+        """www.peyrev.com ve http istekleri https://peyrev.com'a yönlenir (308: yöntem ve gövde korunur). Statik site
+        bunu web/.htaccess ile yapar; OpenLiteSpeed'in vekil yolları (/api/, /yonetim/) .htaccess'e uğramaz. Şema,
+        vekilin X-Forwarded-Proto başlığından okunur; sunucunun kendi denetimleri (127.0.0.1) yönlenmez."""
+        base = urlsplit(current_app.extensions["peyrev"].settings.public_base)
+        host = (request.host or "").lower()
+        host = host.rsplit(":", 1)[0] if host.count(":") == 1 else host
+        insecure = request.headers.get("X-Forwarded-Proto", "").strip().lower() == "http"
+        if host == "www." + (base.hostname or "") or (host == base.hostname and insecure):
+            query = request.query_string.decode("latin-1")
+            return redirect(f"{base.scheme}://{base.netloc}{request.path}" + (f"?{query}" if query else ""), 308)
+        return None
+
     @app.after_request
     def headers(response: Response) -> Response:
         if request.path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-store"
+        response.headers.setdefault("Strict-Transport-Security", f"max-age={HSTS_SECONDS}")
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         response.headers.setdefault("X-Frame-Options", "DENY")

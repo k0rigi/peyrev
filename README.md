@@ -13,8 +13,10 @@ Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 - Python 3.12, Flask 3, Gunicorn, PostgreSQL 16 (psycopg 3).
 - Firma kavramı yoktur: her hesap bir kullanıcıdır. Modül hakları (`MOD_RPA`, `MOD_AJAN`) kullanıcıya bitiş tarihiyle
   verilir; `bitis` boşsa süresizdir ve bitiş günü (Türkiye saati) dahildir.
-- Sırlar (veritabanı şifresi, JWT ve lisans imza anahtarları, bildirim bilgileri) depoya girmez. Sunucuda
-  `/etc/peyrev/` altında `root:peyrev 0640` dosyalarda durur ve GitHub Secrets ile yönetilir.
+- Sırlar depoya girmez; sunucuda `/etc/peyrev/` altında `root:peyrev 0640` dosyalarda durur. Veritabanı şifresi
+  (`db.env`), JWT sırrı ve lisans imza anahtarı sunucuda üretilir (kurulum ve Dağıtım; var olan asla ezilmez); lisans
+  anahtarının kopyası yalnız aynı sunucudaki gece yedeğindedir. GitHub Secrets'ta yalnız SSH girişi (`HOST`, `USERNAME`,
+  `PASSWORD`) ve bildirim bilgileri (`DESTEK_*`) bulunur.
 
 ## Yönetim paneli
 
@@ -70,18 +72,20 @@ orkestrai.net ile aynı AlmaLinux 8 sunucusunda, ondan bağımsız çalışır:
 Depo herkese açık olduğundan Actions günlükleri de herkese açıktır. Sunucuya dokunan iş akışları
 `.github/scripts/uzak.py` ile çalışır: betiğin bütün çıktısı sahibin açık anahtarıyla şifrelenir
 (`.github/rapor-anahtari.pub`) ve yapıt olarak saklanır. Günlükte yalnız `GENEL:` satırları (durum kodları gibi) görünür.
-Sunucu SSH anahtarı betiklerde sabittir.
+Studio yayını bunun dışındadır: kendi betiğiyle (`.github/scripts/studio-yayin.py`) çalışır, şifreli rapor üretmez ve
+günlüğünde sürümle durum özeti (JSON) görünür. Sunucu SSH anahtarı betiklerde sabittir.
 
 | İş akışı | Ne yapar |
 | --- | --- |
 | Testler | Çekme isteklerinde ve main dışındaki dallarda testler (PostgreSQL 16) |
 | Dağıtım | main'e her push'ta testler, ardından dağıtım (`deploy/dagitim.sh`): sürüm klasörü, özet denetimli bağımlılıklar, geçişler, yeniden başlatma, sağlık denetimi ve gerekirse önceki sürüme dönüş. `DAGITIM_ACIK=1` depo değişkeniyle açılır |
-| Sunucu işleri | `inceleme` ve `kaynak-inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `bakim-ac` / `bakim-kapat` (orkestrai'de taşıma bakımı), `tasima-prova` / `tasima-gercek` / `tasima-gercek-yeniden` |
+| Sunucu işleri | `inceleme` ve `kaynak-inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `bakim-ac` / `bakim-kapat` (orkestrai'de taşıma bakımı), `tasima-prova` / `tasima-gercek` / `tasima-gercek-yeniden`, `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: taşıma sonrası uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır) |
 | Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`) |
 | Destek bildirim ayarları | Telegram ve e-posta bilgilerini Secrets'tan `/etc/peyrev/destek.env` dosyasına yazar ve deneme bildirimi gönderir |
 
-Her sunucu işi önce ve sonra orkestrai.net'in açılış sayfasını ve `/api/rpa/lisans/anahtar` ucunu denetler. Kurulum, aynı
-sunucudaki diğer sitelerin durum kodlarını da karşılaştırır ve fark görürse o adımı geri alır.
+orkestrai.net'in açılış sayfasını ve `/api/rpa/lisans/anahtar` ucunu kurulum (önce ve sonra), Dağıtım (önce açılış
+sayfası, sonra ikisi) ve bakım işleri (bayrak yazıldıktan ya da silindikten sonra) denetler. Kurulum, aynı sunucudaki
+diğer sitelerin durum kodlarını da karşılaştırır ve fark görürse o adımı geri alır.
 
 ## Taşıma (orkestrai → Peyrev)
 
