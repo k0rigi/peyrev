@@ -164,12 +164,14 @@ def _migrate(connection: psycopg.Connection, tables: dict[str, list[dict[str, An
         written = _written(plan)
         before = _others(cur, written)
         write(cur, plan)
-        outcome.sequences = advance_sequences(cur, tables)
         verify(cur, plan, outcome)
         after = _others(cur, written)
         outcome.disturbed = [table for table in TARGETS if before[table] != after[table]]
         outcome.problems += [f"{table}: Peyrev'de doğan satırlar değişti." for table in outcome.disturbed]
         outcome.verified = True
+        # setval is not undone by a rollback: a real run that is going to be rolled back leaves the sequences alone.
+        if outcome.ok or outcome.mode == PROVA:
+            outcome.sequences = advance_sequences(cur, tables)
         _audit(cur, outcome)
         if not outcome.ok and outcome.mode == GERCEK:
             rolled_back = True
