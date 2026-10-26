@@ -131,7 +131,7 @@ input:disabled, select:disabled { opacity: 0.6; }
 .btn-small { min-height: 36px; padding: 4px 12px; font-size: 0.875rem; }
 .btn-block { width: 100%; }
 
-.form-grid { display: grid; gap: 12px; grid-template-columns: 1fr; align-items: end; }
+.form-grid { display: grid; gap: 12px; grid-template-columns: 1fr; align-items: start; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .actions > .btn { flex: 1 1 auto; }
 
@@ -147,20 +147,22 @@ input:disabled, select:disabled { opacity: 0.6; }
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 0;
 }
-.who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.who { display: flex; align-items: center; gap: 8px; min-width: 0; margin-left: auto; }
 .who-name { color: var(--muted); font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .sections {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px;
   padding: 6px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border);
 }
+/* Bölüm adı kelime ortasından bölünmez; yer yetmezse rozet adın altına geçer. */
 .sections a {
-  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 8px;
+  display: flex; flex-wrap: wrap; align-items: center; align-content: center; justify-content: center; gap: 2px 6px;
+  min-height: 44px; padding: 6px 8px; white-space: nowrap;
   border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9375rem;
 }
 .sections a:hover { background: var(--surface-2); }
 .sections a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
-@media (min-width: 760px) {
+@media (min-width: 900px) {
   .sections { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
@@ -173,7 +175,7 @@ input:disabled, select:disabled { opacity: 0.6; }
 .content { padding-top: 24px; display: grid; gap: 20px; }
 .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
 .page-head .lead { flex-basis: 100%; color: var(--muted); }
-.back { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }
+.back { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-weight: 600; }
 
 /* ----- kartlar ---------------------------------------------------------------------------------- */
 .cards { display: grid; gap: 12px; }
@@ -234,6 +236,8 @@ a.stat:hover { border-color: var(--accent); }
 .toolbar { display: grid; gap: 10px; }
 @media (min-width: 640px) {
   .toolbar { grid-template-columns: minmax(0, 1fr) auto auto; align-items: end; }
+  /* Süzgeç çubuğu: seçimler kendi genişliğinde yan yana, sağda boş sütun kalmaz. */
+  .toolbar.filters { grid-template-columns: repeat(auto-fill, minmax(200px, 280px)); }
 }
 .segmented { display: flex; flex-wrap: wrap; gap: 6px; }
 .segmented .btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
@@ -241,8 +245,7 @@ a.stat:hover { border-color: var(--accent); }
 
 .code-box { display: grid; gap: 10px; padding: 14px; border-radius: 10px; border: 1px dashed var(--accent); }
 .code {
-  font-family: var(--mono); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.08em;
-  word-break: break-all; user-select: all;
+  font-family: var(--mono); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.08em; user-select: all;
 }
 
 .rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -288,7 +291,8 @@ pre {
 .event-details { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; font-size: 0.875rem; }
 .event-details div { display: flex; gap: 4px; min-width: 0; }
 .event-details dt { color: var(--muted); }
-.event-details dd { margin: 0; font-family: var(--mono); font-size: 0.8125rem; }
+.event-details dd { margin: 0; }
+.event-details .mono { font-family: var(--mono); font-size: 0.8125rem; }
 
 /* ----- bildirim --------------------------------------------------------------------------------- */
 .toast {

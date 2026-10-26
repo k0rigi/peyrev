@@ -32,6 +32,24 @@
   const APPLICATION_EMPTY = {
     bekliyor: 'Ödeme bekleyen başvuru yok.', reddedildi: 'Reddedilen başvuru yok.', onaylandi: 'Onaylanan başvuru yok.',
   };
+  // Olay ayrıntısındaki alanların görünen adları, gösterildikleri sırayla; listede olmayan alan (ör. taşıma aracının)
+  // sonda, olduğu gibi gösterilir.
+  const DETAIL_LABELS = {
+    giris: 'Giriş adı', ad_soyad: 'Ad soyad', telefon: 'Telefon', alanlar: 'Değişen alanlar', onceki: 'Önceki',
+    onceki_durum: 'Önceki durum', rol: 'Rol', durum: 'Durum', modul: 'Modül', moduller: 'Modüller', paket: 'Paket',
+    baslangic: 'Başlangıç', bitis: 'Bitiş', gecerlilik: 'Geçerlilik', kod_gecerlilik: 'Kodun geçerliliği',
+    yayin_surumu: 'Yayın sürümü', yanit_uzunlugu: 'Yanıt uzunluğu', not: 'Not', basvuru_id: 'Başvuru',
+    kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
+    kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
+  };
+  const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
+  // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
+  const TICKET_STATES = {
+    acik: 'Açık', inceleniyor: 'İnceleniyor', yanitlandi: 'Yanıtlandı', planlandi: 'Planlandı', yayinlandi: 'Yayınlandı',
+    kapandi: 'Kapatıldı',
+  };
+  const MOMENT = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit',
+    day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
   const $ = (id) => document.getElementById(id);
   const content = $('icerik');
@@ -119,6 +137,11 @@
     return h('p', { class: 'empty', text });
   }
 
+  /** İçeriği değiştirir; null, undefined ve false atlanır (replaceChildren onları metne çevirirdi). */
+  function put(target, ...children) {
+    target.replaceChildren(...children.filter((child) => child !== null && child !== undefined && child !== false));
+  }
+
   function facts(pairs) {
     const list = h('dl', { class: 'facts' });
     for (const [label, value] of pairs) {
@@ -128,8 +151,14 @@
     return list;
   }
 
+  /** Adres "@" işaretinden sonra satır atlayabilir; dar sütunda kelime ortasından bölünmez. */
+  function breakable(text) {
+    if (!text) return '';
+    return String(text).split('@').flatMap((part, index) => (index ? ['@', h('wbr'), part] : [part]));
+  }
+
   function mail(address) {
-    return address ? h('a', { href: 'mailto:' + address, text: address }) : null;
+    return address ? h('a', { href: 'mailto:' + address }, breakable(address)) : null;
   }
 
   function phone(number) {
@@ -449,7 +478,7 @@
     const list = h('ul', { class: 'rows' }, data.bitecekler.map((item) => h('li', { class: 'row' }, [
       h('div', null, [
         h('a', { href: '#kullanici-' + item.kullanici_id, text: item.ad_soyad || item.giris }),
-        h('div', { class: 'sub', text: item.giris }),
+        h('div', { class: 'sub' }, breakable(item.giris)),
       ]),
       h('div', { class: 'pills' }, [
         pill(MODULES[item.modul] || item.modul, 'accent'),
@@ -508,7 +537,7 @@
         ]),
       ]),
       facts([
-        ['Giriş adı', user.giris], ['Peyrev', rightText(user, 'MOD_RPA')], ['Ajanlar', rightText(user, 'MOD_AJAN')],
+        ['Giriş adı', breakable(user.giris)], ['Peyrev', rightText(user, 'MOD_RPA')], ['Ajanlar', rightText(user, 'MOD_AJAN')],
         ['Telefon', user.telefon], ['Açılış', day(user.acilis)], ['Kaynak', SOURCES[user.kaynak] || user.kaynak],
       ]),
     ]);
@@ -544,7 +573,7 @@
         target.replaceChildren(empty(state.users.ara || state.users.durum ? 'Bu aramayla eşleşen hesap yok.' : 'Henüz hesap yok.'));
         return;
       }
-      target.replaceChildren(
+      put(target,
         h('p', { class: 'muted', role: 'status', text: data.toplam + ' hesap' }),
         h('div', { class: 'cards' }, data.kullanicilar.map(userCard)),
         pager(data, (number) => {
@@ -588,8 +617,8 @@
         baslangic: start.value, bitis: end.value, ajan: agents.control.checked,
       });
       node.hidden = true;
-      result.replaceChildren(
-        created.uyari ? h('p', { class: 'notice notice-warn', role: 'alert', text: created.uyari }) : '',
+      put(result,
+        created.uyari ? h('p', { class: 'notice notice-warn', role: 'alert', text: created.uyari }) : null,
         codeBox(created.kod, created.kullanici.giris + ' hesabı açıldı. İlk şifre kodu:',
           'Kodu kişiye güvenli bir kanaldan iletin. ' + day(created.kod.gecerlilik) + ' saatine kadar geçerlidir ve '
           + 'bir kez kullanılır. Kişi Peyrev giriş ekranında "Şifre kodum var" ile kullanıcı adını, kodu ve kendi '
@@ -681,7 +710,7 @@
         pill(ACCOUNT_STATES[user.durum] || user.durum, user.durum === 'aktif' ? 'ok' : 'danger'),
       ]),
       facts([
-        ['Giriş adı', user.giris], ['Peyrev kullanımı', RIGHT_STATES[user.rpa] || user.rpa],
+        ['Giriş adı', breakable(user.giris)], ['Peyrev kullanımı', RIGHT_STATES[user.rpa] || user.rpa],
         ['İki adımlı doğrulama', user.iki_adim ? 'Açık' : 'Kapalı'], ['Kaynak', SOURCES[user.kaynak] || user.kaynak],
         ['Açılış', day(user.acilis)], ['Son değişiklik', day(user.guncelleme)],
       ]),
@@ -903,7 +932,7 @@
         ]),
         pill(item.durum_adi, TICKET_TONES[item.durum] || ''),
       ]),
-      facts([['Kullanıcı', item.kullanici || item.giris], ['E-posta', mail(item.eposta)], ['Tür', item.tur_adi],
+      facts([['Kullanıcı', item.kullanici || breakable(item.giris)], ['E-posta', mail(item.eposta)], ['Tür', item.tur_adi],
         ['İlgili adım', item.adim], ['Studio', item.surum + ' · ' + item.platform], ['Yayın', item.yayin_surumu],
         ['Güncelleme', day(item.guncelleme)]]),
     ]);
@@ -915,7 +944,7 @@
         + 'yazar. Yanıtınız kullanıcının uygulamasında görünür; "Yayınlandı" durumunda yazdığınız sürüm Yenilikler '
         + 'penceresinde "Sizin öneriniz" olarak çıkar.',
     });
-    const filters = h('form', { class: 'toolbar', 'aria-label': 'Süzgeç' });
+    const filters = h('form', { class: 'toolbar filters', 'aria-label': 'Süzgeç' });
     filters.addEventListener('submit', (event) => event.preventDefault());
     const list = h('div', { class: 'panel-section' });
     const load = () => fill(list, async (target) => {
@@ -1029,11 +1058,12 @@
       const files = ticket.ekler.length
         ? section('bolum-ekler', 'Ekler', [h('div', { class: 'attachments' }, ticket.ekler.map((item) => attachment(ticket, item)))])
         : null;
-      target.replaceChildren(
+      put(target,
         section('bolum-talep', 'Talep', [
           h('div', { class: 'pills' }, [pill(ticket.durum_adi, TICKET_TONES[ticket.durum] || ''), pill(ticket.tur_adi)]),
-          facts([['Kullanıcı', ticket.kullanici || ticket.giris], ['E-posta', mail(ticket.eposta)],
-            ['Hesap', h('a', { href: '#kullanici-' + ticket.kullanici_id, text: ticket.giris || '#' + ticket.kullanici_id })],
+          facts([['Kullanıcı', ticket.kullanici || breakable(ticket.giris)], ['E-posta', mail(ticket.eposta)],
+            ['Hesap', h('a', { href: '#kullanici-' + ticket.kullanici_id },
+              breakable(ticket.giris || '#' + ticket.kullanici_id))],
             ['İlgili adım', ticket.adim], ['Studio', ticket.surum + ' · ' + ticket.platform],
             ['Yayın', ticket.yayin_surumu], ['Açılış', day(ticket.olusturma)], ['Güncelleme', day(ticket.guncelleme)]]),
         ]),
@@ -1051,16 +1081,49 @@
     if (match) return h('a', { href: '#kullanici-' + match[1], text: 'Hesap #' + match[1] });
     match = /^talep:(\d+)$/.exec(target);
     if (match) return h('a', { href: '#destek-' + match[1], text: 'Talep #' + match[1] });
-    return target;
+    match = /^(ajan_ofisi|basvuru):([0-9a-f]{8})[0-9a-f]{24}$/.exec(target);
+    if (match) return (match[1] === 'basvuru' ? 'Başvuru ' : 'Ajan ofisi ') + match[2] + '…';
+    return target === 'llm_isler' ? 'Ortak model kuyruğu' : target;
+  }
+
+  function instant(text) {
+    const date = new Date(text);
+    return Number.isNaN(date.getTime()) ? text : MOMENT.format(date);
+  }
+
+  /** Olay ayrıntısındaki bir değerin okunur hali: tarih Türkiye saatiyle, evet/hayır, bilinen adlar Türkçe. */
+  function detailText(key, value) {
+    if (value === null || value === undefined) return key === 'bitis' ? 'süresiz' : '—';
+    if (typeof value === 'boolean') return value ? 'evet' : 'hayır';
+    if (key === 'yanit_uzunlugu' && typeof value === 'number') return value + ' karakter';
+    if (Array.isArray(value)) return value.map((item) => detailText(key, item)).join(', ');
+    if (typeof value === 'object') {
+      return Object.entries(value).map(([name, item]) => (DETAIL_LABELS[name] || name).toLocaleLowerCase('tr') + ' '
+        + detailText(name, item)).join(', ');
+    }
+    const text = String(value);
+    if (/^\d{4}-\d{2}-\d{2}T/.test(text)) return instant(text);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return day(text);
+    let names = Object.assign({}, ROLES, ACCOUNT_STATES, TICKET_STATES, state.ticketStates || {});
+    if (key === 'alanlar') names = DETAIL_LABELS;
+    else if (key === 'modul' || key === 'moduller') names = MODULES;
+    else if (key === 'paket') names = PACKAGES;
+    return Object.prototype.hasOwnProperty.call(names, text) ? names[text] : text;
   }
 
   function eventDetails(value) {
     const entries = value && typeof value === 'object' ? Object.entries(value) : [];
     if (!entries.length) return null;
-    return h('dl', { class: 'event-details' }, entries.map(([key, item]) => h('div', null, [
-      h('dt', { text: key + ':' }),
-      h('dd', { text: item !== null && typeof item === 'object' ? JSON.stringify(item) : String(item) }),
-    ])));
+    const rank = (key) => (DETAIL_ORDER.includes(key) ? DETAIL_ORDER.indexOf(key) : DETAIL_ORDER.length);
+    entries.sort((first, second) => rank(first[0]) - rank(second[0]));
+    return h('dl', { class: 'event-details' }, entries.map(([key, item]) => {
+      const text = detailText(key, item);
+      return h('div', null, [
+        h('dt', { text: (DETAIL_LABELS[key] || key) + ':' }),
+        h('dd', { class: /^[0-9a-f]{32}$/.test(text) ? 'mono' : null },
+          key === 'kullanici_id' && Number.isInteger(item) ? targetLink('kullanici:' + item) : text),
+      ]);
+    }));
   }
 
   function eventCard(item) {
@@ -1076,7 +1139,7 @@
     const view = page('Olaylar', {
       lead: 'Yönetim işlemlerinin kaydı: kim, ne zaman, neyi değiştirdi. Şifre, kod ve yanıt metni kaydedilmez.',
     });
-    const filters = h('form', { class: 'toolbar', 'aria-label': 'Süzgeç' });
+    const filters = h('form', { class: 'toolbar filters', 'aria-label': 'Süzgeç' });
     filters.addEventListener('submit', (event) => event.preventDefault());
     const list = h('div', { class: 'panel-section' });
     const load = () => fill(list, async (target) => {
@@ -1093,7 +1156,7 @@
         target.replaceChildren(empty(state.events.tur ? 'Bu türde olay yok.' : 'Henüz olay kaydı yok.'));
         return;
       }
-      target.replaceChildren(
+      put(target,
         h('p', { class: 'muted', role: 'status', text: data.toplam + ' olay' }),
         h('div', { class: 'cards' }, data.olaylar.map(eventCard)),
         pager(data, (number) => {
@@ -1115,7 +1178,7 @@
       $('yonetici-adi').textContent = data.yonetici.ad_soyad || data.yonetici.giris;
       target.replaceChildren(
         section('bolum-profil', 'Hesap', [
-          facts([['Ad soyad', data.yonetici.ad_soyad], ['Giriş adı', data.yonetici.giris],
+          facts([['Ad soyad', data.yonetici.ad_soyad], ['Giriş adı', breakable(data.yonetici.giris)],
             ['Bu oturumun açılışı', day(data.oturum.acilis)], ['En geç bitiş', day(data.oturum.bitis)]]),
         ]),
         passwordSection(data.yonetici),

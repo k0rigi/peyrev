@@ -179,7 +179,8 @@ main:focus { outline: none; }
 .card strong { color: var(--text); }
 .apply { scroll-margin-top: 16px; }
 
-.fields { display: grid; gap: 14px; }
+/* Alanlar üstten hizalanır: bir alanın ipucu yanındaki alanı uzatmaz. */
+.fields { display: grid; gap: 14px; align-items: start; }
 @media (min-width: 640px) { .fields { grid-template-columns: 1fr 1fr; } }
 .field { display: grid; gap: 6px; font-weight: 650; font-size: 0.9375rem; min-width: 0; }
 .optional { color: var(--muted); font-weight: 400; }
