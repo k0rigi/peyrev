@@ -76,6 +76,20 @@ Sunucu işi başlatmak: `POST /repos/k0rigi/peyrev/actions/workflows/sunucu.yml/
 | `.github/workflows/` | Testler, Dağıtım, Sunucu işleri, Studio yayını, Destek bildirim ayarları |
 | `tools/rapor-coz.py` | Şifreli sunucu raporlarını açar |
 
+## Studio belgeleri
+
+Masaüstü uygulamasının ayrıntılı belgeleri Studio deposundadır (`/Users/k0rigi/Desktop/Web projeleri/peyrev-studio/docs/`);
+sunucuyu etkileyen bir iş yaparken ilgili olanı oradan oku, buraya kopyalama (iki kopya birbirinden ayrılır):
+
+| Belge | Konu |
+| --- | --- |
+| `docs/lisans.md` | Studio'nun girişi, lisans uçları, cihaz ve oturum kuralları (bu depodaki `accounts/` ile birlikte) |
+| `docs/guncelleme-mimarisi.md` | İmzalı güncelleme, iki bildirim (`guncelleme.manifest`, `stable.manifest`), Peyrev adına geçiş (1.1.0) |
+| `docs/destek.md` | Öneri ve destek talepleri (bu depodaki `support/` ile birlikte) |
+| `docs/ajanlar.md`, `docs/ofis-modeli.md`, `docs/kurumsal-entegrasyon.md` | Ajanlar, ofisler, ortak model ve kurumsal bağlantılar (bu depodaki `agents/`, `llm/` ile birlikte) |
+| `docs/mimari.md`, `docs/masaustu-dagitim.md`, `docs/kurulum.md` | Uygulamanın yapısı, paketleme ve kurulum |
+| `docs/adimlar.md`, `docs/akislar.md`, `docs/zamanlayici.md`, `docs/web-otomasyonu.md`, `docs/veritabani.md` | Kullanıcının akış adımları ve özellikleri |
+
 ## Skill'ler
 
 - `rpa-license-admin` — panelde hak verme, uzatma, başvuru ve lisans sorunlarını inceleme.

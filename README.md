@@ -82,7 +82,7 @@ günlüğünde sürümle durum özeti (JSON) görünür. Sunucu SSH anahtarı be
 | --- | --- |
 | Testler | Çekme isteklerinde ve main dışındaki dallarda testler (PostgreSQL 16) |
 | Dağıtım | main'e her push'ta testler, ardından dağıtım (`deploy/dagitim.sh`): sürüm klasörü, özet denetimli bağımlılıklar, geçişler, yeniden başlatma, sağlık denetimi ve gerekirse önceki sürüme dönüş. `DAGITIM_ACIK=1` depo değişkeniyle açılır |
-| Sunucu işleri | `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır) |
+| Sunucu işleri | `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır), `yoneticiler` (salt okunur: panele girebilen hesaplar, iki adımlı doğrulama ve son girişler), `destek-eposta` (`deploy/destek-eposta.sh`: info@peyrev.com kutusunu açar, şifresini sunucuda üretir, Postfix'e peyrev.com sertifikasını ekler, `destek.env`'i yazar ve deneme bildirimi gönderir) |
 | Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`). İki bildirim vardır: `guncelleme.manifest` (Studio 1.1.0 ve sonrası) indirme sayfasıyla, `stable.manifest` (1.0.x) sayfasız yayımlanır; aynı sürümün iki arşivi `releases/<sürüm>` klasörünü paylaşır, yayımlanmış dosya değişmez. `prune` yalnız iki bildirimin andığı sürümleri bırakır |
 | Destek bildirim ayarları | Telegram ve e-posta bilgilerini Secrets'tan `/etc/peyrev/destek.env` dosyasına yazar ve deneme bildirimi gönderir |
 
