@@ -32,14 +32,14 @@ SESSION_EXPIRED = "Oturumun süresi doldu. Yeniden giriş yapın."
 TOO_MANY = "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin."
 
 
-def login(client, kullanici="ali@ornek.test", sifre=PASSWORD, cihaz=DEVICE, surum="1.0.0", address="10.0.0.1", **extra):
+def login(client, kullanici="ali@ornek.test", sifre=PASSWORD, cihaz=DEVICE, surum="1.1.0", address="10.0.0.1", **extra):
     body = {"kullanici": kullanici, "sifre": sifre, "cihaz": cihaz, "surum": surum, "protokol": 2,
             "nonce": secrets.token_hex(16), **extra}
     # The proxy appends the real address to X-Forwarded-For; only the last item counts.
     return client.post("/api/rpa/lisans/giris", json=body, headers={"X-Forwarded-For": "192.0.2.1, " + address})
 
 
-def renew(client, token, cihaz=DEVICE, surum="1.0.0", **extra):
+def renew(client, token, cihaz=DEVICE, surum="1.1.0", **extra):
     body = {"token": token, "cihaz": cihaz, "surum": surum, "protokol": 2, "nonce": secrets.token_hex(16), **extra}
     return client.post("/api/rpa/lisans/yenile", json=body)
 
@@ -55,8 +55,8 @@ def sessions_of(core, user):
         return cur.fetchall()
 
 
-def studio_license(client, response, device=DEVICE, nonce=None, product=licensing.EARLIER_PRODUCT):
-    """Studio licensing.verify_license ve _request ile aynı denetimler (varsayılan 1.0.x); imzalı iddiaları döndürür."""
+def studio_license(client, response, device=DEVICE, nonce=None, product=licensing.PRODUCT):
+    """Studio licensing.verify_license ve _request ile aynı denetimler; imzalı iddiaları döndürür."""
     body = response.get_json()
     assert response.status_code == 200 and body["success"] is True, body
     assert re.fullmatch(r"[A-Za-z0-9_\-.]{20,4096}", body["yenileme"])
@@ -107,7 +107,7 @@ def test_key_endpoint_names_the_public_key_the_protocol_and_the_minimum_version(
     answer = client.get("/api/rpa/lisans/anahtar")
     assert answer.status_code == 200 and answer.headers["Cache-Control"] == "no-store"
     assert answer.get_json() == {"success": True, "anahtar": core.keys.license_public_key, "protokol": 2,
-                                 "asgari_surum": "1.0.0"}
+                                 "asgari_surum": "1.1.0"}
     assert len(base64.b64decode(core.keys.license_public_key, validate=True)) == 32
 
 
@@ -129,7 +129,7 @@ def test_sign_in_gives_a_fresh_signed_license_that_studio_accepts(client, core):
     assert session["exp"] == int((START + timedelta(days=30)).timestamp())
     row = sessions_of(core, user)[0]
     assert (row["id"], row["durum"], row["cihaz"], row["surum"], row["ip"], row["ornek"]) == (
-        session["oturum"], "aktif", DEVICE, "1.0.0", "10.0.0.1", APP1)
+        session["oturum"], "aktif", DEVICE, "1.1.0", "10.0.0.1", APP1)
     # The signature covers exactly the payload bytes.
     envelope = response.get_json()["lisans"]
     key = Ed25519PublicKey.from_public_bytes(base64.b64decode(core.keys.license_public_key))
@@ -145,7 +145,7 @@ def test_old_studio_versions_protocols_and_missing_random_values_are_refused(cli
     make_user(core, "ali@ornek.test", modules={users.RPA: None})
     old = {"kullanici": "ali", "sifre": PASSWORD, "cihaz": DEVICE, "surum": "0.9.53"}  # no protocol, no nonce
     for response in (client.post("/api/rpa/lisans/giris", json=old), login(client, surum="0.9.53"),
-                     login(client, surum=None), login(client, surum="1.0"), login(client, protokol=1),
+                     login(client, surum="1.0.9"), login(client, surum=None), login(client, surum="1.0"), login(client, protokol=1),
                      login(client, protokol="2"), login(client, protokol=True), login(client, nonce=None),
                      login(client, nonce="AB" * 16), login(client, nonce="ab" * 16 + "\n"), login(client, nonce="a" * 31)):
         body = response.get_json()
@@ -167,7 +167,7 @@ def test_old_studio_versions_protocols_and_missing_random_values_are_refused(cli
 def test_sign_in_error_catalog(client, core):
     make_user(core, "ali@ornek.test", modules={users.RPA: None})
     make_user(core, "pasif@ornek.test", durum="pasif", modules={users.RPA: None})
-    base = {"cihaz": DEVICE, "surum": "1.0.0", "protokol": 2, "nonce": "ab" * 16}
+    base = {"cihaz": DEVICE, "surum": "1.1.0", "protokol": 2, "nonce": "ab" * 16}
     missing, invalid = "Kullanıcı adı ve şifre gereklidir.", "Geçersiz giriş isteği."
     cases = [({"kullanici": " ", "sifre": PASSWORD}, missing), ({"sifre": PASSWORD}, missing),
              ({"kullanici": "ali"}, missing), ({"kullanici": "ali", "sifre": ""}, missing),
@@ -597,7 +597,7 @@ def test_the_module_serves_exactly_the_studio_and_application_endpoints(app):
 
 def test_version_numbers_and_random_values():
     assert licensing.version_tuple("1.0.0") == (1, 0, 0) and licensing.version_tuple("1.12.3-beta") == (1, 12, 3)
-    assert licensing.version_tuple("0.9.53") < licensing.MINIMUM_VERSION <= licensing.version_tuple("1.0.1")
+    assert licensing.version_tuple("1.0.9") < licensing.MINIMUM_VERSION <= licensing.version_tuple("1.1.0")
     for broken in (None, "", "abc", "1.2", {"a": 1}, "v1.0.0"):
         assert licensing.version_tuple(broken) == (0, 0, 0)
     assert licensing.valid_nonce("0123456789abcdef" * 2) == "0123456789abcdef" * 2
@@ -743,10 +743,10 @@ def test_closing_all_sessions_of_an_account_or_one_of_them(core):
     assert sessions_of(core, veli)[0]["durum"] == "aktif"
 
 
-def test_studio_1_1_and_later_get_the_peyrev_product_and_earlier_ones_keep_theirs(client, core):
+def test_studio_1_0_is_refused_and_1_1_and_later_get_the_peyrev_product(client, core):
     make_user(core, "ali@ornek.test", modules={users.RPA: None})
-    # Studio 1.0.x accepts only the product name it was built with; 1.1.0 and later only "peyrev".
-    studio_license(client, login(client, surum="1.0.0"))
+    # 1.0.x verified only its earlier product name: it is told to update (its updater installs 1.1.0 by itself).
+    assert login(client, surum="1.0.0").get_json()["neden"] == "ESKI_SURUM"
     first = login(client, surum="1.1.0")
     assert studio_license(client, first, product="peyrev")["urun"] == "peyrev"
     renewed = renew(client, first.get_json()["yenileme"], surum="1.1.0")

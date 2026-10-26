@@ -4,7 +4,7 @@
 -- korunur: Studio yerel ajanları, çalışmaları ve ofis-<id>.glb modeli ofis kimliğine bağlıdır. Tamsayı kimlik dizisi
 -- yoktur; taşıma sonrası setval gerekmez.
 --
--- MySQL (orkestrai) kaynağı → Peyrev eşlemesi (taşıma aracı bu bloğu uygular):
+-- Eski sistemden (MySQL) 2026-10-26'daki tek seferlik taşımanın eşlemesi:
 --   Genel: DATETIME / DATETIME(6) değerleri Türkiye saati (+03:00) sayılıp timestamptz'ye çevrilir; 'Aktif'/'Pasif' →
 --          'aktif'/'pasif'; FirmaID taşınmaz (kapsam sahip_id'dir); kullanıcı kimlikleri (KullaniciID) aynen kalır.
 --          sahip_id'si Peyrev'e taşınmamış bir hesaba düşen satır taşınmaz, arşivde kalır.

@@ -1,5 +1,5 @@
-"""Sunucu işleri (.github/workflows/sunucu.yml): her seçeneğin depoda bir betiği vardır, betikler sözdizimince geçerlidir
-ve salt okunur envanter işi sunucuda hiçbir şeyi değiştiren komut içermez."""
+"""Sunucu işleri (.github/workflows/sunucu.yml): her seçeneğin depoda bir betiği vardır ve betikler sözdizimince
+geçerlidir."""
 
 from __future__ import annotations
 
@@ -31,12 +31,3 @@ def test_scripts_parse():
     for script in sorted((ROOT / "deploy").glob("*.sh")):
         subprocess.run(["bash", "-n", str(script)], check=True)
 
-
-def test_inventory_is_read_only():
-    text = (ROOT / "deploy/orkestrai-envanter.sh").read_text()
-    code = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
-    for pattern in (r"\b(DROP|DELETE|UPDATE|INSERT|ALTER|TRUNCATE|GRANT|REVOKE|CREATE)\b", r"\brm\s", r"\bmv\s",
-                    r"systemctl\s+(stop|start|restart|disable|enable|mask)", r"\bcrontab\s+-[er]", r"\bchmod\b",
-                    r"\bchown\b", r"\btee\b", r"(?<![2&\w])>\s*/(?!dev/null)", r"\bsed\s+-i", r"pm2\s+(stop|delete|kill)",
-                    r"(?m)(^|[;&|(]\s*)cyberpanel\s"):
-        assert not re.search(pattern, code), pattern

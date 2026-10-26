@@ -32,14 +32,12 @@ from ..db import advisory_lock
 from . import applications, rules, sessions
 
 # İmzalı iddialardaki ürün kodu Studio'nun cihaz özetine de girer; değişmez.
-# The product a signed license names. Studio 1.1.0 and later expect "peyrev"; earlier ones accept only the name
-# they were built with, so they keep receiving it until the minimum version passes 1.1.0.
 PRODUCT = "peyrev"
-EARLIER_PRODUCT, PRODUCT_SINCE = "rpa-orkestrai", (1, 1, 0)
 PROTOCOL = 2
 REFRESH_SECONDS = 600
 TOLERANCE_SECONDS = 3600
-MINIMUM_VERSION = (1, 0, 0)
+# 1.1.0 Peyrev adlarına geçen sürümdür; daha eskiler lisans alamaz, güncelleyicileri onu kendiliğinden kurar.
+MINIMUM_VERSION = (1, 1, 0)
 REFRESH_LIFETIME = timedelta(days=30)
 REFRESH_AUDIENCE = "peyrev-yenileme"
 REFRESH_CLAIMS = ["exp", "aud", "kullanici_id", "cihaz", "sifre_izi", "oturum", "sira"]
@@ -80,11 +78,6 @@ def license_refusal(cur: Cursor, user: dict[str, Any], today: date) -> tuple[Api
 
 def session_expired() -> ApiError:
     return ApiError(sessions.SESSION_EXPIRED, 401, "OTURUM_GECERSIZ")
-
-
-def product(data: dict) -> str:
-    """The product name the asking Studio verifies (see PRODUCT)."""
-    return PRODUCT if version_tuple(data.get("surum")) >= PRODUCT_SINCE else EARLIER_PRODUCT
 
 
 def sign(core, payload: dict[str, Any]) -> dict[str, str]:
@@ -138,7 +131,7 @@ def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end
     if end is not None:
         valid_until = min(valid_until, datetime.combine(end, time(23, 59, 59), TR))
     payload = {
-        "surum": 1, "urun": product(data), "modul": users.RPA, "kullanici_id": int(user["id"]), "kullanici": user["giris"],
+        "surum": 1, "urun": PRODUCT, "modul": users.RPA, "kullanici_id": int(user["id"]), "kullanici": user["giris"],
         "ad_soyad": user["ad_soyad"], "firma_id": int(user["alan_id"]), "firma_adi": "",
         "bitis": end.isoformat() if end else None, "hesap_turu": "bireysel", "cihaz": device,
         "verildi": moment.isoformat(), "gecerlilik": valid_until.isoformat(), "tolerans": TOLERANCE_SECONDS,

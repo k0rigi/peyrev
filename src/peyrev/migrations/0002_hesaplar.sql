@@ -1,7 +1,7 @@
 -- Hesaplar ve lisans (peyrev.accounts): bireysel başvurular, şifre kodları ve deneme izleri.
 -- Studio oturumları çekirdekteki `oturumlar` tablosundadır (0001); onu bu modül yazar.
 --
--- MySQL (orkestrai) → PostgreSQL eşlemesi; taşıma aracı bu bloğu kullanır (KAYNAK.Kolon → hedef.kolon).
+-- Eski sistemden (MySQL) 2026-10-26'daki tek seferlik taşımanın eşlemesi (KAYNAK.Kolon → hedef.kolon).
 -- Saat dilimsiz DATETIME değerleri Türkiye saatidir: `deger AT TIME ZONE 'Europe/Istanbul'` ile timestamptz olur.
 --
 -- SYS_RpaBasvurulari → basvurular (bütün satırlar taşınır)

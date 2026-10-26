@@ -34,7 +34,7 @@ from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey, X
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-# orkestrai.net ile aynı sunucu; açık anahtar, sır değildir (Studio deposundaki yayın betiğiyle aynı).
+# Sunucunun SSH açık anahtarı; sır değildir (Studio yayını betiğindekiyle aynı).
 HOST_ED25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIPUVhfiU2qevA8m7fINyiSWxSOZXczcLVj/KpfRHo/+S"
 TRANSFER_ROOT = PurePosixPath("/var/tmp/peyrev-aktarim")
 INFO = b"peyrev-rapor-v1"

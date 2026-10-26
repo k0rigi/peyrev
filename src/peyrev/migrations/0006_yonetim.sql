@@ -2,8 +2,7 @@
 -- Bu tablolara yalnız o modül yazar. Panelin işlem kayıtları çekirdekteki yonetim_olaylari tablosundadır (0001); iki
 -- adımlı doğrulamanın gizli anahtarı kullanicilar.totp_gizli kolonunda mühürlü durur (peyrev/admin/totp.py).
 --
--- MySQL (orkestrai) kaynağı YOK: orkestrai'deki rpa-yonetim.html sayfası web girişinin JWT'sini tarayıcıda tutardı;
--- sunucu tarafı oturum ve iki adımlı doğrulama yoktu. Taşıma aracı bu tablolara veri kopyalamaz; yöneticiler panele
+-- Eski sistemin yönetim sayfasında sunucu tarafı oturum ve iki adımlı doğrulama yoktu; bu tablolara veri taşınmadı. Yöneticiler panele
 -- ilk kez Peyrev şifreleriyle girer ve iki adımlı doğrulamayı Hesabım bölümünden açar.
 
 -- Panel oturumu: tarayıcı rastgele belirteci yalnız HttpOnly çerezde tutar, burada SHA-256 özeti durur. Süresi dolan,

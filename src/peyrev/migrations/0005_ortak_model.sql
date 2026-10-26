@@ -1,8 +1,7 @@
 -- Ortak model (LLM): Studio'nun /api/studio/ekip/llm/jobs işleri ve tek çalıştırıcının yaşam işareti.
 --
--- MySQL kaynağı YOK: orkestrai'de işler yalnız model çalışanının belleğinde tutulurdu (api/ajanlar/llm_queue.py),
--- çalışanın hazır olduğu Unix soketi ve ready.json ile anlaşılırdı. Taşıma aracı bu tablolara veri kopyalamaz.
--- Kavram eşlemesi (orkestrai → Peyrev):
+-- Eski sistemde işler yalnız model çalışanının belleğinde tutulurdu; bu tablolara veri taşınmadı.
+-- Kavram eşlemesi (eski sistem → Peyrev):
 --   LLMQueue.jobs[id] (uuid4 hex)                     → llm_isler.id
 --   owner (company_id, user_id, session_id)           → (kullanici_id, oturum_id); firma yok
 --   request_key + digest (tekrar koruması)            → UNIQUE (kullanici_id, oturum_id, istek_id) + ozet

@@ -31,7 +31,7 @@ CREATE TABLE kullanici_modulleri (
     PRIMARY KEY (kullanici_id, modul)
 );
 
--- Studio oturumları: hesap başına aynı anda tek bilgisayar (orkestrai SYS_RpaOturumlari karşılığı).
+-- Studio oturumları: hesap başına aynı anda tek bilgisayar.
 CREATE TABLE oturumlar (
     id TEXT PRIMARY KEY CHECK (id ~ '^[0-9a-f]{32}$'),
     kullanici_id BIGINT NOT NULL REFERENCES kullanicilar (id) ON DELETE CASCADE,

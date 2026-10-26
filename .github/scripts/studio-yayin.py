@@ -1,6 +1,6 @@
 """Studio paketlerini peyrev.com/indir/ altına yayımlar (Studio yayını iş akışı). Yalnız bu klasör değişir.
 
-orkestrai deposundaki publish-rpa.py'nin Peyrev kopyası: aynı arşiv, boyut, özet ve imza kuralları; bildirim Peyrev'in
+Arşiv, boyut, özet ve imza kuralları sabittir; bildirim Peyrev'in
 iki güncelleme anahtarından (asıl ve yedek) biriyle imzalı olmalıdır. Hiçbir web hizmeti, veritabanı veya başka site
 değişmez. Depo herkese açık olduğundan günlüğe yalnız sürüm ve sabit hata metinleri yazılır.
 """

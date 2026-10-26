@@ -8,7 +8,8 @@ peyrev.com'un merkezi sunucusu. Peyrev Studio (masaüstü akış stüdyosu) şu 
 - ajan ofisleri, görevler, onaylar ve ortak model erişimi,
 - imzalı güncelleme dosyaları ve indirme sayfası (`/indir/`).
 
-İmzalı lisanstaki ürün adı Studio 1.1.0 ve sonrasına `peyrev`dir; daha eski sürümler kurulurken gömülen adı alır ve asgari sürüm 1.1.0'ı geçince bu ayrım kalkar.
+İmzalı lisanstaki ürün adı `peyrev`dir. Lisans alabilen en eski Studio sürümü 1.1.0'dır (`MINIMUM_VERSION`); daha eski
+sürümler giriş yapamaz, güncelleyicileri 1.1.0'ı kendiliğinden kurar.
 
 Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
@@ -81,7 +82,7 @@ günlüğünde sürümle durum özeti (JSON) görünür. Sunucu SSH anahtarı be
 | --- | --- |
 | Testler | Çekme isteklerinde ve main dışındaki dallarda testler (PostgreSQL 16) |
 | Dağıtım | main'e her push'ta testler, ardından dağıtım (`deploy/dagitim.sh`): sürüm klasörü, özet denetimli bağımlılıklar, geçişler, yeniden başlatma, sağlık denetimi ve gerekirse önceki sürüme dönüş. `DAGITIM_ACIK=1` depo değişkeniyle açılır |
-| Sunucu işleri | `inceleme` (salt okunur), `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır), `orkestrai-envanter` (salt okunur; bkz. Eski sistem) |
+| Sunucu işleri | `kurulum-deneme` / `kurulum` (`deploy/kurulum.sh`), `deneme-hesabi-kapat` (`deploy/deneme-hesabi.sh`: uçtan uca denemenin `peyrev.deneme` hesabını pasif yapar, oturumlarını kapatır) |
 | Studio yayını | Studio paketlerini `/indir/` altına doğrulayarak yayımlar (`inspect`, `publish`, `prune`). İki bildirim vardır: `guncelleme.manifest` (Studio 1.1.0 ve sonrası) indirme sayfasıyla, `stable.manifest` (1.0.x) sayfasız yayımlanır; aynı sürümün iki arşivi `releases/<sürüm>` klasörünü paylaşır, yayımlanmış dosya değişmez. `prune` yalnız iki bildirimin andığı sürümleri bırakır |
 | Destek bildirim ayarları | Telegram ve e-posta bilgilerini Secrets'tan `/etc/peyrev/destek.env` dosyasına yazar ve deneme bildirimi gönderir |
 
@@ -94,10 +95,9 @@ taşındı; taşıma aracı işini bitirdiği için depodan kaldırıldı. Taş�
 sistemden taşındı"), kimlikleri ve şifreleri aynen geldi: eski biçimdeki şifre özetleri (`pbkdf2:sha256:260000`)
 doğrulanmaya devam eder.
 
-orkestrai.net 2026 sonunda kapanır. O zamana kadar aynı sunucuda çalışır; Kurulum ve Dağıtım açılış sayfasını ve
-`/api/rpa/lisans/anahtar` ucunu denetler. 1.0.0'dan eski Studio sürümleri orada lisans alamaz ve köprü sürümle Peyrev'e
-güncellenir. `orkestrai-envanter` sunucu işi (salt okunur) kapanıştan önce eski sürüm kullanımını ve sunucuda eski siteye
-ait her şeyi şifreli rapora yazar.
+Eski sistem aynı gün sunucudan tamamen kaldırıldı (site, veritabanı, e-posta, DNS bölgesi, sertifikalar, servis);
+Peyrev ona hiçbir şekilde bağlı değildir. 1.0.0'dan eski Studio sürümleri kendini güncelleyemez; Peyrev
+peyrev.com/indir'den yeniden kurulur, akışlar ve ayarlar korunur.
 
 Şifreli bir raporu açmak için (yalnız özel anahtarın sahibi):
 
