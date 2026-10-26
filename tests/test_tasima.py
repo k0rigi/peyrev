@@ -15,7 +15,6 @@ import psycopg
 import pytest
 from conftest import START, make_user
 from orkestrai_source import PRECISE, Orkestrai, hex_id, password_hash
-from psycopg.conninfo import make_conninfo
 from psycopg.rows import dict_row
 from test_accounts import login, studio_agents, studio_license
 
@@ -38,14 +37,6 @@ GONE_APPROVAL = hex_id("onay", "silinmis")
 @pytest.fixture
 def source():
     return Orkestrai()
-
-
-@pytest.fixture(scope="session")
-def prova_url(server_url):
-    with psycopg.connect(server_url, autocommit=True) as admin:
-        admin.execute("DROP DATABASE IF EXISTS peyrev_tasima_prova WITH (FORCE)")
-        admin.execute("CREATE DATABASE peyrev_tasima_prova")
-    return make_conninfo(server_url, dbname="peyrev_tasima_prova")
 
 
 def transfer(core, source, mode=target.GERCEK, url=None, now=START):

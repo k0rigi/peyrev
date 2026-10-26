@@ -122,5 +122,7 @@ class Orkestrai:
 
     def event(self, event_id: str, kind: str, record_id: str, user_id: int | None, olay: str, details: Any = None,
               **values: Any) -> dict[str, Any]:
+        """`details` JSON'a çevrilir; metin verilirse TEXT kolonundaki gibi aynen kalır (bozuk JSON da olabilir)."""
+        text = details if isinstance(details, str) else json.dumps(details if details is not None else {})
         return self.add("SYS_AjanEkipOlaylari", ID=event_id, KayitTuru=kind, KayitID=record_id, KullaniciID=user_id,
-                        Olay=olay, Ayrinti=json.dumps(details if details is not None else {}), **values)
+                        Olay=olay, Ayrinti=text, **values)
