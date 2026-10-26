@@ -21,6 +21,7 @@ on:
           - tasima-gercek
           - tasima-gercek-yeniden
           - deneme-hesabi-kapat
+          - orkestrai-envanter
 
 permissions:
   contents: read
@@ -58,9 +59,25 @@ jobs:
             tasima-gercek)  betik=deploy/tasima.sh;   ortam='{"KIP":"gercek"}' ;;
             tasima-gercek-yeniden) betik=deploy/tasima.sh; ortam='{"KIP":"gercek","YENIDEN":"1"}' ;;
             deneme-hesabi-kapat) betik=deploy/deneme-hesabi.sh; ortam='{}' ;;
+            orkestrai-envanter) betik=deploy/orkestrai-envanter.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
+      - name: Bağlantı adresinin türü
+        # Adresin kendisi yazılmaz; yalnız orkestrai.net kapanınca bağlantının etkilenip etkilenmeyeceği.
+        env:
+          HOST: ${{ secrets.HOST }}
+        run: |
+          python - <<'PY'
+          import ipaddress, os
+          host = os.environ["HOST"].strip().rstrip(".").lower()
+          try:
+              ipaddress.ip_address(host)
+              print("Bağlantı adresi: IP")
+          except ValueError:
+              print("Bağlantı adresi: orkestrai.net alanında" if host == "orkestrai.net" or host.endswith(".orkestrai.net")
+                    else "Bağlantı adresi: orkestrai.net dışında bir alan adı")
+          PY
       - name: Sunucuda çalıştır
         env:
           HOST: ${{ secrets.HOST }}
