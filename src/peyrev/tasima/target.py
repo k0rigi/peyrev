@@ -5,8 +5,9 @@
 - gercek (DATABASE_URL): yalnız kaynak='orkestrai' hesapları ve onların kayıtları eklenir ya da kaynakla eşitlenir
   (ON CONFLICT ... DO UPDATE, yalnız bir değer değiştiyse). Peyrev'de doğan satırlara dokunulmaz: kimliği, giriş adı,
   talep numarası ya da (aynı sahipte) ofis adı hedefteki başka bir kayıtla çakışan kaynak kaydı yazılmaz ve sorun
-  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma, dizi
-  ayarı ve doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır.
+  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma ve
+  doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır. Kimlik dizileri
+  (setval geri alınamaz) yalnız doğrulama tuttuysa ilerletilir.
 
 Aynı kaynakla tekrar çalıştırmak hedefte hiçbir satırı değiştirmez. Daha önce taşınmış hesap kaynakta hakkını yitirse
 de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış hesapta Peyrev'de değişen alanlar (şifre, modül
@@ -164,12 +165,14 @@ def _migrate(connection: psycopg.Connection, tables: dict[str, list[dict[str, An
         written = _written(plan)
         before = _others(cur, written)
         write(cur, plan)
-        outcome.sequences = advance_sequences(cur, tables)
         verify(cur, plan, outcome)
         after = _others(cur, written)
         outcome.disturbed = [table for table in TARGETS if before[table] != after[table]]
         outcome.problems += [f"{table}: Peyrev'de doğan satırlar değişti." for table in outcome.disturbed]
         outcome.verified = True
+        # setval is not undone by a rollback: a real run that is going to be rolled back leaves the sequences alone.
+        if outcome.ok or outcome.mode == PROVA:
+            outcome.sequences = advance_sequences(cur, tables)
         _audit(cur, outcome)
         if not outcome.ok and outcome.mode == GERCEK:
             rolled_back = True

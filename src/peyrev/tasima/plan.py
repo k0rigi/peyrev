@@ -599,9 +599,11 @@ def _notes(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan) -
     members = _rows(tables, "SYS_AjanOfisUyeleri")
     others = [row for row in members if (office := index.offices.get(row["OfisID"])) is None
               or office["YetkiliID"] != row["KullaniciID"]]
+    owners = {values["sahip_id"] for values in plan.tables["ajan_ofisleri"].rows.values()}
+    officeless = ({row["KullaniciID"] for row in others} & set(accounts)) - owners
     plan.notes.append(f"SYS_AjanOfisUyeleri: {len(members)} üyelik; sahiplik {len(members) - len(others)}, taşınmayan "
-                      f"diğer üyelik {len(others)} (hesaplar: {ids({row['KullaniciID'] for row in others})}; bu hesaplar "
-                      "Peyrev'de ofissiz başlar).")
+                      f"diğer üyelik {len(others)} (hesaplar: {ids({row['KullaniciID'] for row in others})}); Peyrev'de "
+                      f"ofissiz başlayan taşınmış hesaplar: {ids(officeless)}.")
     sessions = _rows(tables, "SYS_RpaOturumlari")
     plan.notes.append(f"SYS_RpaOturumlari: {len(sessions)} oturum (aktif {sum(row['Durum'] == ACTIVE for row in sessions)}) "
                       "taşınmaz; Studio'da yeniden giriş gerekir.")

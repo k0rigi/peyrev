@@ -53,6 +53,15 @@ def db(server_url):
     database.close()
 
 
+@pytest.fixture(scope="session")
+def prova_url(server_url):
+    """Taşıma provasının veritabanı (peyrev_prova karşılığı): prova her çalıştırmada public şemasını baştan kurar."""
+    with psycopg.connect(server_url, autocommit=True) as admin:
+        admin.execute("DROP DATABASE IF EXISTS peyrev_tasima_prova WITH (FORCE)")
+        admin.execute("CREATE DATABASE peyrev_tasima_prova")
+    return make_conninfo(server_url, dbname="peyrev_tasima_prova")
+
+
 class RecordingNotifier:
     """Telegram ve e-posta yerine gönderilenleri kaydeder."""
 

@@ -34,7 +34,7 @@ def render(outcome: Outcome) -> str:
         same = "uyuşuyor" if source_total == target_total else "UYUŞMUYOR"
         others = "değişmedi" if not outcome.disturbed else "DEĞİŞTİ (" + ", ".join(outcome.disturbed) + ")"
         sequences = "; ".join(f"{item.name} sonraki {item.next_value}" + (" (ilerletildi)" if item.advanced else "")
-                              for item in outcome.sequences)
+                              for item in outcome.sequences) or "dokunulmadı (doğrulama tutmadı)"
         passwords = f"kaynak {source_total}, hedef {target_total} ({same})"
         lines += ["", "Denetimler",
                   f"  Şifre özetlerinin SHA-256 toplamı ({count} hesap): {passwords}",
