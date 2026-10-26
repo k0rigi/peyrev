@@ -29,11 +29,12 @@ if [ "$exists" != 0 ] && [ "$current_user" = "$ADDRESS" ]; then
   echo "Kutu var ve destek.env onu kullanıyor; şifreye dokunulmadı."
   PW=$(grep -E '^DESTEK_SMTP_PASSWORD=' /etc/peyrev/destek.env | cut -d= -f2-)
 else
-  PW=$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')
+  # Letters and digits only: the CyberPanel tool takes the password as an argument (a leading - would be an option).
+  PW=$(python3 -c 'import secrets, string; print("".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))')
   if [ "$exists" = 0 ]; then
-    cyberpanel createEmail --domainName "$DOMAIN" --userName "$BOX" --password "$PW" 2>&1 | tail -2 | sed 's/^/  /'
+    cyberpanel createEmail --domainName "$DOMAIN" --userName "$BOX" --password="$PW" 2>&1 | tail -2 | sed 's/^/  /'
   else
-    cyberpanel changeEmailPassword --email "$ADDRESS" --password "$PW" 2>&1 | tail -2 | sed 's/^/  /'
+    cyberpanel changeEmailPassword --email "$ADDRESS" --password="$PW" 2>&1 | tail -2 | sed 's/^/  /'
   fi
 fi
 [ "$(sql "SELECT COUNT(*) FROM e_users WHERE email = '$ADDRESS'")" = 1 ] || { echo "Kutu açılamadı."; genel "kutu açılamadı"; exit 1; }
