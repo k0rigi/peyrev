@@ -4,10 +4,11 @@
 # komut satırına, ortam listesine ve çıktıya girmez. Çıktıda yalnız kanal durumları bulunur.
 
 set -Eeuo pipefail
-export LC_ALL=C.UTF-8 LANG=C.UTF-8
 INPUT=/var/tmp/peyrev-aktarim/destek.env.yeni
-REL=$(readlink -f /opt/peyrev/current)
+# The transfer file carries the secrets: it is removed on every exit, including a failure in the next lines.
 trap 'rm -f -- "$INPUT"' EXIT
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
+REL=$(readlink -f /opt/peyrev/current)
 [ -f "$INPUT" ] || { echo "Aktarım dosyası yok."; exit 1; }
 status=0
 result=$(PYTHONPATH="$REL/src" "$REL/venv/bin/python" -B - "$INPUT" <<'PY'

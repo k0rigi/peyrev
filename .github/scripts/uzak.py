@@ -19,10 +19,12 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 import re
 import shlex
 import sys
+import threading
 import time
 from pathlib import Path, PurePosixPath
 
@@ -121,7 +123,23 @@ def run(client: paramiko.SSHClient, text: str, limit: float) -> tuple[int, bytes
             time.sleep(0.2)
 
 
+def _quiet_paramiko() -> None:
+    """paramiko's own log and its transport thread's tracebacks must not reach the public log."""
+    # A level on the parent also silences paramiko.transport and the other child loggers (disabled would not).
+    logging.getLogger("paramiko").setLevel(logging.CRITICAL + 1)
+    previous = threading.excepthook
+
+    def hook(args):
+        if args.thread is not None and args.thread.name.startswith("paramiko"):
+            print(f"SSH iş parçacığı durdu: {args.exc_type.__name__}", flush=True)
+            return
+        previous(args)
+
+    threading.excepthook = hook
+
+
 def main() -> int:
+    _quiet_paramiko()
     script_path = Path(os.environ["BETIK"])
     if script_path.parent != Path("deploy") or script_path.suffix != ".sh" or not script_path.is_file():
         raise SystemExit("Betik deploy/ altında bulunamadı.")

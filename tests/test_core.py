@@ -125,3 +125,18 @@ def test_unexpected_errors_log_only_the_type_and_place(app, caplog):
     logged = " ".join(record.getMessage() for record in caplog.records)
     assert "RuntimeError" in logged and "test_core.py" in logged and "gizli_deger" not in logged
     assert not any(record.exc_info for record in caplog.records)
+
+
+def test_connections_closed_by_the_server_are_replaced_before_use(core):
+    """After a PostgreSQL restart (here: its connections terminated) the next requests still succeed."""
+    import psycopg
+
+    with core.db.transaction() as cur:
+        cur.execute("SELECT 1 AS ok")
+    with psycopg.connect(core.db.url, autocommit=True) as admin:
+        admin.execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                      "WHERE datname = current_database() AND pid <> pg_backend_pid()")
+    for _ in range(6):
+        with core.db.transaction() as cur:
+            cur.execute("SELECT 1 AS ok")
+            assert cur.fetchone()["ok"] == 1

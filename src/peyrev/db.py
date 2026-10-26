@@ -27,7 +27,10 @@ def _configure(connection) -> None:
 class Database:
     def __init__(self, url: str, *, min_size: int = 1, max_size: int = 8):
         self.url = url
+        # check: a connection the server closed (PostgreSQL restart, idle timeout) is replaced before it is handed
+        # out, so the first requests after a restart do not fail.
         self.pool = ConnectionPool(url, min_size=min_size, max_size=max_size, open=True, configure=_configure,
+                                   check=ConnectionPool.check_connection,
                                    kwargs={"row_factory": dict_row, "autocommit": False}, timeout=10)
 
     @contextmanager

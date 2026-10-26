@@ -425,7 +425,7 @@ def settings() -> dict[str, str]:
 def main() -> int:
     import paramiko
 
-    logging.getLogger("paramiko").disabled = True
+    logging.getLogger("paramiko").setLevel(logging.CRITICAL + 1)  # also silences paramiko.transport
     config = settings()
     action = config["action"]
     if action not in {"inspect", "publish", "prune"}:
