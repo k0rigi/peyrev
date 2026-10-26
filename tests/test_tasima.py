@@ -539,6 +539,32 @@ def test_a_rerun_keeps_the_decisions_peyrev_made_on_migrated_applications(core, 
     assert [row["ayrinti"]["yeniden"] for row in audit] == [False, True]
 
 
+def test_a_peyrev_decision_survives_a_later_orkestrai_decision(core, source):
+    company(source)
+    rejected_here, decided_there = hex_id("basvuru", "peyrev-ret"), hex_id("basvuru", "orkestrai-karar")
+    for application, email, day in ((rejected_here, "aday1@ornek.test", 15), (decided_there, "aday2@ornek.test", 16)):
+        source.add("SYS_RpaBasvurulari", BasvuruID=application, Eposta=email, SifreHash=password_hash("Aday12345"),
+                   Olusturma=datetime(2026, 9, day, 10, 0))
+    assert transfer(core, source).ok
+    accounts_admin.reject_application(core, 1, rejected_here, note="Ödeme gelmedi")
+    # Afterwards orkestrai decides both: it approves the one Peyrev rejected and rejects the other one.
+    source.find("SYS_RpaBasvurulari", BasvuruID=rejected_here).update(
+        Durum="onaylandi", KullaniciID=3, KararZamani=datetime(2026, 10, 26, 14, 0), KararVerenID=1, SifreHash="")
+    source.find("SYS_RpaBasvurulari", BasvuruID=decided_there).update(
+        Durum="reddedildi", KararZamani=datetime(2026, 10, 26, 14, 5), KararVerenID=1, YoneticiNotu="Vazgeçti",
+        SifreHash="")
+    before = keyed(rows(core.db, "basvurular"))
+    outcome = transfer(core, source, again=True)
+    assert outcome.ok and outcome.committed, report.render(outcome)
+    after = keyed(rows(core.db, "basvurular"))
+    assert after[rejected_here] == before[rejected_here]          # Peyrev's rejection stays, row not rewritten
+    assert (after[rejected_here]["durum"], after[rejected_here]["yonetici_notu"]) == ("reddedildi", "Ödeme gelmedi")
+    # Undecided in Peyrev: orkestrai's decision comes over.
+    assert (after[decided_there]["durum"], after[decided_there]["yonetici_notu"], after[decided_there]["sifre_hash"]) == (
+        "reddedildi", "Vazgeçti", "")
+    assert outcome.plan.tables["basvurular"].skipped == {rules.PEYREV_DECIDED: 1}
+
+
 def test_rows_born_in_peyrev_are_never_touched(core, source):
     company(source)
     agents(source)

@@ -171,16 +171,17 @@ def _login(core, cur: Cursor, data: dict, login: str, password: str, device: str
     moment = core.clock.now()
     # The same user name may belong to several accounts (ali@a.test, ali@b.test): the password picks one.
     candidates = users.find_by_login(cur, login)
-    rules.login_attempts_left(cur, login, address, moment, candidates)
+    waiting = applications.pending(cur, login)
+    rules.login_attempts_left(cur, login, address, moment, candidates + waiting)
     matched = [user for user in candidates if rules.matches(user["sifre_hash"], password)]
     if len(matched) > 1:
         raise ApiError(rules.AMBIGUOUS, 409, "BELIRSIZ")
     if not matched:
-        waiting = applications.pending_hashes(cur, login)
-        if any(rules.matches(value, password) for value in waiting):
+        hashes = [row["sifre_hash"] for row in waiting]
+        if any(rules.matches(value, password) for value in hashes):
             raise ApiError(applications.PENDING_MESSAGE, 403, "BASVURU_BEKLIYOR")
-        rules.equalize([user["sifre_hash"] for user in candidates] + waiting, password)
-        rules.login_failed(cur, rules.failed_name(login, candidates), address, moment)
+        rules.equalize([user["sifre_hash"] for user in candidates] + hashes, password)
+        rules.login_failed(cur, rules.failed_name(login, candidates + waiting), address, moment)
         return ApiError("Kullanıcı adı veya şifre hatalı.", 401, "HATALI_GIRIS")
     user = matched[0]
     refusal, end = license_refusal(cur, user, core.clock.today_tr())

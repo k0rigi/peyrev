@@ -242,7 +242,8 @@ def test_ambiguous_names_and_waiting_applications_are_not_counted_as_failures(cl
     assert login(client, kullanici="ayse", sifre="Yanlis2026").get_json()["kod"] == "HATALI_GIRIS"
     with core.db.transaction() as cur:
         cur.execute("SELECT giris FROM giris_denemeleri")
-        assert [row["giris"] for row in cur.fetchall()] == ["ayse"]
+        # The name leads to a single waiting application: the failure is written under its address, like an account's.
+        assert [row["giris"] for row in cur.fetchall()] == ["ayse@ornek.test"]
 
 
 def test_license_follows_the_module_row_and_the_last_day_in_turkish_time(client, core):
@@ -550,6 +551,23 @@ def test_a_short_name_of_several_accounts_counts_against_each_of_them(client, co
     for name in ("ali@a.test", "Ali@A.Test", "ali"):
         assert login(client, kullanici=name, address="10.0.4.1").status_code == 429, name
     assert login(client, kullanici="ali@b.test", address="10.0.4.2").status_code == 200
+
+
+def test_a_waiting_application_counts_like_an_account(client, core):
+    """Onayda başvurunun şifresi hesabın şifresi olur: kısa ad ile e-postanın tamamı arasında geçmek ona da yeni hak
+    vermez; sınırda başvurunun doğru şifresi de 429 alır."""
+    application = {"ad_soyad": "Veli Kaya", "eposta": "veli@v.test", "sifre": "Guclu2026", "paket": "rpa", "onay": True}
+    assert client.post("/api/rpa/basvuru", json=application).status_code == 201
+    for index in range(10):
+        assert login(client, kullanici="veli", sifre="Yanlis2026", address=f"10.0.6.{index}").status_code == 401
+    for name in ("VELI@V.TEST", "veli@v.test", "veli"):
+        assert login(client, kullanici=name, sifre="Guclu2026", address="10.0.7.1").status_code == 429, name
+
+
+def test_every_stored_hash_format_has_a_decoy():
+    """Werkzeug'un varsayılanı değişirse yeni biçim STORED_METHODS'a eklenmeli: eski biçimdeki hesaplar da eşitlenir."""
+    assert rules.hash_methods()[0] in rules.STORED_METHODS
+    assert set(rules.hash_methods()) == set(rules.STORED_METHODS)
 
 
 def test_a_migrated_werkzeug_hash_signs_in_and_stays_as_it_is(client, core):

@@ -2,6 +2,7 @@
 
 import re
 
+import psycopg
 from conftest import make_user
 from test_accounts import login, renew
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -204,6 +205,28 @@ def test_password_attempts_count_per_account_whatever_the_spelling(client, core)
     with core.db.transaction() as cur:
         cur.execute("SELECT DISTINCT anahtar FROM hesap_izleri WHERE anahtar LIKE 'hesap:%'")
         assert [row["anahtar"] for row in cur.fetchall()] == ["hesap:ali@x.test"]
+
+
+def test_a_failed_reset_runs_the_same_statements_whoever_the_name_belongs_to(client, core, monkeypatch):
+    """Şifre kodu yolunda özet denetimi yok: sorgu sayısı da adın bir hesaba, birkaç hesaba ya da hiçbir hesaba ait
+    olmasına göre değişmez."""
+    make_user(core, "ali@x.test")
+    make_user(core, "veli@a.test")
+    make_user(core, "veli@b.test")
+    executed = []
+    original = psycopg.Cursor.execute
+
+    def spy(self, query, params=None, **kwargs):
+        executed.append(1)
+        return original(self, query, params, **kwargs)
+
+    monkeypatch.setattr(psycopg.Cursor, "execute", spy)
+    counts = {}
+    for name in ("yok@x.test", "yok", "ali@x.test", "ali", "veli"):
+        executed.clear()
+        assert reset(client, name, "AAAA-BBBB-CCCC").status_code == 401, name
+        counts[name] = len(executed)
+    assert len(set(counts.values())) == 1, counts
 
 
 def test_password_errors_never_carry_database_details(client, core, monkeypatch):

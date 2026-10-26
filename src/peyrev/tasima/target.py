@@ -77,8 +77,12 @@ SPARE_LOGIN = "'tasima.' || k.id || '@gecici.invalid'"
 
 # Yeniden çalıştırmanın taşınmış kayıtlarda kaynağın değerine döndürdükleri (ret metni ve README aynı listeyi verir).
 REVERTED = ("hesap durumu (Peyrev'de pasif yapılan hesap yeniden aktif olur) ve rolü, ad soyad, şifre, modül hakları ve "
-            "süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu, görev ve onay durumları (sürüm "
-            "geriler), talep durumu")
+            "süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu; görev ve onay durumları, sonuç "
+            "özetleri ve zamanları (sürüm geriler); talep durumu, son yazanı ve okundu bilgileri (Peyrev'deki "
+            "yazışmaların okunmamış işareti kaybolur)")
+# Başvurunun kararı: iki sistem de yalnız bekleyen başvuruya karar verir, bu yüzden hedefte kaynaktakinden farklı bir
+# karar Peyrev'de verilmiştir.
+DECISION = ("durum", "karar_zamani", "karar_veren_id", "yonetici_notu")
 
 
 class TargetError(Exception):
@@ -262,11 +266,13 @@ def _conflicts(cur: psycopg.Cursor, plan: Plan) -> dict[tuple[str, Any], tuple[s
             found.setdefault(("kullanicilar", row["id"]), (CONFLICT, text))
     applications = plan.tables["basvurular"].rows
     if applications:
-        # A migrated application decided in Peyrev, or linked to an account opened there, keeps Peyrev's state.
-        cur.execute("SELECT b.id, b.durum, k.kaynak FROM basvurular b LEFT JOIN kullanicilar k ON k.id = b.kullanici_id "
-                    "WHERE b.id = ANY(%s::text[]) ORDER BY b.id", (list(applications),))
+        # A migrated application decided in Peyrev (DECISION), or linked to an account opened there, keeps Peyrev's state.
+        cur.execute("SELECT b.id, b.durum, b.karar_zamani, b.karar_veren_id, b.yonetici_notu, k.kaynak FROM basvurular b "
+                    "LEFT JOIN kullanicilar k ON k.id = b.kullanici_id WHERE b.id = ANY(%s::text[]) ORDER BY b.id",
+                    (list(applications),))
         for row in cur.fetchall():
-            decided_here = row["durum"] != PENDING and applications[row["id"]]["durum"] == PENDING
+            planned = applications[row["id"]]
+            decided_here = row["durum"] != PENDING and any(row[name] != planned[name] for name in DECISION)
             if decided_here or (row["kaynak"] is not None and row["kaynak"] != ORKESTRAI):
                 found[("basvurular", row["id"])] = (PEYREV_DECIDED, None)
     waiting = [key for key, values in applications.items() if values["durum"] == PENDING]

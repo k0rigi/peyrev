@@ -134,10 +134,12 @@ Operatör notları:
   tarafı düzeltilip yeniden çalıştırılır.
 - Gerçek taşıma bir kez yapılır. Yeniden çalıştırmak (`tasima-gercek-yeniden`) taşınmış kayıtları kaynakla eşitler;
   Peyrev'de yapılan değişiklikler kaynağın değerine döner: hesap durumu (Peyrev'de pasif yapılan hesap yeniden aktif
-  olur) ve rolü, ad soyad, şifre, modül hakları ve süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu,
-  görev ve onay durumları (sürüm geriler), talep durumu. Hesabın `alan_id`'si (Studio'nun firma kimliği) ilk
-  taşımadaki değerinde kalır, Peyrev'de karara bağlanan başvurular korunur. Yeniden çalıştırmadan sonra pasif yapılan
-  hesaplar ve yönetici rolleri panelden yeniden denetlenir. Kaynakta silinen hesap pasif olur, kayıtları kalır.
+  olur) ve rolü, ad soyad, şifre, modül hakları ve süreleri; Peyrev'de silinen ofisler geri gelir, ofis adı ve durumu;
+  görev ve onay durumları, sonuç özetleri ve zamanları (sürüm geriler); talep durumu, son yazanı ve okundu bilgileri
+  (Peyrev'deki yazışmaların okunmamış işareti kaybolur). Hesabın `alan_id`'si (Studio'nun firma kimliği) ilk
+  taşımadaki değerinde kalır; Peyrev'de karara bağlanan başvurular, orkestrai de karar verse korunur. Yeniden
+  çalıştırmadan sonra pasif yapılan hesaplar, yönetici rolleri ve Peyrev'de yazışılan talepler panelden yeniden
+  denetlenir. Kaynakta silinen hesap pasif olur, kayıtları kalır.
 - Taşınan herkes Studio'da yeniden giriş yapar; açık şifre kodu olan hesaplara (raporda kimlikleriyle) yönetim
   panelinden yeni kod üretilir.
 

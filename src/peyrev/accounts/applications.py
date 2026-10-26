@@ -32,16 +32,17 @@ PENDING_MESSAGE = ("Başvurunuz alındı; ödemeniz onaylandığında hesabını
                    "giriş yapabilirsiniz.")
 
 
-def pending_hashes(cur: Cursor, login: str) -> list[str]:
-    """Giriş adına uyan, ödeme bekleyen başvuruların şifre özetleri. Şifre bunlardan birini tutarsa giriş hatalı deneme
-    sayılmaz, başvurunun beklediği söylenir."""
+def pending(cur: Cursor, login: str) -> list[dict]:
+    """Giriş adına uyan, ödeme bekleyen başvurular ({"giris": e-posta, "sifre_hash": …}). Şifre bunlardan birini tutarsa
+    giriş hatalı deneme sayılmaz, başvurunun beklediği söylenir; deneme sınırında hesap gibi sayılırlar (onayda başvurunun
+    şifresi hesabın şifresi olur)."""
     if "@" in login:
-        cur.execute("SELECT sifre_hash FROM basvurular WHERE durum = 'bekliyor' AND lower(eposta) = lower(%s) LIMIT 5",
-                    (login,))
+        cur.execute("SELECT eposta AS giris, sifre_hash FROM basvurular WHERE durum = 'bekliyor' "
+                    "AND lower(eposta) = lower(%s) LIMIT 5", (login,))
     else:
-        cur.execute("SELECT sifre_hash FROM basvurular WHERE durum = 'bekliyor' "
+        cur.execute("SELECT eposta AS giris, sifre_hash FROM basvurular WHERE durum = 'bekliyor' "
                     "AND lower(split_part(eposta, '@', 1)) = lower(%s) LIMIT 5", (login,))
-    return [row["sifre_hash"] for row in cur.fetchall() if row["sifre_hash"]]
+    return [row for row in cur.fetchall() if row["sifre_hash"]]
 
 
 def forget_old(cur: Cursor, moment: datetime) -> None:

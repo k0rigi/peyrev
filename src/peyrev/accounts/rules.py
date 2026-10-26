@@ -7,8 +7,8 @@ Deneme sınırları iki ayrı sayaçtır (orkestrai'deki gibi), ikisinde de 15 d
 deneme; sınıra şifre denetiminden önce bakılır, yani sınırdaki doğru şifre de 429 alır:
 - giris_denemeleri: Studio lisans girişi ve yönetim paneli.
 - hesap_izleri: şifre değiştirme ve şifre kodu ("sifre"), başvurular ("basvuru").
-Hesap sayacı yazılan ada ve eşleşen her hesap için o hesabın asıl giriş adıyla ya da @ öncesiyle yazılmış hatalı
-denemelerin toplamına bakar; tek hesaba inen hatalı deneme asıl adla yazılır, adlar veritabanında küçük harfe indirilir
+Hesap sayacı yazılan ada ve eşleşen her hesap (Studio girişinde bekleyen başvuru da) için o kaydın asıl adıyla ya da
+@ öncesiyle yazılmış hatalı denemelerin toplamına bakar; tek hesaba inen hatalı deneme asıl adla yazılır, adlar veritabanında küçük harfe indirilir
 (find_by_login gibi). Kısa ad, e-postanın tamamı ve büyük/küçük harf yazımları arasında geçmek yeni deneme hakkı vermez.
 """
 
@@ -43,6 +43,9 @@ TOO_MANY_ATTEMPTS = "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin."
 AMBIGUOUS = "Bu kullanıcı adı birden fazla hesapla eşleşiyor. E-posta adresinizin tamamını yazın."
 # orkestrai'den taşınan özetlerin biçimi (Werkzeug 2.0); Peyrev'in kendi özetleri Werkzeug'un varsayılanıdır.
 MIGRATED_METHOD = "pbkdf2:sha256:260000"
+# Saklanmış özetlerin bütün biçimleri; yalnız eklenir. Werkzeug'un varsayılanı değişirse yenisi buraya eklenir (test
+# uyarır): eski biçimdeki hesaplar da sahte özetle eşitlenmeye devam eder.
+STORED_METHODS = ("scrypt:32768:8:1", MIGRATED_METHOD)
 
 
 def text(value: object, label: str, minimum: int, maximum: int) -> str:
@@ -101,9 +104,9 @@ def matches(password_hash: str | None, candidate: str) -> bool:
 
 @functools.cache
 def _decoys() -> dict[str, str]:
-    """Özet biçimi → sahte özet: Werkzeug'un varsayılanı (bir sürüm yükseltmesi değiştirse de) ve taşınan biçim."""
-    made = (generate_password_hash(secrets.token_urlsafe(16)),
-            generate_password_hash(secrets.token_urlsafe(16), method=MIGRATED_METHOD))
+    """Özet biçimi → sahte özet: önce Werkzeug'un bugünkü varsayılanı, sonra saklanmış her biçim."""
+    made = [generate_password_hash(secrets.token_urlsafe(16))]
+    made += [generate_password_hash(secrets.token_urlsafe(16), method=method) for method in STORED_METHODS]
     return {value.split("$", 1)[0]: value for value in made}
 
 
@@ -122,10 +125,13 @@ def equalize(checked: Iterable[str | None], candidate: str) -> None:
             matches(decoy, candidate)
 
 
-def _account_names(accounts: Iterable[dict]) -> list[list[str]]:
-    """Her hesap için o hesaba sayılan adlar: asıl giriş adı ve @ öncesi (saklandıkları gibi kırpılmış)."""
-    return [list(dict.fromkeys([account["giris"][:150], account["giris"].split("@", 1)[0][:150]]))
-            for account in accounts]
+def _identity_groups(login: str, identities: Iterable[dict]) -> tuple[list[int], list[str]]:
+    """Tek sorguluk sayım için (grup, ad) çiftleri: 0. grup yazılan ad, sonra her kimlik (hesap ya da bekleyen başvuru,
+    {"giris": …}) için asıl adı ve @ öncesi (saklandıkları gibi kırpılmış)."""
+    groups = [[login[:150]]] + [list(dict.fromkeys([item["giris"][:150], item["giris"].split("@", 1)[0][:150]]))
+                                for item in identities]
+    pairs = [(index, name) for index, names in enumerate(groups) for name in names]
+    return [index for index, _ in pairs], [name for _, name in pairs]
 
 
 def failed_name(login: str, accounts: list[dict]) -> str:
@@ -154,19 +160,17 @@ def stamp(value: datetime | None) -> str | None:
 
 
 def login_attempts_left(cur: Cursor, login: str, address: str, moment: datetime, accounts: Iterable[dict] = ()) -> None:
-    """`accounts`: yazılan adla eşleşen hesaplar (find_by_login); her biri için kendi toplamına bakılır."""
+    """`accounts`: yazılan adla eşleşen hesaplar (find_by_login) ve bekleyen başvurular; her biri için kendi toplamına
+    bakılır. Sayım tek sorgudur: yanıt süresi eşleşen kayıt sayısına bağlı değildir."""
     since = moment - ATTEMPT_WINDOW
-    cur.execute("SELECT count(*) FILTER (WHERE lower(giris) = lower(%s)) AS hesap, count(*) FILTER (WHERE ip = %s) AS adres"
-                " FROM giris_denemeleri WHERE zaman > %s", (login[:150], address, since))
+    groups, names = _identity_groups(login, accounts)
+    cur.execute("SELECT (SELECT coalesce(max(n), 0) FROM (SELECT count(d.zaman) AS n FROM unnest(%s::int[], %s::text[]) "
+                "AS a(grp, name) LEFT JOIN giris_denemeleri d ON d.zaman > %s AND lower(d.giris) = lower(a.name) "
+                "GROUP BY a.grp) AS per_group) AS hesap, "
+                "(SELECT count(*) FROM giris_denemeleri WHERE zaman > %s AND ip = %s) AS adres",
+                (groups, names, since, since, address))
     row = cur.fetchone()
-    exhausted = row["hesap"] >= ATTEMPTS_PER_ACCOUNT or row["adres"] >= ATTEMPTS_PER_ADDRESS
-    for names in _account_names(accounts):
-        if exhausted:
-            break
-        cur.execute("SELECT count(*) AS n FROM giris_denemeleri WHERE zaman > %s "
-                    "AND lower(giris) IN (SELECT lower(name) FROM unnest(%s::text[]) AS name)", (since, names))
-        exhausted = cur.fetchone()["n"] >= ATTEMPTS_PER_ACCOUNT
-    if exhausted:
+    if row["hesap"] >= ATTEMPTS_PER_ACCOUNT or row["adres"] >= ATTEMPTS_PER_ADDRESS:
         raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
 
 
@@ -191,14 +195,16 @@ def forget_old_traces(cur: Cursor, moment: datetime) -> None:
 
 def password_attempts_left(cur: Cursor, login: str, address: str, moment: datetime,
                            accounts: Iterable[dict] = ()) -> None:
-    """Şifre değiştirme ve şifre kodu aynı sayacı paylaşır; ad kuralı girişteki gibidir (login_attempts_left)."""
+    """Şifre değiştirme ve şifre kodu aynı sayacı paylaşır; ad kuralı ve tek sorgu girişteki gibidir."""
     since = moment - ATTEMPT_WINDOW
-    for names in [[login[:150]]] + _account_names(accounts):
-        cur.execute("SELECT count(*) AS n FROM hesap_izleri WHERE tur = 'sifre' AND zaman > %s "
-                    "AND anahtar IN (SELECT 'hesap:' || lower(name) FROM unnest(%s::text[]) AS name)", (since, names))
-        if cur.fetchone()["n"] >= ATTEMPTS_PER_ACCOUNT:
-            raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
-    if count(cur, "sifre", "adres:" + address, since) >= ATTEMPTS_PER_ADDRESS:
+    groups, names = _identity_groups(login, accounts)
+    cur.execute("SELECT (SELECT coalesce(max(n), 0) FROM (SELECT count(h.zaman) AS n FROM unnest(%s::int[], %s::text[]) "
+                "AS a(grp, name) LEFT JOIN hesap_izleri h ON h.tur = 'sifre' AND h.zaman > %s "
+                "AND h.anahtar = 'hesap:' || lower(a.name) GROUP BY a.grp) AS per_group) AS hesap, "
+                "(SELECT count(*) FROM hesap_izleri WHERE tur = 'sifre' AND zaman > %s AND anahtar = %s) AS adres",
+                (groups, names, since, since, ("adres:" + address)[:170]))
+    row = cur.fetchone()
+    if row["hesap"] >= ATTEMPTS_PER_ACCOUNT or row["adres"] >= ATTEMPTS_PER_ADDRESS:
         raise ApiError(TOO_MANY_ATTEMPTS, 429, "COK_DENEME")
 
 
