@@ -1,6 +1,6 @@
 """Studio öneri ve destek talepleri (/api/rpa/destek/*) ve yönetim panelinin destek işlevleri.
 
-Uçlar orkestrai.net'tekiyle aynı yol, gövde, sınır, hata kodu ve yanıt biçimindedir; Studio yalnız hostu değiştirir:
+Uçların yolu, gövdesi, sınırları, hata kodları ve yanıt biçimi kurulu Studio sürümleriyle uyumlu kalır:
   POST /api/rpa/destek/talepler                    yeni talep → 201 {talep}
   GET  /api/rpa/destek/talepler                    kullanıcının talepleri → {talepler}
   GET  /api/rpa/destek/ozet                        okunmamış yanıt sayısı ve yayınlanan öneriler → {okunmamis, yayinlanan}
@@ -68,7 +68,7 @@ def create_blueprint(core) -> Blueprint:
         with core.db.transaction() as cur:
             return work(cur, service.studio_user(core, cur, request.headers.get("Authorization")))
 
-    # Bodies and identifiers are checked before the database is touched, as on orkestrai.net; only a new ticket's body
+    # Bodies and identifiers are checked before the database is touched; only a new ticket's body
     # (up to 7 MB with images) is read after the caller has been identified, and the identity is checked again with
     # the write.
     @blueprint.post("/api/rpa/destek/talepler")

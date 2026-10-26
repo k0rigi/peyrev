@@ -42,7 +42,7 @@ def test_www_and_plain_http_go_to_the_canonical_https_address(client):
     assert local.headers["Strict-Transport-Security"] == "max-age=604800"
 
 
-def test_login_names_match_like_orkestrai(core):
+def test_login_names_match_case_insensitively_and_by_short_name(core):
     ayse = make_user(core, "Ayse@Firma.Test")
     make_user(core, "BASBUG_1")
     with core.db.transaction() as cur:

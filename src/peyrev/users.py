@@ -2,7 +2,7 @@
 
 - Giriş adı: "@" içeriyorsa tam `giris` eşleşmesi; içermiyorsa `giris` ya da "@" öncesi (hepsi büyük/küçük harf duyarsız).
 - Lisans: kullanıcının modül satırı olmalı ve `bitis` (dahil) bugünden (Europe/Istanbul) önce olmamalı; `bitis` NULL = süresiz.
-  Yönetici rolü MOD_RPA için satırsız da aktiftir (orkestrai'deki Admin kuralı); MOD_AJAN her zaman satır ister.
+  Yönetici rolü MOD_RPA için satırsız da aktiftir; MOD_AJAN her zaman satır ister.
 - `alan_id`: lisans ve ajan yanıtlarında `firma_id` olarak gönderilir; Studio yerel ajan verisini bununla bölümler.
 """
 

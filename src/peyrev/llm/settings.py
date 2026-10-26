@@ -8,14 +8,14 @@ Biçim: KEY=VALUE satırları; boş satır ve # yorumu serbest; değer tek ya da
     OLLAMA_URL=http://127.0.0.1:11434    yalnız yerel döngü arayüzü (varsayılan bu)
     OLLAMA_NO_CLOUD=1                    zorunlu: Ollama hizmeti bulut erişimi kapalı çalışır (her işte denetlenir)
 
-Güven kuralı (kaynak orkestrai `api/ajanlar/llm_settings.py`): dosya sembolik bağ olmayan, tek bağlantılı, en çok 8 KiB
+Güven kuralı: dosya sembolik bağ olmayan, tek bağlantılı, en çok 8 KiB
 normal dosyadır; sahibi root ya da hizmetin kendi hesabıdır; izin bitleri 0640'ı aşmaz (grup yazamaz, diğerleri okuyamaz
 ve yazamaz). Üst dizin root'a ya da hizmet hesabına aittir ve grup/diğerleri yazamaz. Önerilen: /etc/peyrev
 root:peyrev 0750, llm.env root:peyrev 0640. Kural dışı dosya, bilinmeyen ya da yinelenen anahtar, yasak karakter
 ($, `, \\ ve denetim karakterleri) veya geçersiz değer özelliği kapatır (`enabled:false`).
 
 API dosyayı her istekte yeniden okur. Çalıştırıcı başlarken okur ve ayarın izini yaşam işaretine yazar; izler tutmazsa
-(dosya değişti, çalıştırıcı yeniden başlatılmadı) API özelliği kapalı gösterir (orkestrai'deki ready.json kapısı).
+(dosya değişti, çalıştırıcı yeniden başlatılmadı) API özelliği kapalı gösterir.
 """
 
 from __future__ import annotations

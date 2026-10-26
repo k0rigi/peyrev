@@ -21,8 +21,8 @@ ana sayfa ve indirme sayfası (`/indir/`). Python 3.12, Flask 3, Gunicorn, Postg
 3. **orkestrai.net bozulmaz.** Aynı sunucuda orkestrai.net ve başka müşteri siteleri çalışır. Her dağıtım ve sunucu
    işinden sonra `https://orkestrai.net/` ve `https://orkestrai.net/api/rpa/lisans/anahtar` 200 dönmelidir (Dağıtım ve
    kurulum bunu kendisi denetler). OpenLiteSpeed ayarı ve PostgreSQL dışındaki servisler kullanıcının onayı olmadan
-   değiştirilmez. orkestrai deposuna (`../orkestrai`) yalnız köprü sürümünün eski kanalı (`publish-rpa`) ve bakım
-   kapısı için dokunulur; orada kendi kuralları geçerlidir (Python 3.6, `Deploy to Server`, `.agents/rules/orkestrai.md`).
+   değiştirilmez. orkestrai.net 2026 sonunda kapanır ve sunucudan tamamen kaldırılır; o zamana kadar orkestrai
+   deposuna (`../orkestrai`) yalnız köprü sürümünün eski kanalı (`publish-rpa`) ve kapanış hazırlığı için dokunulur; orada kendi kuralları geçerlidir (Python 3.6, `Deploy to Server`, `.agents/rules/orkestrai.md`).
    orkestrai'deki `RPA_ASGARI_SURUM` yükseltilmez; gerekirse yalnız kullanıcıya önerilir.
 4. **Lisans sözleşmesi bozulmaz.** Firma yoktur, her hesap bir kişidir. Studio'yu açmak için hesapta `MOD_RPA` hakkı
    ve geçmemiş bitiş (gün dahil, Türkiye saati; boş = süresiz) gerekir; `yonetici` rolü satırsız açar; Ajanlar için
@@ -30,9 +30,8 @@ ana sayfa ve indirme sayfası (`/indir/`). Python 3.12, Flask 3, Gunicorn, Postg
    kurulu sürümlerle uyumlu kalır; uyumu bozan değişiklik yeni Studio sürümü ve `MINIMUM_VERSION` planı ister.
    Lisans imza anahtarı (`/etc/peyrev/lisans_ed25519`) değişirse kurulu uygulamalar lisans doğrulayamaz.
 5. **Veriyi panel değiştirir.** Hesap, hak, başvuru ve destek değişiklikleri yönetim panelinden yapılır ve
-   `yonetim_olaylari`'na yazılır; veritabanına elle satır yazılmaz. Taşıma (orkestrai → Peyrev) 2026-10-26'da bir kez
-   yapıldı; `tasima-gercek-yeniden` taşınmış kayıtlarda Peyrev'deki değişiklikleri geri alır, yalnız kullanıcının açık
-   onayıyla çalıştırılır.
+   `yonetim_olaylari`'na yazılır; veritabanına elle satır yazılmaz. Eski sistemden taşıma 2026-10-26'da bir kez yapıldı;
+   taşınan hesapların kaynağı `tasima`'dır ve eski biçimdeki şifre özetleri doğrulanmaya devam eder.
 6. **Her değişikliğin testi vardır.** Testler gerçek PostgreSQL ile çalışır (yerelde pgserver). Güvenlik ve lisans
    davranışı değişince testi, düzeltme geri alınırsa başarısız olacak biçimde yazılır. Kullanıcıya dönük değişiklikte
    `README.md` güncellenir.
@@ -56,7 +55,7 @@ node --check src/peyrev/admin/static/panel.js && node --check web/assets/site.js
 ```
 
 Ortam yoksa: `"/Users/k0rigi/Desktop/Web projeleri/RpaOrkestrAI/.bootstrap/bin/uv" venv -p 3.12 ~/.venvs/peyrev`, sonra
-`pyproject.toml`'daki bağımlılıklar ile `test` ve `mysql` ekleri ve `ruff` kurulur. iCloud yavaşsa çalışma için
+`pyproject.toml`'daki bağımlılıklar ile `test` eki ve `ruff` kurulur. iCloud yavaşsa çalışma için
 `/private/tmp` altında bir klon kullanılabilir (push oradan, sonra burada `git pull --ff-only`).
 
 `gh` CLI kurulu değildir. GitHub API'si git kimlik bilgisiyle çağrılır; belirteç curl'e argv ile değil
@@ -73,10 +72,9 @@ Sunucu işi başlatmak: `POST /repos/k0rigi/peyrev/actions/workflows/sunucu.yml/
 | `src/peyrev/support/` | Destek talepleri ve bildirimler (Telegram, e-posta; `/etc/peyrev/destek.env`) |
 | `src/peyrev/agents/`, `src/peyrev/llm/` | Ajan ofisleri, görevler, onaylar; ortak model kuyruğu (sunucuda kapalı: işlemcide AVX yok) |
 | `src/peyrev/admin/` | Yönetim paneli: kimlik, iki adımlı doğrulama, CSRF, uçlar, sayfa (`static/panel.js`, `panel.css`) |
-| `src/peyrev/tasima/` | orkestrai → Peyrev taşıma aracı (prova, gerçek, yeniden) |
 | `src/peyrev/migrations/` | Veritabanı geçişleri (`python -m peyrev.migrate`) |
 | `web/` | Statik site: ana sayfa ve başvuru formu, `.htaccess` (www ve http yönlendirmesi) |
-| `deploy/` | Sunucuda çalışan betikler (kurulum, dağıtım, bakım, taşıma, inceleme, destek ayarları) ve özetli bağımlılıklar |
+| `deploy/` | Sunucuda çalışan betikler (kurulum, dağıtım, inceleme, destek ayarları, orkestrai envanteri) ve özetli bağımlılıklar |
 | `.github/workflows/` | Testler, Dağıtım, Sunucu işleri, Studio yayını, Destek bildirim ayarları |
 | `tools/rapor-coz.py` | Şifreli sunucu raporlarını açar |
 

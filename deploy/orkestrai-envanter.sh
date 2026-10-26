@@ -113,7 +113,8 @@ for d in /proc/[0-9]*; do
   c=$(cat "$d/comm" 2>/dev/null) || continue
   case "$c" in node|pm2*|PM2*|ollama) printf '    %s (pid %s, cwd %s)\n' "$c" "${d#/proc/}" "$(readlink "$d/cwd" 2>/dev/null)" ;; esac
 done
-have pm2 && pm2 ls --no-color 2>/dev/null | indent
+# pm2 komutu çalışan bir daemon yoksa yenisini başlatır; yalnız daemon zaten varsa sorulur.
+if have pm2 && [ -S /root/.pm2/rpc.sock ]; then pm2 ls --no-color 2>/dev/null | indent; fi
 
 section "6. Zamanlanmış görevler"
 for f in /var/spool/cron/* /etc/crontab /etc/cron.d/*; do

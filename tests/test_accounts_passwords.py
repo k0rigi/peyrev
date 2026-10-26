@@ -1,4 +1,4 @@
-"""Şifre işlemleri: /api/rpa/hesap/sifre ve /api/rpa/hesap/sifre-yenile (orkestrai test_rpa_bireysel karşılığı)."""
+"""Şifre işlemleri: /api/rpa/hesap/sifre ve /api/rpa/hesap/sifre-yenile."""
 
 import re
 

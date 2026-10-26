@@ -1,6 +1,6 @@
 """Ortak model (LLM) için sınırlı JSON sözleşmesi: sabitler, istek ve sonuç doğrulaması, hata kodları.
 
-Kaynak orkestrai `api/ajanlar/llm_protocol.py`; sınırlar ve metinler Studio sözleşmesi gereği aynıdır. Yalnız standart
+Sınırlar ve metinler Studio sözleşmesi gereği aynıdır. Yalnız standart
 kütüphane kullanır: çalıştırıcı (python -m peyrev.llm.worker) da bu modülü yükler.
 """
 
@@ -15,7 +15,7 @@ REQUEST_LIMIT = 64 * 1024
 RESULT_LIMIT = 128 * 1024
 QUEUE_LIMIT = 4  # bekleyen iş; çalışan iş bu sayıya girmez (en çok 1 çalışan + 4 bekleyen)
 JOB_LIMIT = 128  # süresi dolmamış bütün işler (bitmişler dahil)
-USER_LIMIT = 2  # kullanıcı başına bekleyen + çalışan (orkestrai'de firma başınaydı)
+USER_LIMIT = 2  # kullanıcı başına bekleyen + çalışan
 JOB_TTL = 300  # gönderimden saniye; sonra iş, içerik ve tekrar anahtarı her durumda silinir
 RESERVE_TOKENS = 512
 DEFAULT_CONTEXT, DEFAULT_OUTPUT = 8192, 1024

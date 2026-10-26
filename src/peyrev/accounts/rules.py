@@ -1,9 +1,9 @@
 """Hesap kuralları: alan doğrulaması, şifre özeti ve kodları, deneme sınırları.
 
-Metinler orkestrai'deki bireysel hesap kurallarıyla aynıdır; Studio, başvuru formu ve yönetim paneli onları olduğu gibi
+Metinler sabittir; Studio, başvuru formu ve yönetim paneli onları olduğu gibi
 gösterir. Doğrulama hataları 400 GECERSIZ'dir.
 
-Deneme sınırları iki ayrı sayaçtır (orkestrai'deki gibi), ikisinde de 15 dakikada hesap başına 10, adres başına 30 hatalı
+Deneme sınırları iki ayrı sayaçtır, ikisinde de 15 dakikada hesap başına 10, adres başına 30 hatalı
 deneme; sınıra şifre denetiminden önce bakılır, yani sınırdaki doğru şifre de 429 alır:
 - giris_denemeleri: Studio lisans girişi ve yönetim paneli.
 - hesap_izleri: şifre değiştirme ve şifre kodu ("sifre"), başvurular ("basvuru").
@@ -30,7 +30,7 @@ from ..common import ApiError
 EMAIL = re.compile(r'[^@\s<>"]{1,64}@[^@\s<>"]+\.[^@\s<>"]{2,}')
 PHONE = re.compile(r"\+?[0-9 ()\-]{7,32}")
 DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
-# Yönetimden açılan hesabın giriş adı: kullanıcı adı ya da e-posta, yalnız ASCII (orkestrai kullanıcı aracıyla aynı).
+# Yönetimden açılan hesabın giriş adı: kullanıcı adı ya da e-posta, yalnız ASCII.
 LOGIN = re.compile(r"[A-Za-z0-9._+\-]{3,64}(?:@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})?")
 # 32 simge (I, O, 0 ve 1 yok): 12 karakterlik kod 60 bit taşır.
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -41,7 +41,7 @@ KEEP_LOGIN_ATTEMPTS = timedelta(days=1)
 KEEP_TRACES = timedelta(days=2)
 TOO_MANY_ATTEMPTS = "Çok fazla hatalı deneme. 15 dakika sonra tekrar deneyin."
 AMBIGUOUS = "Bu kullanıcı adı birden fazla hesapla eşleşiyor. E-posta adresinizin tamamını yazın."
-# orkestrai'den taşınan özetlerin biçimi (Werkzeug 2.0); Peyrev'in kendi özetleri Werkzeug'un varsayılanıdır.
+# Eski sistemden taşınan özetlerin biçimi (Werkzeug 2.0); Peyrev'in kendi özetleri Werkzeug'un varsayılanıdır.
 MIGRATED_METHOD = "pbkdf2:sha256:260000"
 # Saklanmış özetlerin bütün biçimleri; yalnız eklenir. Werkzeug'un varsayılanı değişirse yenisi buraya eklenir (test
 # uyarır): eski biçimdeki hesaplar da sahte özetle eşitlenmeye devam eder.

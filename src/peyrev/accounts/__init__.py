@@ -1,4 +1,4 @@
-"""Hesap ve lisans modülü. Uçlar (yollar ve sözleşme orkestrai.net ile aynı; Studio yalnız hostu değiştirir):
+"""Hesap ve lisans modülü. Uçlar (yollar ve sözleşme kurulu Studio sürümleriyle uyumlu kalır):
 
   GET  /api/rpa/lisans/anahtar        açık anahtar, protokol, asgari sürüm                  → licensing
   POST /api/rpa/lisans/giris          kullanıcı adı + şifre → imzalı lisans ve oturum       → licensing

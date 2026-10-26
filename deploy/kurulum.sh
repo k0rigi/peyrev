@@ -171,23 +171,20 @@ SELECT 'CREATE ROLE peyrev LOGIN' WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE
 SELECT format('ALTER ROLE peyrev WITH LOGIN PASSWORD %L', :'pw') \gexec
 SQL
     tmpenv=$(mktemp "$SECRETS/.db.env.XXXXXX")
-    printf 'DATABASE_URL=postgresql://peyrev:%s@127.0.0.1:5432/peyrev\nPROVA_DATABASE_URL=postgresql://peyrev:%s@127.0.0.1:5432/peyrev_prova\n' "$PW" "$PW" > "$tmpenv"
+    printf 'DATABASE_URL=postgresql://peyrev:%s@127.0.0.1:5432/peyrev\n' "$PW" > "$tmpenv"
     chown root:peyrev "$tmpenv"; chmod 0640 "$tmpenv"; mv -f "$tmpenv" "$SECRETS/db.env"
     unset PW
   fi
   runuser -u postgres -- psql -X -q -v ON_ERROR_STOP=1 <<'SQL'
 SELECT 'CREATE DATABASE peyrev OWNER peyrev ENCODING ''UTF8'' TEMPLATE template0'
  WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'peyrev') \gexec
-SELECT 'CREATE DATABASE peyrev_prova OWNER peyrev ENCODING ''UTF8'' TEMPLATE template0'
- WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'peyrev_prova') \gexec
 REVOKE ALL ON DATABASE peyrev FROM PUBLIC;
-REVOKE ALL ON DATABASE peyrev_prova FROM PUBLIC;
 SQL
   # Login check with the stored password, read by the peyrev account itself.
   # The password goes to psql through its environment (readable only by that account), not its command line.
   runuser -u peyrev -- bash -c '. /etc/peyrev/db.env; PGPASSWORD=$(printf %s "$DATABASE_URL" | sed -E "s#^postgresql://[^:]+:([^@]+)@.*#\1#") psql -h 127.0.0.1 -U peyrev -d peyrev -X -A -t -c "select current_user, current_database()"' | sed 's/^/    giriş: /'
   ls -l "$SECRETS" | sed 's/^/    /'
-  genel "veritabanları peyrev ve peyrev_prova hazır"
+  genel "veritabanı peyrev hazır"
 fi
 
 # ---------------------------------------------------------------------------------------------------------------------

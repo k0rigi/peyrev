@@ -1,6 +1,6 @@
 """Ollama yerel sohbet protokolü (yalnız çalıştırıcı kullanır); model araç çağrılarını hiçbir zaman yürütmez.
 
-Kaynak orkestrai `api/ajanlar/llm_backend.py`. Her işte görev içeriği gönderilmeden önce `/api/status` ile bulut
+Her işte görev içeriği gönderilmeden önce `/api/status` ile bulut
 erişiminin kapalı olduğu, `/api/show` ile modelin yerel kurulu olduğu doğrulanır; araç isteyen iş modelin `tools`
 yeteneğini ister. Üç çağrının toplam süresi 90 sn'dir; zaman aşımı ya da iptalden sonra çıkarım yeniden denenmez.
 Ortam vekili ve yönlendirme kullanılmaz; adres yalnız yerel döngü arayüzü olabilir.

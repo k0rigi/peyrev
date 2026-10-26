@@ -4,7 +4,7 @@
 # Girdi (ortam): SURUM (commit SHA), ARSIV (aktarım klasöründeki tar.gz), ARSIV_SHA256.
 # Her sürüm kendi klasörüne (/opt/peyrev/releases/<sha>) ve kendi sanal ortamına kurulur; bağımlılıklar
 # deploy/requirements.lock'tan özetleri denetlenerek gelir. Eksik sunucu sırları bir kez üretilir (asla üzerine yazılmaz),
-# geçişler peyrev ve peyrev_prova veritabanlarına uygulanır, current bağlantısı atomik değişir ve servis yeniden başlar.
+# geçişler peyrev veritabanına uygulanır, current bağlantısı atomik değişir ve servis yeniden başlar.
 # /api/saglik 200 dönmezse önceki sürüme geri dönülür. Statik site (web/) public_html'e eşitlenir; indir/ (Studio paketleri)
 # ve .well-known/ korunur. Sonunda orkestrai.net ve peyrev.com denetlenir.
 
@@ -64,7 +64,6 @@ ls -l "$SECRETS" | sed 's/^/  /'
 adim "Geçişler"
 # Database URLs stay in the environment of the peyrev account's process; they never reach a command line.
 runuser -u peyrev -- env PYTHONPATH="$REL/src" PEYREV_SECRETS_DIR="$SECRETS" "$REL/venv/bin/python" -m peyrev.migrate
-runuser -u peyrev -- bash -c 'set -a; . /etc/peyrev/db.env; set +a; PEYREV_DATABASE_URL=$PROVA_DATABASE_URL PYTHONPATH="$1/src" "$1/venv/bin/python" -m peyrev.migrate' _ "$REL"
 
 adim "Geçiş ve yeniden başlatma"
 PREV=$(readlink -f "$ROOT/current" 2>/dev/null || true)

@@ -1,7 +1,7 @@
 """Destek talepleri: Studio uçları (destek belirteci, Studio oturumu ve lisans kapısı, sahiplik, sınırlar, ekler) ve
 yönetim panelinin servis işlevleri (liste, açma, yanıt ve durum, ek, okunmamış rozeti, denetim kaydı).
 
-orkestrai tests/test_rpa_destek.py davranışları PostgreSQL ile ve firma olmadan uyarlandı.
+Davranışlar PostgreSQL ile ve firma olmadan sınanır.
 """
 
 import base64
@@ -269,7 +269,7 @@ def test_every_studio_endpoint_is_behind_the_support_token(desk, app):
         assert anonymous.status_code == 401 and anonymous.get_json()["kod"] == "OTURUM_GEREKLI", (method, path)
         assert desk.client.open(path, method=method, json=body, headers=unlicensed).status_code == 403, path
     assert desk.count() == 1 and desk.count("destek_mesajlari") == 1
-    # orkestrai's management paths are not served here: the panel calls the service functions.
+    # The old system's management paths are not served here: the panel calls the service functions.
     assert desk.client.get("/api/rpa/yonetim/talepler", headers=desk.studio(desk.admin)).status_code == 404
 
 
@@ -391,7 +391,7 @@ def test_the_admin_answers_the_user_sees_it_once_and_a_reply_reopens(desk):
         "success": False, "kod": "KAPALI", "message": "Bu talep kapatıldı. Yeni bir talep açabilirsiniz."}
 
 
-def test_answers_and_states_follow_the_orkestrai_rules(desk):
+def test_answers_and_states_follow_the_support_rules(desk):
     number = desk.number()
 
     def refused(**changes):

@@ -1,4 +1,4 @@
-"""Studio ajan merkezi uçları (/api/studio/ekip). Yollar, alanlar ve yanıt biçimleri orkestrai.net ile aynıdır.
+"""Studio ajan merkezi uçları (/api/studio/ekip). Yollar, alanlar ve yanıt biçimleri kurulu Studio sürümleriyle uyumlu kalır.
 
 İstek sırası: 128 KiB'tan büyük gövde (413) ve sorgudaki kimlik alanı (400) kimlik doğrulamasından önce reddedilir;
 ardından ajan erişim belirteci ve X-Rpa-Ofis doğrulanır (401/403/400). Kimliksiz `GET /ben` tam olarak

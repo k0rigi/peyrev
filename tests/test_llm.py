@@ -1,6 +1,6 @@
 """Ortak model: istek/sonuç sözleşmesi, ayar dosyası güven kuralı ve Ollama protokolü (ağsız, veritabanısız).
 
-Kaynak testler orkestrai tests/test_ajanlar_llm.py ve test_ajanlar_stream_probe.py; diğer LLM test dosyaları buradaki
+Diğer LLM test dosyaları buradaki
 yardımcıları kullanır.
 """
 

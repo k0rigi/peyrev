@@ -2,7 +2,7 @@
 
 Kullanıcı talebini Studio'dan yazar: yeni adım önerisi, adım iyileştirme, hata bildirimi, soru. İsteğe bağlı ekler
 (değerleri Studio'da maskelenmiş akış yapısı, son çalışmanın hata kaydı, en çok üç görsel) talep ve mesajlarla birlikte
-veritabanında tutulur; diske hiçbir şey yazılmaz. Kurallar orkestrai'deki rpa_destek ile aynıdır; firma yoktur, talep
+veritabanında tutulur; diske hiçbir şey yazılmaz. Firma yoktur, talep
 kullanıcıya bağlıdır ve herkes yalnız kendi taleplerini görür. Günlük sınırlar Türkiye gününe göre sayılır.
 
 Yönetim paneli bu işlevleri route olarak değil Python'dan, kendi işleminin imleciyle çağırır; panel yönetici oturumunu

@@ -1,4 +1,4 @@
-"""Bireysel başvuru: POST /api/rpa/basvuru (orkestrai test_rpa_bireysel karşılığı; firma yok)."""
+"""Bireysel başvuru: POST /api/rpa/basvuru (firma yok)."""
 
 from datetime import timedelta
 

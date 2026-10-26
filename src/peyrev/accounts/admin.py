@@ -1,9 +1,9 @@
 """Yönetim paneli için hesap işlemleri (uç değil, servis işlevleri; panel /api/yonetim/* uçlarından çağırır).
 
 - Her işlev kendi veritabanı işlemini açar ve işlemin içinde `admin_id`'nin hâlâ aktif bir yönetici olduğunu
-  veritabanından yeniden okur (orkestrai'deki yönetici güvencesi): değilse 403 YETKI_YOK.
+  veritabanından yeniden okur (yönetici güvencesi): değilse 403 YETKI_YOK.
 - Girdiler panelin aldığı JSON değerleridir (tarih "YYYY-AA-GG", NULL bitiş = süresiz). Doğrulama hataları ApiError'dır;
-  metinler orkestrai yönetim sayfasıyla aynıdır ve panel bunları olduğu gibi döndürebilir.
+  metinler Studio'nun bildiği metinlerdir ve panel bunları olduğu gibi döndürebilir.
 - Her değişiklik yonetim_olaylari'na yazılır (yonetici_id, tur, hedef, ayrinti); şifre, özet ve kod yazılmaz.
 
 Olay türleri: basvuru_onaylandi, basvuru_reddedildi, kullanici_acildi, modul_ayarlandi, modul_kaldirildi,
@@ -99,7 +99,7 @@ def _issue_code(cur: Cursor, admin_id: int, user_id: int, moment: datetime, life
 
 
 def list_applications(core, admin_id: int, *, durum: str | None = None, limit: int = 200) -> list[dict[str, Any]]:
-    """Başvurular, yeniden eskiye. `durum` yoksa bekleyen ve reddedilenler (orkestrai sayfası gibi); varsa yalnız o
+    """Başvurular, yeniden eskiye. `durum` yoksa bekleyen ve reddedilenler; varsa yalnız o
     durum ('bekliyor' | 'onaylandi' | 'reddedildi'). Önce 90 günü dolan onaylanmamış başvurular silinir."""
     if durum is not None and durum not in (applications.PENDING, applications.APPROVED, applications.REJECTED):
         raise ApiError("Başvuru durumu geçersiz.")
@@ -228,7 +228,7 @@ def list_users(core, admin_id: int, *, ara: Any = None, durum: Any = None, limit
 
 def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: Any, bitis: Any, ajan: Any = False,
                 telefon: Any = None, onizleme: bool = False) -> dict[str, Any]:
-    """Yönetimden hesap açar (orkestrai kullanıcı aracının yerine): kaynak 'yonetim', kimsenin bilmediği rastgele şifre,
+    """Yönetimden hesap açar: kaynak 'yonetim', kimsenin bilmediği rastgele şifre,
     MOD_RPA (ajan ise MOD_AJAN) [baslangic, bitis] ve 7 gün geçerli ilk şifre kodu. Kişi Studio'da "Şifre kodum var"
     ile kendi şifresini belirler. `onizleme` doğruysa hiçbir şey yazılmaz, yalnız denetim sonucu döner."""
     if not isinstance(giris, str) or not rules.LOGIN.fullmatch(giris):

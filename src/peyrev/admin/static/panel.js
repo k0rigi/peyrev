@@ -32,7 +32,7 @@
   const ROLES = { kullanici: 'Kullanıcı', yonetici: 'Yönetici' };
   const ACCOUNT_STATES = { aktif: 'Aktif', pasif: 'Pasif' };
   const RIGHT_STATES = { aktif: 'Kullanabilir', sure_doldu: 'Süresi doldu', yetki_yok: 'Hakkı yok' };
-  const SOURCES = { orkestrai: 'orkestrai.net\'ten taşındı', basvuru: 'Bireysel başvuru', yonetim: 'Yönetimden açıldı' };
+  const SOURCES = { tasima: 'Eski sistemden taşındı', basvuru: 'Bireysel başvuru', yonetim: 'Yönetimden açıldı' };
   const CODE_DURATIONS = [['24', '24 saat'], ['72', '3 gün'], ['168', '7 gün']];
   const ATTACHMENT_TITLES = { akis: 'Akış yapısı (değerler maskeli)', hata_kaydi: 'Son çalışmanın hata kaydı' };
   const TICKET_TONES = { acik: 'warn', inceleniyor: 'accent', yanitlandi: 'ok', planlandi: 'accent', yayinlandi: 'ok' };

@@ -1,4 +1,4 @@
-"""Studio lisansı ve oturumları: /api/rpa/lisans/* ve oturum kuralları (orkestrai .testler'in PostgreSQL karşılığı).
+"""Studio lisansı ve oturumları: /api/rpa/lisans/* ve oturum kuralları.
 
 Lisans zarfı Studio 1.0.0'ın kurallarıyla doğrulanır (studio_license, studio_agents): tam iki anahtar, sıkı base64,
 /anahtar ucundaki açık anahtarla Ed25519, ürün ve modül, cihaz ve isteğin rastgele değeri. Diğer hesap testleri
@@ -572,7 +572,7 @@ def test_every_stored_hash_format_has_a_decoy():
 
 def test_a_migrated_werkzeug_hash_signs_in_and_stays_as_it_is(client, core):
     legacy = generate_password_hash("Eski12345", method="pbkdf2:sha256:260000", salt_length=16)
-    assert re.fullmatch(r"pbkdf2:sha256:260000\$[A-Za-z0-9]{16}\$[0-9a-f]{64}", legacy)  # orkestrai's Werkzeug 2.0
+    assert re.fullmatch(r"pbkdf2:sha256:260000\$[A-Za-z0-9]{16}\$[0-9a-f]{64}", legacy)  # the old system's Werkzeug 2.0
     make_user(core, "BASBUG_1", modules={users.RPA: None}, alan_id=2, user_id=63)
     with core.db.transaction() as cur:
         cur.execute("UPDATE kullanicilar SET sifre_hash = %s WHERE id = 63", (legacy,))

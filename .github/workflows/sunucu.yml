@@ -12,14 +12,8 @@ on:
         type: choice
         options:
           - inceleme
-          - kaynak-inceleme
           - kurulum-deneme
           - kurulum
-          - bakim-ac
-          - bakim-kapat
-          - tasima-prova
-          - tasima-gercek
-          - tasima-gercek-yeniden
           - deneme-hesabi-kapat
           - orkestrai-envanter
 
@@ -50,14 +44,8 @@ jobs:
         run: |
           case "$ISLEM" in
             inceleme)       betik=deploy/inceleme.sh; ortam='{}' ;;
-            kaynak-inceleme) betik=deploy/kaynak-inceleme.sh; ortam='{}' ;;
             kurulum-deneme) betik=deploy/kurulum.sh;  ortam='{"KIP":"deneme"}' ;;
             kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
-            bakim-ac)       betik=deploy/bakim.sh;    ortam='{"KIP":"ac"}' ;;
-            bakim-kapat)    betik=deploy/bakim.sh;    ortam='{"KIP":"kapat"}' ;;
-            tasima-prova)   betik=deploy/tasima.sh;   ortam='{"KIP":"prova"}' ;;
-            tasima-gercek)  betik=deploy/tasima.sh;   ortam='{"KIP":"gercek"}' ;;
-            tasima-gercek-yeniden) betik=deploy/tasima.sh; ortam='{"KIP":"gercek","YENIDEN":"1"}' ;;
             deneme-hesabi-kapat) betik=deploy/deneme-hesabi.sh; ortam='{}' ;;
             orkestrai-envanter) betik=deploy/orkestrai-envanter.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;

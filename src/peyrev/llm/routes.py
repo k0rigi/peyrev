@@ -1,4 +1,4 @@
-"""Studio'nun ortak model uçları (/api/studio/ekip/llm/*); sözleşme orkestrai `api/ajanlar/llm_routes.py` ile aynıdır.
+"""Studio'nun ortak model uçları (/api/studio/ekip/llm/*); sözleşme kurulu Studio sürümleriyle uyumlu kalır.
 
 İstek öncesi sıra ajan uçlarıyla aynıdır: gövde 128 KiB'den büyükse 413 GOVDE_SINIRI; sorguda kimlik alanı varsa
 400 GECERSIZ_GIRDI; ardından ajan kimliği (Authorization: Bearer <ajan_erisim>, isteğe bağlı X-Rpa-Ofis). Etkin ajan

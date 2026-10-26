@@ -1,4 +1,4 @@
-"""Studio lisansı: /api/rpa/lisans/{anahtar, giris, yenile, cikis} (orkestrai ile aynı sözleşme, protokol 2).
+"""Studio lisansı: /api/rpa/lisans/{anahtar, giris, yenile, cikis} (kurulu Studio sürümleriyle aynı sözleşme, protokol 2).
 
 Studio her açılışta kullanıcı adı ve şifreyle giriş yapar, ardından her `aralik` saniyede (600) yenileme belirteciyle taze
 lisans ister. Her yanıt, isteğin rastgele değerini (nonce) taşıyan Ed25519 imzalı bir lisanstır: eski bir yanıt yeniden
@@ -111,7 +111,7 @@ def refresh_claims(core, token: Any) -> dict[str, Any] | None:
 
 
 def _agent_extension(core, cur: Cursor, user: dict[str, Any], session_id: str) -> tuple[dict[str, Any], Any]:
-    """Ajan modülünün uzantısı; hesaplanamazsa ajanlar kapalı, RPA lisansı yine verilir (orkestrai'deki gibi)."""
+    """Ajan modülünün uzantısı; hesaplanamazsa ajanlar kapalı, RPA lisansı yine verilir."""
     try:
         # A savepoint: a failing query here must not abort the sign-in transaction.
         with cur.connection.transaction():
@@ -153,7 +153,7 @@ def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end
 
 
 def _body() -> dict:
-    """Esnek okuma (orkestrai gibi): JSON nesnesi olmayan gövde boş sayılır, bilinmeyen alanlar yok sayılır; böylece
+    """Esnek okuma: JSON nesnesi olmayan gövde boş sayılır, bilinmeyen alanlar yok sayılır; böylece
     yeni bir Studio alan eklese de giriş sürer. Boyut sınırı ve sıkı JSON (yinelenen anahtar, NaN yok) ortak kuraldır."""
     if request.content_length is not None and request.content_length > BODY_LIMIT:
         raise ApiError("İstek çok büyük.", 413, "GOVDE_SINIRI")

@@ -3,9 +3,9 @@
 Studio ajanlarının "Peyrev sunucusu" bağlantısı bu modülü kullanır. Sunucu yalnız modelin yanıtını üretir; modelin
 istediği araç çağrıları Studio'ya **veri olarak** döner ve sunucuda hiçbir zaman çalıştırılmaz. Özellik varsayılan
 olarak kapalıdır: ayar dosyası yoksa `GET /llm/models` `enabled:false` döner, iş uçları 503 `LLM_KAPALI` verir
-(orkestrai.net'te de kapalıydı; CPU sınaması 90 sn sınırını geçemedi).
+(CPU sınaması 90 sn sınırını geçemedi).
 
-## Uçlar (`/api/studio/ekip`, Studio sözleşmesi orkestrai ile aynı)
+## Uçlar (`/api/studio/ekip`, Studio sözleşmesi)
 
 | Uç | Yanıt |
 | --- | --- |

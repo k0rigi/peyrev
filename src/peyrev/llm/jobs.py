@@ -1,6 +1,6 @@
 """Ortak model iş kuyruğu (PostgreSQL): Studio'nun gönderim, durum ve iptal işlemleri ile çalıştırıcının adımları.
 
-Kaynak orkestrai `api/ajanlar/llm_queue.py` (işler orada worker belleğindeydi). Gunicorn birden çok süreçte
+Gunicorn birden çok süreçte
 çalıştığından kuyruk `llm_isler` tablosundadır; davranış aynıdır, firma kotası kullanıcıya döner:
 - Sahip (kullanici_id, oturum_id) ikilisidir; başka sahibin işi 404 alır (403 değil).
 - Tekrar koruması: aynı sahip ve request_id aynı içerikle (kanonik JSON özeti) aynı işi döndürür, kuyruk doluyken bile;
@@ -163,7 +163,7 @@ def withdraw(cur) -> None:
 
 
 def worker_ready(cur, now: datetime, fingerprint: str) -> bool:
-    """Çalıştırıcı aynı ayarla çalışıyor ve yaşam işareti taze (orkestrai'de soket + ready.json kapısı)."""
+    """Çalıştırıcı aynı ayarla çalışıyor ve yaşam işareti taze."""
     cur.execute("SELECT 1 FROM llm_calistirici WHERE id = 1 AND ayar_izi = %s AND son_sinyal > %s",
                 (fingerprint, now - WORKER_STALE))
     return cur.fetchone() is not None

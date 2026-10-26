@@ -1,6 +1,6 @@
 """Flask uygulama fabrikası. Modüller kendi Blueprint'lerini `create_blueprint(core)` ile verir.
 
-Uç haritası (yollar orkestrai.net ile aynı; Studio yalnız hostu değiştirir):
+Uç haritası (yollar kurulu Studio sürümleriyle uyumlu kalır):
   /api/saglik                      sağlık (veritabanına bağlanır)
   /api/rpa/lisans/*                lisans ve Studio oturumu          → peyrev.accounts
   /api/rpa/hesap/*, /api/rpa/basvuru  şifre işlemleri ve başvuru     → peyrev.accounts
