@@ -97,10 +97,13 @@ if [ "$KIP" = son ]; then
   done
   echo "  -- sistem kullanıcıları (ad ve ev klasörü)"
   grep -i orkestrai /etc/passwd | cut -d: -f1,6 | indent
-  for user in $(awk -F: -v home="/home/$D" '$6 == home || $6 ~ ("^" home "/") {print $1}' /etc/passwd); do
+  # The site's user and the earlier model service's user (studio-ollama, home under /var/lib/orkestrai-ollama).
+  for user in $(awk -F: '$6 ~ /orkestrai/ {print $1}' /etc/passwd); do
     [ "$user" = root ] && continue
     userdel "$user" >/dev/null 2>&1 && echo "    silindi: $user"
   done
+  # Mail that was queued before the domain went may have created the mailbox folder again.
+  rm -rf "/home/vmail/$D"
   echo "  -- webmail önbelleği"
   RL=/usr/local/lscp/cyberpanel/rainloop/data/_data_/_default_
   rm -rf "$RL/storage/$D" "$RL/domains/$D.json" && echo "    orkestrai.net klasörü ve alan ayarı silindi"
