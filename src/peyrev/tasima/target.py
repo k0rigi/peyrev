@@ -5,8 +5,9 @@
 - gercek (DATABASE_URL): yalnız kaynak='orkestrai' hesapları ve onların kayıtları eklenir ya da kaynakla eşitlenir
   (ON CONFLICT ... DO UPDATE, yalnız bir değer değiştiyse). Peyrev'de doğan satırlara dokunulmaz: kimliği, giriş adı,
   talep numarası ya da (aynı sahipte) ofis adı hedefteki başka bir kayıtla çakışan kaynak kaydı yazılmaz ve sorun
-  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma, dizi
-  ayarı ve doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır.
+  sayılır; Peyrev'de açılmış bekleyen başvuruyla aynı e-postalı eski bekleyen başvuru atlanır. Okuma, yazma ve
+  doğrulama tek REPEATABLE READ işlemidir: bir sorun ya da uyuşmazlık varsa işlemin tamamı geri alınır. Kimlik dizileri
+  (setval geri alınamaz) yalnız doğrulama tuttuysa ilerletilir.
 
 Aynı kaynakla tekrar çalıştırmak hedefte hiçbir satırı değiştirmez. Daha önce taşınmış hesap kaynakta hakkını yitirse
 de eşitlenir (hakları kalkar), kaynakta silinmişse pasif olur. Taşınmış hesapta Peyrev'de değişen alanlar (şifre, modül
