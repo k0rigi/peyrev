@@ -66,6 +66,54 @@ for p in /home/$D /home/vmail/$D /etc/orkestrai /opt/orkestrai-ollama /var/lib/o
 done
 echo "  -- pm2"; if [ -S /root/.pm2/rpc.sock ]; then pm2 jlist 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)), "süreç")' | indent; else echo "    pm2 çalışmıyor"; fi
 
+# Rows that point at a row: CyberPanel versions differ in which tables refer to e_domains and websites, so the
+# references are read from information_schema and removed from the leaves up.
+delete_rows() {   # delete_rows TABLE COLUMN VALUE
+  local table=$1 column=$2 value=$3 ref_table ref_column referenced child
+  while IFS=$'\t' read -r ref_table ref_column referenced; do
+    [ -n "$ref_table" ] || continue
+    for child in $(sql cyberpanel -e "SELECT \`$referenced\` FROM \`$table\` WHERE \`$column\` = '$value'"); do
+      delete_rows "$ref_table" "$ref_column" "$child"
+    done
+  done < <(sql -e "SELECT TABLE_NAME, COLUMN_NAME, REFERENCED_COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE
+                   WHERE TABLE_SCHEMA = 'cyberpanel' AND REFERENCED_TABLE_NAME = '$table'")
+  local count
+  count=$(sql cyberpanel -e "SELECT COUNT(*) FROM \`$table\` WHERE \`$column\` = '$value'")
+  if [ "${count:-0}" != 0 ]; then
+    sql cyberpanel -e "DELETE FROM \`$table\` WHERE \`$column\` = '$value'" && printf '    %s: %s satır\n' "$table" "$count"
+  fi
+}
+
+if [ "$KIP" = son ]; then
+  section "Son temizlik"
+  echo "  -- CyberPanel kayıtları"
+  delete_rows e_domains domain "$D"
+  for id in $(sql cyberpanel -e "SELECT id FROM websiteFunctions_websites WHERE domain = '$D'"); do
+    delete_rows websiteFunctions_websites id "$id"
+  done
+  for q in "websiteFunctions_websites WHERE domain LIKE '%orkestrai%'" "e_domains WHERE domain LIKE '%orkestrai%'" \
+           "e_users WHERE email LIKE '%orkestrai%'"; do
+    printf '  kalan %s: %s\n' "${q%% *}" "$(sql cyberpanel -e "SELECT COUNT(*) FROM $q" 2>&1)"
+  done
+  echo "  -- sistem kullanıcıları (ad ve ev klasörü)"
+  grep -i orkestrai /etc/passwd | cut -d: -f1,6 | indent
+  for user in $(awk -F: -v home="/home/$D" '$6 == home || $6 ~ ("^" home "/") {print $1}' /etc/passwd); do
+    [ "$user" = root ] && continue
+    userdel "$user" >/dev/null 2>&1 && echo "    silindi: $user"
+  done
+  echo "  -- webmail önbelleği"
+  RL=/usr/local/lscp/cyberpanel/rainloop/data/_data_/_default_
+  rm -rf "$RL/storage/$D" "$RL/domains/$D.json" && echo "    orkestrai.net klasörü ve alan ayarı silindi"
+  echo "  -- kalan izler (yalnız adlar)"
+  grep -rlI -i orkestrai /etc /usr/local/lsws/conf /var/spool/cron 2>/dev/null | grep -v '/root/orkestrai-kaldirma-' | indent
+  find / -xdev \( -path /proc -o -path /sys -o -path '/root/orkestrai-kaldirma-*' \) -prune -o -iname '*orkestrai*' -print 2>/dev/null | head -20 | indent
+  section "Siteler (son)"
+  AFTER=$(snapshot); echo "  $AFTER"
+  [ "$AFTER" = "$BEFORE" ] || { genel "site durumları değişti"; exit 1; }
+  genel "son temizlik tamamlandı: $AFTER"
+  exit 0
+fi
+
 if [ "$KIP" != gercek ]; then
   genel "prova tamamlandı; hiçbir şey değiştirilmedi"
   exit 0

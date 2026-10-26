@@ -17,6 +17,7 @@ on:
           - orkestrai-envanter
           - orkestrai-kaldir-prova
           - orkestrai-kaldir
+          - orkestrai-kaldir-son
 
 permissions:
   contents: read
@@ -50,6 +51,7 @@ jobs:
             orkestrai-envanter) betik=deploy/orkestrai-envanter.sh; ortam='{}' ;;
             orkestrai-kaldir-prova) betik=deploy/orkestrai-kaldir.sh; ortam='{"KIP":"prova"}' ;;
             orkestrai-kaldir) betik=deploy/orkestrai-kaldir.sh; ortam='{"KIP":"gercek"}' ;;
+            orkestrai-kaldir-son) betik=deploy/orkestrai-kaldir.sh; ortam='{"KIP":"son"}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
