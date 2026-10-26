@@ -84,7 +84,7 @@ def read_settings(path: Path | str, environ: Mapping[str, str] = os.environ) -> 
     """db.py'deki DB_CONFIG'ten bağlantı ayarları. Dosya çalıştırılmaz; hata metinleri yalnız anahtar adı içerir."""
     try:
         tree = ast.parse(Path(path).read_bytes(), filename="db.py")
-    except (OSError, SyntaxError, ValueError):
+    except (OSError, SyntaxError, ValueError, RecursionError, MemoryError):
         # A syntax error carries the offending line, which may be the password: its text is never shown.
         raise SourceError("Kaynak ayar dosyası (db.py) okunamadı ya da ayrıştırılamadı.") from None
     found = None

@@ -246,7 +246,7 @@ def build(tables: dict[str, list[dict[str, Any]]], now: datetime, *, kept: Colle
     _modules(index, tables, plan)
     _applications(tables, plan, blocked.get("basvurular", {}))
     _support(tables, plan, blocked.get("destek_talepleri", {}))
-    _agents(index, tables, plan)
+    _agents(index, tables, plan, blocked.get("ajan_ofisleri", {}))
     _notes(index, tables, plan)
     return plan
 
@@ -441,7 +441,7 @@ def _support(tables: dict[str, list[dict[str, Any]]], plan: Plan, blocked: dict[
             "icerik": content, "olusturma": _moment(row["Olusturma"])})
 
 
-def _agents(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan) -> None:
+def _agents(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan, blocked: dict[Any, str]) -> None:
     accounts = plan.accounts
     offices, tasks, approvals, events = (plan.tables[name] for name in
                                          ("ajan_ofisleri", "ajan_gorevleri", "ajan_onaylari", "ajan_olaylari"))
@@ -452,6 +452,9 @@ def _agents(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan) 
         owner = row["YetkiliID"]
         if owner not in accounts:
             offices.skip(NO_OWNER)
+            continue
+        if office_id in blocked:
+            offices.skip(blocked[office_id])
             continue
         created = _moment(joined.get((office_id, owner)) or row["Olusturma"])
         reasons = []
@@ -563,7 +566,9 @@ def _agents(index: _Index, tables: dict[str, list[dict[str, Any]]], plan: Plan) 
             continue
         try:
             details = json.loads(row["Ayrinti"], parse_constant=_no_constants)
-        except (TypeError, ValueError):
+            # 1e400 parses to inf, which jsonb cannot store.
+            json.dumps(details, allow_nan=False)
+        except (TypeError, ValueError, RecursionError):
             details = _no_constants
         if (not _hex(row["ID"]) or not isinstance(row["KayitID"], str) or row["Aktor"] not in ACTORS
                 or not (row["KullaniciID"] is None or type(row["KullaniciID"]) is int)
