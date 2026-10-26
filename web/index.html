@@ -3,24 +3,226 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Peyrev</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev, Windows ve macOS için masaüstü akış stüdyosu: masaüstü uygulamalarındaki ve web sitelerindeki işleri görsel akışlarla otomatikleştirir.">
+<title>Peyrev · Masaüstü akış stüdyosu</title>
 <link rel="icon" href="/assets/peyrev-mark-32.png">
-<style>
-  :root { color-scheme: light dark; --bg: #f6f4ef; --fg: #1d1b16; --muted: #6b665c; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #12110e; --fg: #f2efe7; --muted: #a49d8f; } }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg);
-         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  main { text-align: center; padding: 24px 16px; }
-  img { width: 96px; height: 96px; }
-  h1 { margin: 12px 0 4px; font-size: 28px; letter-spacing: .02em; }
-  p { margin: 0; color: var(--muted); }
-</style>
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css">
+<script src="/assets/site.js" defer></script>
 </head>
 <body>
-<main>
-  <img src="/assets/peyrev-mark-192.png" alt="">
-  <h1>Peyrev</h1>
-  <p>Akış stüdyosu. Sayfa hazırlanıyor.</p>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="36" height="36">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfa bölümleri">
+      <a href="#ozellikler">Özellikler</a>
+      <a href="#nasil">Nasıl başlanır</a>
+      <a href="#indir">İndir</a>
+      <a class="nav-apply" href="#basvuru">Başvuru</a>
+    </nav>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="hero" aria-labelledby="tanitim-baslik">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow">Windows ve macOS için akış stüdyosu</p>
+        <h1 id="tanitim-baslik">Bilgisayarınızda tekrar eden işleri akışa dönüştürün.</h1>
+        <p class="lead">Peyrev, masaüstü uygulamalarında ve web sitelerinde elle yaptığınız işleri görsel akışlarla
+          otomatikleştirir. Adımları sıralar, koşul ve döngü eklersiniz; akışı tek tıkla ya da zamanlayarak
+          çalıştırırsınız. İsterseniz yapay zekâ ajanları akışlarınızı sizin belirlediğiniz sınırlar içinde kullanır.</p>
+        <div class="hero-actions">
+          <a class="button button-gold" href="https://peyrev.com/indir/">Peyrev'i indir</a>
+          <a class="button button-ghost" href="#basvuru">Hesap başvurusu</a>
+        </div>
+      </div>
+      <figure class="flow" aria-labelledby="akis-aciklama">
+        <ol class="flow-steps">
+          <li class="flow-step"><span class="flow-kind">Dosya ve Excel</span>Excel / CSV oku</li>
+          <li class="flow-step flow-loop"><span class="flow-kind">Akış</span>Her satır için
+            <ol class="flow-steps flow-inner">
+              <li class="flow-step"><span class="flow-kind">Pencere</span>Alanı doldur</li>
+              <li class="flow-step"><span class="flow-kind">Pencere</span>Pencerede tıkla</li>
+              <li class="flow-step"><span class="flow-kind">Akış</span>Hata olursa</li>
+            </ol>
+          </li>
+          <li class="flow-step"><span class="flow-kind">Dosya ve Excel</span>Departman raporu (CSV)</li>
+        </ol>
+        <figcaption id="akis-aciklama">Bir akış, adım kütüphanesindeki adımlardan kurulur.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="ozellikler" aria-labelledby="ozellik-baslik">
+    <div class="wrap">
+      <h2 id="ozellik-baslik">Neler yapabilirsiniz?</h2>
+      <ul class="features">
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h6v4H4zM14 15h6v4h-6zM7 9v3a3 3 0 0 0 3 3h4"/></svg>
+          <h3>Görsel akış tasarımı</h3>
+          <p>Adımları kütüphaneden ekleyip sıralarsınız; koşul, döngü, "Hata olursa" ve başka akışı çalıştırma
+            bloklarıyla akışı kurarsınız. Akış liste ya da diyagram olarak görünür; bir adımı tek başına
+            deneyebilir, akışı seçtiğiniz adıma kadar çalıştırabilirsiniz.</p>
+        </li>
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18v12H3zM8 21h8M12 17v4M7 10l2 2-2 2M12 14h4"/></svg>
+          <h3>Masaüstü uygulamaları</h3>
+          <p>Pencereyi ve alanı uygulamanın kendi yapısından tanır; tıklar, alan doldurur, tablodan okur ve tabloya
+            yazar, ekrandaki metni OCR ile bulur. Hedef bulunamazsa ya da birden fazla eşleşme varsa adım durur;
+            tahminle tıklamaz ve yazmaz.</p>
+        </li>
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.7 3.5 5.7 3.5 9s-1 6.3-3.5 9c-2.5-2.7-3.5-5.7-3.5-9s1-6.3 3.5-9z"/></svg>
+          <h3>Web otomasyonu</h3>
+          <p>Edge veya Chrome'da sayfa açar, öğelere tıklar, formları doldurur, web tablolarını okur, dosya indirir ve
+            yükler. Hedefi tarayıcıda üzerine tıklayarak seçersiniz.</p>
+        </li>
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+          <h3>Veri ve bağlantılar</h3>
+          <p>Excel ve CSV, PDF, Google Sheets, veritabanları (SQL Server, PostgreSQL, MySQL / MariaDB, Oracle,
+            SQLite), web servisleri (API), e-posta, FTP ve mesajlaşma kanallarıyla çalışır. Kayıtlı şifreler işletim
+            sisteminin kasasında durur.</p>
+        </li>
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2"/></svg>
+          <h3>Zamanlayıcı ve otomasyonlar</h3>
+          <p>Akışı belirli saatlerde, her gün ya da aralıklarla çalıştırır; bir akış bittiğinde, klasöre dosya
+            geldiğinde ya da posta kutusuna e-posta geldiğinde başlatır. Zamanlayıcı bu bilgisayarda, Peyrev açıkken
+            çalışır.</p>
+        </li>
+        <li class="feature">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v3M8 21h8M6 8h12v9H6zM9.5 12h.01M14.5 12h.01M3 12h3M18 12h3"/></svg>
+          <h3>Ajanlar <span class="tag">ek paket</span></h3>
+          <p>Yapay zekâ ajanları, onlara verdiğiniz akışları ve yetenekleri izin verdiğiniz sınırlar içinde kullanır;
+            riskli işlemler onayınıza gelir. Ajanlar kendi yapay zekâ modeli bağlantınızla çalışır.</p>
+        </li>
+      </ul>
+      <p class="aside">Akışlarınız, bağlantı ayarlarınız ve çalışma kayıtlarınız bilgisayarınızda kalır. Lisans her
+        açılışta peyrev.com üzerinden doğrulanır; uygulamayı açmak için internet gerekir.</p>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="nasil" aria-labelledby="nasil-baslik">
+    <div class="wrap">
+      <h2 id="nasil-baslik">Nasıl başlanır?</h2>
+      <ol class="steps">
+        <li><h3>Başvurun</h3><p>Aşağıdaki formu doldurun; şifrenizi siz belirlersiniz.</p></li>
+        <li><h3>Ödeme</h3><p>Fiyat ve ödeme bilgisini başvurudaki e-posta veya telefonla size iletiriz. Ödemeniz
+          onaylandığında hesabınız açılır.</p></li>
+        <li><h3>Kurun ve girin</h3><p>Peyrev'i indirip kurun; e-posta adresiniz ve şifrenizle girin. Hesabınız aynı
+          anda bir bilgisayarda çalışır.</p></li>
+      </ol>
+      <h3 class="packages-title">Paketler</h3>
+      <ul class="packages">
+        <li class="package">
+          <h4>Peyrev</h4>
+          <p>Masaüstü ve web otomasyon akışları, zamanlayıcı ve bağlantılar.</p>
+        </li>
+        <li class="package">
+          <h4>Peyrev + Ajanlar</h4>
+          <p>Peyrev'in tamamı ve akışlarınızı kullanan yapay zekâ ajanları.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="indir" aria-labelledby="indir-baslik">
+    <div class="wrap download">
+      <div>
+        <h2 id="indir-baslik">Peyrev'i indirin</h2>
+        <p>Windows ve macOS kurulum dosyaları indirme sayfasındadır. Kurulu uygulama yeni sürümleri kendiliğinden
+          denetler ve doğrulayarak indirir; akışlarınız ve ayarlarınız güncellemede korunur.</p>
+        <p class="aside">Windows için Microsoft Edge WebView2 gerekir. Mac'te pencereleri tanımak ve kontrol etmek
+          için Ekran Kaydı ve Erişilebilirlik izinleri istenir. RpaOrkestrAI kullanıyorsanız yeniden kurmanız
+          gerekmez: kurulu uygulama kendiliğinden Peyrev'e güncellenir.</p>
+      </div>
+      <a class="button button-dark" href="https://peyrev.com/indir/">İndirme sayfası</a>
+    </div>
+  </section>
+
+  <section class="band band-alt" aria-label="Başvuru ve hesap">
+    <div class="wrap apply-grid">
+      <form class="card apply" id="basvuru" novalidate aria-labelledby="basvuru-baslik">
+        <h2 id="basvuru-baslik">Hesap başvurusu</h2>
+        <p>Formu doldurun; şifrenizi siz belirlersiniz. Fiyat ve ödeme bilgisini başvurudaki e-posta veya telefonla
+          size iletiriz. Ödemeniz onaylandığında hesabınız açılır.</p>
+        <div class="fields">
+          <label class="field" for="b-ad">Ad soyad
+            <input id="b-ad" name="ad_soyad" type="text" autocomplete="name" required minlength="3" maxlength="120">
+          </label>
+          <label class="field" for="b-eposta">E-posta
+            <input id="b-eposta" name="eposta" type="email" autocomplete="email" autocapitalize="none" spellcheck="false"
+              required maxlength="150">
+          </label>
+          <label class="field" for="b-telefon">Telefon <span class="optional">(isteğe bağlı)</span>
+            <input id="b-telefon" name="telefon" type="tel" autocomplete="tel" maxlength="32">
+          </label>
+          <label class="field" for="b-sifre">Şifre
+            <input id="b-sifre" name="sifre" type="password" autocomplete="new-password" required minlength="8"
+              maxlength="128" aria-describedby="b-sifre-ipucu">
+            <span class="hint" id="b-sifre-ipucu">8-128 karakter; en az bir harf ve bir rakam. Peyrev'e bu şifreyle
+              girersiniz.</span>
+          </label>
+          <label class="field" for="b-tekrar">Şifre (tekrar)
+            <input id="b-tekrar" name="tekrar" type="password" autocomplete="new-password" required minlength="8"
+              maxlength="128">
+          </label>
+        </div>
+        <fieldset class="choice">
+          <legend>Paket</legend>
+          <label class="option">
+            <input type="radio" name="paket" value="rpa" checked>
+            <span><strong>Peyrev</strong> Masaüstü ve web otomasyon akışları</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="paket" value="rpa_ajan">
+            <span><strong>Peyrev + Ajanlar</strong> Akışlarınızı kullanan yapay zekâ ajanlarıyla</span>
+          </label>
+        </fieldset>
+        <label class="trap" aria-hidden="true">Web sitesi
+          <input name="web_sitesi" type="text" tabindex="-1" autocomplete="off">
+        </label>
+        <label class="consent">
+          <input type="checkbox" name="onay" required>
+          <span>Ad soyad, e-posta ve telefon bilgilerim ile başvurunun gönderildiği internet adresi (IP), hesabımın
+            açılması, lisansımın yönetimi, ödeme için benimle iletişim kurulması ve kötüye kullanımın önlenmesi
+            amacıyla Peyrev tarafından işlenir ve saklanır. Şifrem yalnız geri çevrilemez bir özet olarak saklanır.
+            Onaylanmayan başvurular 90 gün sonra silinir. Bu bilgilendirmeyi okudum ve kabul ediyorum.</span>
+        </label>
+        <p class="form-status" id="basvuru-durumu" role="status" aria-live="polite" tabindex="-1" hidden></p>
+        <button class="button button-gold" type="submit">Başvuruyu gönder</button>
+      </form>
+      <aside class="card account" aria-labelledby="hesap-baslik">
+        <h2 id="hesap-baslik">Hesabınız var mı?</h2>
+        <p>Peyrev'e bu sayfadan değil, uygulamanın içinden girersiniz: hesabınızın e-posta adresi (ya da kullanıcı
+          adınız) ve şifrenizle.</p>
+        <p>Lisansınızın bitiş tarihi uygulamada <strong>Ayarlar → Peyrev lisansı</strong> bölümünde görünür; şifrenizi
+          de aynı yerden değiştirirsiniz.</p>
+        <p>Size bir şifre kodu verildiyse giriş ekranındaki <strong>Şifre kodum var</strong> ile kendi şifrenizi
+          belirleyin.</p>
+        <p>Hesabınız aynı anda bir bilgisayarda açık olur; başka bir bilgisayarda giriş yapınca önceki oturum kapanır.</p>
+      </aside>
+    </div>
+  </section>
 </main>
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="20" height="20">Peyrev</span>
+    <nav aria-label="Alt bağlantılar">
+      <a href="https://peyrev.com/indir/">İndir</a>
+      <a href="#basvuru">Hesap başvurusu</a>
+    </nav>
+  </div>
+</footer>
 </body>
 </html>
