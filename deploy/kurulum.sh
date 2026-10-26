@@ -5,7 +5,7 @@
 # KIP=uygula  PostgreSQL 16 (yalnız localhost), peyrev hesabı ve klasörleri, uv + Python 3.12, veritabanları ve parolası,
 #             systemd birimi, gece yedeği, www dahil SSL ve OpenLiteSpeed vekili (/api/, /yonetim/ → 127.0.0.1:PORT).
 #
-# Kurallar: aynı sunucudaki orkestrai.net ve diğer siteler bozulmaz. Her riskli adımdan önce ve sonra sitelerin durum kodları
+# Kurallar: aynı sunucudaki diğer siteler bozulmaz. Her riskli adımdan önce ve sonra sitelerin durum kodları
 # karşılaştırılır; fark varsa o adım geri alınır ve betik durur. Mevcut bir paket yükseltilecek/kaldırılacaksa kurulum yapılmaz.
 # Sırlar (veritabanı parolası) yalnız /etc/peyrev altındaki 0640 dosyaya yazılır; komut satırına ve çıktıya girmez.
 
@@ -24,7 +24,7 @@ SECRETS=/etc/peyrev
 BACKUPS=/var/backups/peyrev
 LSWS=/usr/local/lsws
 VHOST=$LSWS/conf/vhosts/$SITE/vhost.conf
-SITES="orkestrai.net altunhukuk.av.tr hmtgross.com mkticaret.com"
+SITES="altunhukuk.av.tr hmtgross.com mkticaret.com"
 MARK_BEGIN="# >>> peyrev vekili (deploy/kurulum.sh yönetir)"
 MARK_END="# <<< peyrev vekili"
 STEP=başlangıç
@@ -37,10 +37,10 @@ trap 'rc=$?; printf "HATA: %s adımında, satır %s (çıkış %s)\n" "$STEP" "$
 code() {   # code HOST [YOL]: yerel 443 üzerinden durum kodu (DNS'e bağlı değil)
   curl -sk -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$1:443:127.0.0.1" "https://$1${2:-/}" </dev/null || true
 }
-snapshot() {   # sitelerin durum kodları; orkestrai'nin lisans ucu dahil
+snapshot() {   # sitelerin durum kodları
   local s out=""
   for s in $SITES; do out="$out $s=$(code "$s")"; done
-  printf '%s orkestrai-anahtar=%s' "$out" "$(code orkestrai.net /api/rpa/lisans/anahtar)"
+  printf '%s' "$out"
 }
 require_same() {   # require_same ÖNCEKİ: birkaç denemede de farklıysa 1 (yeniden başlatma sonrası kısa dalgalanmaya izin)
   local now i
@@ -63,8 +63,6 @@ adim "Ön denetim"
 grep -q '^PLATFORM_ID="platform:el8"' /etc/os-release || { echo "Beklenmeyen işletim sistemi"; exit 1; }
 BEFORE=$(snapshot)
 printf '  başlangıç: %s\n' "$BEFORE"
-case "$BEFORE" in *"orkestrai.net=200"*"orkestrai-anahtar=200"*) ;; *) echo "orkestrai.net sağlıklı değil; hiçbir şey yapılmadı."; genel "orkestrai.net sağlıklı değil; kurulum yapılmadı"; exit 1 ;; esac
-genel "orkestrai.net / ve /api/rpa/lisans/anahtar -> 200 (başlangıç)"
 for p in "$PORT" 5432; do
   owner=$(ss -H -ltnp "sport = :$p" 2>/dev/null | sed -E 's/.*users:\(\("([^"]+)".*/\1/' | head -1)
   printf '  port %s: %s\n' "$p" "${owner:-boş}"
@@ -333,7 +331,7 @@ fi
 # ---------------------------------------------------------------------------------------------------------------------
 adim "Son denetim"
 if require_same "$BEFORE"; then
-  genel "diğer siteler ve orkestrai.net değişmedi: $(snapshot | tr -s ' ')"
+  genel "diğer siteler değişmedi: $(snapshot | tr -s ' ')"
 else
   echo "Site durumları başlangıçtan farklı."; genel "site durumları başlangıçtan farklı"; exit 1
 fi

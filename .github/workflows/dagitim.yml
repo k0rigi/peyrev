@@ -84,7 +84,7 @@ jobs:
       - name: Dışarıdan denetim
         run: |
           fail=0
-          for u in https://peyrev.com/api/saglik https://orkestrai.net/ https://orkestrai.net/api/rpa/lisans/anahtar; do
+          for u in https://peyrev.com/api/saglik https://peyrev.com/; do
             c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || true)
             echo "$u -> $c"; [ "$c" = 200 ] || fail=1
           done

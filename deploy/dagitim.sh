@@ -6,7 +6,7 @@
 # deploy/requirements.lock'tan özetleri denetlenerek gelir. Eksik sunucu sırları bir kez üretilir (asla üzerine yazılmaz),
 # geçişler peyrev veritabanına uygulanır, current bağlantısı atomik değişir ve servis yeniden başlar.
 # /api/saglik 200 dönmezse önceki sürüme geri dönülür. Statik site (web/) public_html'e eşitlenir; indir/ (Studio paketleri)
-# ve .well-known/ korunur. Sonunda orkestrai.net ve peyrev.com denetlenir.
+# ve .well-known/ korunur. Sonunda peyrev.com denetlenir.
 
 set -Eeuo pipefail
 umask 022
@@ -33,7 +33,6 @@ adim "Arşiv"
 [[ "${ARSIV_SHA256:-}" =~ ^[0-9a-f]{64}$ ]] || { echo "ARSIV_SHA256 geçersiz"; exit 1; }
 printf '%s  %s\n' "$ARSIV_SHA256" "$ARSIV" | sha256sum -c - | sed 's/^/  /'
 [ -x "$ROOT/bin/uv" ] && [ -f /etc/systemd/system/peyrev.service ] || { echo "Önce kurulum çalıştırılmalı."; exit 1; }
-[ "$(code orkestrai.net)" = 200 ] || { echo "orkestrai.net sağlıklı değil; dağıtım yapılmadı."; genel "orkestrai.net sağlıklı değil; dağıtım yapılmadı"; exit 1; }
 
 REL=$ROOT/releases/$SURUM
 adim "Sürüm klasörü ve sanal ortam"
@@ -101,9 +100,8 @@ done
 adim "Denetim"
 # The nightly backup must keep running; its newest files are listed here (names and sizes only).
 ls -lt /var/backups/peyrev 2>/dev/null | sed -n 2,5p | awk '{print "  yedek:", $5, $6, $7, $8, $9}'
-s1=$(code "$SITE" /api/saglik); s2=$(code "$SITE"); o1=$(code orkestrai.net); o2=$(code orkestrai.net /api/rpa/lisans/anahtar)
-printf '  peyrev.com/api/saglik=%s peyrev.com/=%s orkestrai.net/=%s anahtar=%s\n' "$s1" "$s2" "$o1" "$o2"
+s1=$(code "$SITE" /api/saglik); s2=$(code "$SITE")
+printf '  peyrev.com/api/saglik=%s peyrev.com/=%s\n' "$s1" "$s2"
 genel "peyrev.com/api/saglik -> $s1, peyrev.com/ -> $s2"
-genel "orkestrai.net / -> $o1, /api/rpa/lisans/anahtar -> $o2"
-[ "$s1" = 200 ] && [ "$o1" = 200 ] && [ "$o2" = 200 ] || exit 1
+[ "$s1" = 200 ] || exit 1
 genel "dağıtım tamamlandı: ${SURUM:0:7}"

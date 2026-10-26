@@ -11,11 +11,12 @@ on:
         required: true
         type: choice
         options:
-          - inceleme
           - kurulum-deneme
           - kurulum
           - deneme-hesabi-kapat
           - orkestrai-envanter
+          - orkestrai-kaldir-prova
+          - orkestrai-kaldir
 
 permissions:
   contents: read
@@ -43,11 +44,12 @@ jobs:
           ISLEM: ${{ inputs.islem }}
         run: |
           case "$ISLEM" in
-            inceleme)       betik=deploy/inceleme.sh; ortam='{}' ;;
             kurulum-deneme) betik=deploy/kurulum.sh;  ortam='{"KIP":"deneme"}' ;;
             kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
             deneme-hesabi-kapat) betik=deploy/deneme-hesabi.sh; ortam='{}' ;;
             orkestrai-envanter) betik=deploy/orkestrai-envanter.sh; ortam='{}' ;;
+            orkestrai-kaldir-prova) betik=deploy/orkestrai-kaldir.sh; ortam='{"KIP":"prova"}' ;;
+            orkestrai-kaldir) betik=deploy/orkestrai-kaldir.sh; ortam='{"KIP":"gercek"}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
