@@ -3,7 +3,7 @@ name: rpa-license-admin
 description: Peyrev (MOD_RPA) lisansını bir hesaba vermek, süresini uzatmak veya kaldırmak, Ajanlar hakkını (MOD_AJAN) yönetmek, başvuruları onaylamak ya da "süreniz dolmuştur / lisans tanımlı değil / giriş yapılamıyor" sorunlarını incelemek için kullan. Peyrev yönetim paneli (peyrev.com/yonetim) üzerinden, kullanıcı bazlı hak kuralına göre çalışır; firma kavramı yoktur.
 ---
 
-> Bu skill Studio deposundan (`/Users/k0rigi/Desktop/Web projeleri/RpaOrkestrAI`) kopyalandı. İçindeki `docs/`, `credentials/`, `scripts/`, `src/rpa_orkestrai/` yolları o depoya göredir; sunucu yolları (`src/peyrev/…`) bu depoya.
+> Bu skill Studio deposundan (`/Users/k0rigi/Desktop/Web projeleri/peyrev-studio`) kopyalandı. İçindeki `docs/`, `credentials/`, `scripts/`, `src/peyrev_studio/` yolları o depoya göredir; sunucu yolları (`src/peyrev/…`) bu depoya.
 
 # Peyrev lisans yönetimi
 
@@ -86,8 +86,10 @@ curl -s https://peyrev.com/api/rpa/lisans/anahtar    # anahtar, protokol, asgari
 
 `anahtar` uygulamadaki `licensing.LICENSE_PUBLIC_KEY` ile aynı olmalıdır; `protokol` şu an `2`, `asgari_surum` `1.0.0`. Anahtar farklıysa sunucudaki `/etc/peyrev/lisans_ed25519` değişmiş demektir ve kurulu uygulamalar lisans doğrulayamaz. Anahtar dağıtımlarla değişmez ve gece yedeğindedir: önce yedekten geri yüklemeyi kullanıcıyla konuş; olmazsa `LICENSE_PUBLIC_KEY` güncellenip yeni sürüm yayımlanır (`rpa-release`). Güncelleme düzeneği lisanstan bağımsız çalıştığı için kullanıcılar yeni sürümü alabilir.
 
-Uygulama tarafında çalışma alanındaki `data/license.json` yalnız kurulum kimliğini ve kurulumun giriş yaptığı sunucuyu (`"sunucu": "peyrev.com"`) içerir; kullanıcı adı, oturum belirteci, lisans ve şifre yoktur. Dosya uygulamayı açmaz: onay her açılışta sunucudan alınır ve yalnız bellekte tutulur. İşaret yoksa (orkestrai.net döneminden kalan çalışma alanı) giriş ekranı Peyrev'e geçildiğini yazar.
+Uygulama tarafında çalışma alanındaki `data/license.json` yalnız kurulum kimliğini ve kurulumun giriş yaptığı sunucuyu (`"sunucu": "peyrev.com"`) içerir; kullanıcı adı, oturum belirteci, lisans ve şifre yoktur. Dosya uygulamayı açmaz: onay her açılışta sunucudan alınır ve yalnız bellekte tutulur. İşaret yoksa (1.0.0'dan önceki bir sürümden kalan çalışma alanı) giriş ekranı Peyrev'e geçildiğini yazar.
 
-## Eski sürümler ve orkestrai.net
+## Eski sürümler
 
-0.9.53 ve önceki sürümler orkestrai.net'e bağlanır; hesaplar şifreleri ve haklarıyla peyrev.com'a taşındı (taşınan hakkın bitişi, eski firma ve hesap bitişlerinden erken olanıdır). orkestrai.net'teki firma-modül kayıtları, SQL'ler ve iş akışları (Ajan lisansı yönetimi, RpaOrkestrAI kullanıcı yönetimi) Peyrev hesaplarını değiştirmez; Peyrev için yalnız panel kullanılır. Eski sürüm kullanan biri sorun yaşıyorsa çözüm köprü sürümü 1.0.0'a güncellemektir (eski kanal; `rpa-release`).
+0.9.53 ve önceki sürümler eski sunucuya bağlanır ve peyrev.com'dan lisans alamaz; hesaplar şifreleri ve haklarıyla peyrev.com'a taşındı (taşınan hakkın bitişi, eski firma ve hesap bitişlerinden erken olanıdır). Peyrev hesapları yalnız panelden değiştirilir. Eski sürüm kullanan biri sorun yaşıyorsa çözüm güncel sürümü [peyrev.com/indir](https://peyrev.com/indir/) adresinden kurmaktır; akışları ve ayarları yerinde kalır.
+
+1.1.0 ve sonrası lisansta ürün olarak `peyrev` bekler (sunucu bu sürümlere `peyrev` verir). Cihaz kimliği de buna göre türediğinden 1.0.x'ten güncellenen bir kurulumun ilk girişi yeni bir bilgisayar oturumu sayılır; tek bilgisayar kuralı gereği önceki oturum kapanır, kullanıcı için ek bir adım yoktur.
