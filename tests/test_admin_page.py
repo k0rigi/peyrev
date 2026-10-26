@@ -133,6 +133,14 @@ def test_the_page_has_no_inline_script_or_style_and_loads_only_same_origin_files
     assert ("meta", {"name": "robots", "content": "noindex, nofollow"}) in parsed.elements
 
 
+def test_the_panel_leaves_plain_http_before_anything_is_shown():
+    """Vekil düz http'yi uygulamaya bildirmez: panel betiği ilk iş olarak https adresine geçer (giriş formu kurulmadan)."""
+    head = SCRIPT.split("const API = ", 1)[0]
+    assert "if (location.protocol !== 'https:' && location.hostname === 'peyrev.com') {" in head
+    assert "location.replace('https://peyrev.com' + location.pathname + location.search + location.hash);" in head
+    assert head.rstrip().endswith("return;\n  }")
+
+
 def test_the_panel_script_writes_user_data_into_the_page_only_as_text():
     code = re.sub(r"/\*.*?\*/", "", SCRIPT, flags=re.DOTALL)  # the header comment names the rule itself
     for forbidden in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write", "DOMParser",

@@ -65,7 +65,7 @@ orkestrai.net ile aynı AlmaLinux 8 sunucusunda, ondan bağımsız çalışır:
 | Sırlar | `/etc/peyrev/` (`db.env`, `jwt_secret`, `lisans_ed25519`, isteğe bağlı `destek.env`, `llm.env`) |
 | Yedek | Her gece 03:30, `pg_dump` ve sırlar, 14 gün: `/var/backups/peyrev` (`/etc/cron.d/peyrev-yedek`) |
 | Site | CyberPanel sitesi `peyrev.com`; OpenLiteSpeed `/api/` ve `/yonetim/` isteklerini API'ye iletir, gerisi statiktir |
-| SSL | Let's Encrypt, peyrev.com + www.peyrev.com (acme.sh kendiliğinden yeniler); www ve http, https://peyrev.com'a yönlenir |
+| SSL | Let's Encrypt, peyrev.com + www.peyrev.com (acme.sh kendiliğinden yeniler). www ve http, https://peyrev.com'a yönlenir: statik sayfalarda `.htaccess`, `/api/` ve `/yonetim/`'de www için uygulama (308); vekil düz http'yi uygulamaya bildirmediğinden panel http ile açılırsa betiği giriş formunu göstermeden https'e geçer. Uygulama yanıtları `Strict-Transport-Security` (7 gün) taşır |
 
 ## İş akışları
 

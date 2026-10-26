@@ -13,6 +13,14 @@
 (function () {
   'use strict';
 
+  // OpenLiteSpeed vekili düz http isteğini uygulamaya ayırt edilebilir biçimde iletmez (www ve http yönlendirmesini statik
+  // sitede .htaccess, www'yi uygulama yapar). Panel http ile açılırsa giriş formu hiç gösterilmeden https adresine geçilir;
+  // şifre ve kod açık bağlantıdan gitmez. Strict-Transport-Security sonraki ziyaretleri tarayıcıda https'e çevirir.
+  if (location.protocol !== 'https:' && location.hostname === 'peyrev.com') {
+    location.replace('https://peyrev.com' + location.pathname + location.search + location.hash);
+    return;
+  }
+
   const API = '/api/yonetim/';
   const ACCOUNT_API = '/api/rpa/hesap/';
   const TITLE = 'Peyrev yönetimi';
