@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # deploy/destek-eposta.sh — destek bildirimlerini info@peyrev.com kutusuna bağlar (Sunucu işleri → destek-eposta).
-# 1) CyberPanel'de info@peyrev.com kutusu yoksa açılır; şifresi burada üretilir. Kutu varsa ve destek.env onu zaten
-#    kullanıyorsa şifreye dokunulmaz; varsa ama destek.env'de değilse şifre yenilenir (kutuyu bu iş açar, başkası kullanmaz).
+# 1) CyberPanel'de info@peyrev.com kutusu yoksa açılır; şifresi burada üretilir. Kutu zaten varsa şifresine dokunulmaz
+#    (CyberPanel aracında kutu şifresi değiştirme komutu yoktur): destek.env'deki şifreyle giriş denenir, olmazsa iş durur
+#    ve doğru şifre Secrets'a DESTEK_SMTP_PASSWORD olarak girilip "Destek bildirim ayarları" çalıştırılır.
 # 2) Postfix'in SNI haritasına peyrev.com sertifikası eklenir (465 portunda peyrev.com adına doğrulanabilir TLS); harita
 #    denetimi geçmezse eski harita geri yüklenir.
 # 3) /etc/peyrev/destek.env uygulamanın kendi aracıyla yazılır ve deneme bildirimi gönderilir; kutuya ulaştığı denetlenir.
-# Şifre komut satırına yalnız CyberPanel aracına verilirken girer; günlüğe yazılmaz. Sahibin e-posta istemcisine girebilmesi
-# için şifreli rapora "KUTU_SIFRESI:" satırıyla yazılır (rapor yalnız sahibin anahtarıyla açılır).
+# Şifre komut satırına yalnız kutu açılırken CyberPanel aracına verilirken girer; günlüğe yazılmaz. Yeni açılan kutunun
+# şifresi sahibin e-posta istemcisine girebilmesi için şifreli rapora "KUTU_SIFRESI:" satırıyla yazılır.
 
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8 LANG=C.UTF-8
@@ -23,19 +24,31 @@ code() { curl -sk -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$1:443
 BEFORE="peyrev=$(code peyrev.com) hmtgross=$(code hmtgross.com) mkticaret=$(code mkticaret.com)"
 echo "siteler: $BEFORE"
 
-current_user=$(grep -E '^DESTEK_SMTP_USER=' /etc/peyrev/destek.env 2>/dev/null | cut -d= -f2- | tr -d "\"'" || true)
 exists=$(sql "SELECT COUNT(*) FROM e_users WHERE email = '$ADDRESS'")
-if [ "$exists" != 0 ] && [ "$current_user" = "$ADDRESS" ]; then
-  echo "Kutu var ve destek.env onu kullanıyor; şifreye dokunulmadı."
-  PW=$(grep -E '^DESTEK_SMTP_PASSWORD=' /etc/peyrev/destek.env | cut -d= -f2-)
+CREATED=0
+if [ "$exists" != 0 ]; then
+  # Read with the application's own parser: the file stores values in quotes.
+  PW=$(PYTHONPATH="$REL/src" "$REL/venv/bin/python" -B -c 'from peyrev.support import notify; print(notify.read_settings("/etc/peyrev/destek.env", owner=0).get("DESTEK_SMTP_PASSWORD", ""))')
+  ok=$(DESTEK_DENEME_SIFRE="$PW" python3 - <<'PY'
+import os, smtplib, ssl
+try:
+    connection = smtplib.SMTP_SSL("peyrev.com", 465, timeout=15, context=ssl.create_default_context())
+    connection.login("info@peyrev.com", os.environ["DESTEK_DENEME_SIFRE"]); connection.quit(); print("evet")
+except Exception:
+    print("hayir")
+PY
+)
+  if [ "$ok" != evet ]; then
+    echo "Kutu var ama destek.env'deki şifreyle giriş olmuyor; kutunun şifresine dokunulmadı."
+    genel "kutu şifresi destek.env ile uyuşmuyor: doğru şifre Secrets'a DESTEK_SMTP_PASSWORD olarak girilip Destek bildirim ayarları çalıştırılmalı"
+    exit 1
+  fi
+  echo "Kutu var ve destek.env'deki şifreyle giriş oluyor; şifreye dokunulmadı."
 else
   # Letters and digits only: the CyberPanel tool takes the password as an argument (a leading - would be an option).
   PW=$(python3 -c 'import secrets, string; print("".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(32)))')
-  if [ "$exists" = 0 ]; then
-    cyberpanel createEmail --domainName "$DOMAIN" --userName "$BOX" --password="$PW" 2>&1 | tail -2 | sed 's/^/  /'
-  else
-    cyberpanel changeEmailPassword --email "$ADDRESS" --password="$PW" 2>&1 | tail -2 | sed 's/^/  /'
-  fi
+  cyberpanel createEmail --domainName "$DOMAIN" --userName "$BOX" --password="$PW" 2>&1 | tail -2 | sed 's/^/  /'
+  CREATED=1
 fi
 [ "$(sql "SELECT COUNT(*) FROM e_users WHERE email = '$ADDRESS'")" = 1 ] || { echo "Kutu açılamadı."; genel "kutu açılamadı"; exit 1; }
 echo "kutu: $ADDRESS hazır"
@@ -68,7 +81,10 @@ INPUT=$TRANSFER/destek-eposta.env
 trap 'rm -f -- "$INPUT"' EXIT
 umask 077
 {
-  grep -E '^DESTEK_TELEGRAM_(TOKEN|CHAT)=' /etc/peyrev/destek.env 2>/dev/null || true
+  PYTHONPATH="$REL/src" "$REL/venv/bin/python" -B -c 'from peyrev.support import notify
+for key, value in notify.read_settings("/etc/peyrev/destek.env", owner=0).items():
+    if key in ("DESTEK_TELEGRAM_TOKEN", "DESTEK_TELEGRAM_CHAT"):
+        print(f"{key}={value}")'
   printf 'DESTEK_SMTP_HOST=%s\nDESTEK_SMTP_PORT=465\nDESTEK_SMTP_USER=%s\nDESTEK_SMTP_PASSWORD=%s\n' "$DOMAIN" "$ADDRESS" "$PW"
   printf 'DESTEK_EPOSTA_GONDEREN=%s\nDESTEK_EPOSTA_ALICI=%s\n' "$ADDRESS" "$ADDRESS"
 } > "$INPUT"
@@ -93,7 +109,7 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
   [ "$after" -gt "$before" ] && break; sleep 2
 done
 echo "  kutudaki ileti: $before → $after"
-printf 'KUTU_SIFRESI: %s\n' "$PW"
+[ "$CREATED" = 1 ] && printf 'KUTU_SIFRESI: %s\n' "$PW"
 AFTER="peyrev=$(code peyrev.com) hmtgross=$(code hmtgross.com) mkticaret=$(code mkticaret.com)"
 echo "siteler: $AFTER"
 [ "$AFTER" = "$BEFORE" ] || { genel "site durumları değişti"; exit 1; }
