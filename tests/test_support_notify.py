@@ -233,6 +233,32 @@ def test_the_setup_job_writes_a_private_file_finds_the_chat_and_reports_without_
         notify.configure_from_environment({"DESTEK_SMTP_USER": "a\nb"}, path=path, notifier={})
 
 
+def test_keep_adds_telegram_without_losing_the_mail_settings(tmp_path, capsys):
+    path = tmp_path / "etc" / "destek.env"
+    mail = {"DESTEK_SMTP_HOST": "peyrev.com", "DESTEK_SMTP_USER": "info@peyrev.com", "DESTEK_SMTP_PASSWORD": "Kutu123",
+            "DESTEK_EPOSTA_ALICI": "info@peyrev.com"}
+    notify.configure_from_environment(mail, path=path, notifier={})
+    capsys.readouterr()
+    token = "12345678:" + "D" * 35
+    sent = []
+    code = notify.configure_from_environment(
+        {"DESTEK_TELEGRAM_TOKEN": token}, path=path, keep=True, discover=lambda _token: "555",
+        notifier={"telegram": lambda values, text: sent.append("telegram"),
+                  "eposta": lambda values, subject, text: sent.append(values["DESTEK_SMTP_PASSWORD"])})
+    assert code == 0 and sent == ["telegram", "Kutu123"]
+    settings = notify.read_settings(path, owner=os.geteuid())
+    assert settings == {**mail, "DESTEK_TELEGRAM_TOKEN": token, "DESTEK_TELEGRAM_CHAT": "555"}
+    # A new bot does not inherit the old chat: it is found again.
+    other = "87654321:" + "E" * 35
+    notify.configure_from_environment({"DESTEK_TELEGRAM_TOKEN": other}, path=path, keep=True,
+                                      discover=lambda _token: "777", notifier={})
+    assert notify.read_settings(path, owner=os.geteuid())["DESTEK_TELEGRAM_CHAT"] == "777"
+    # Without keep the file is replaced as before.
+    notify.configure_from_environment({"DESTEK_TELEGRAM_TOKEN": other, "DESTEK_TELEGRAM_CHAT": "777"}, path=path,
+                                      notifier={})
+    assert "DESTEK_SMTP_PASSWORD" not in notify.read_settings(path, owner=os.geteuid())
+
+
 def test_the_setup_command_runs_as_a_module(tmp_path):
     environment = {key: value for key, value in os.environ.items() if not key.startswith("DESTEK_")}
     environment["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")

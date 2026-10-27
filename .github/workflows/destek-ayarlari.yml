@@ -2,7 +2,8 @@ name: Destek bildirim ayarları
 
 # Telegram ve e-posta bilgileri yalnız bu deponun Secrets bölümünde durur (DESTEK_TELEGRAM_TOKEN, DESTEK_TELEGRAM_CHAT,
 # DESTEK_SMTP_HOST, DESTEK_SMTP_PORT, DESTEK_SMTP_USER, DESTEK_SMTP_PASSWORD, DESTEK_EPOSTA_GONDEREN, DESTEK_EPOSTA_ALICI).
-# İş akışı onları sunucuda /etc/peyrev/destek.env dosyasına (root:peyrev 0640) yazar ve deneme bildirimi gönderir.
+# İş akışı onları sunucuda /etc/peyrev/destek.env dosyasına (root:peyrev 0640) yazar ve deneme bildirimi gönderir;
+# Secrets'ta olmayan anahtarlar dosyadaki değeriyle kalır (ör. destek-eposta işinin kurduğu e-posta ayarları).
 # Günlüğe yalnız kanal durumları yazılır; belirteç, şifre veya adres yazılmaz.
 
 on:

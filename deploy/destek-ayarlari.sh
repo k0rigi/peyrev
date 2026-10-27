@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # deploy/destek-ayarlari.sh — destek bildirim ayarlarını (Telegram, e-posta) /etc/peyrev/destek.env dosyasına yazar ve deneme
 # bildirimi gönderir (Destek bildirim ayarları iş akışı). Değerler Secrets'tan gelir ve sunucuya 0600 aktarım dosyasıyla ulaşır;
-# komut satırına, ortam listesine ve çıktıya girmez. Çıktıda yalnız kanal durumları bulunur.
+# komut satırına, ortam listesine ve çıktıya girmez. Secrets'ta olmayan anahtarlar mevcut dosyadan korunur (--koru): ör.
+# yalnız DESTEK_TELEGRAM_TOKEN girilirse destek-eposta işinin kurduğu e-posta ayarları kalır. Çıktıda yalnız kanal durumları.
 
 set -Eeuo pipefail
 INPUT=/var/tmp/peyrev-aktarim/destek.env.yeni
@@ -18,7 +19,7 @@ for line in open(sys.argv[1], encoding="utf-8"):
     key, sep, value = line.rstrip("\n").partition("=")
     if sep and key.startswith("DESTEK_"):
         os.environ[key] = value
-sys.argv = ["peyrev.support", "/etc/peyrev/destek.env"]
+sys.argv = ["peyrev.support", "--koru", "/etc/peyrev/destek.env"]
 runpy.run_module("peyrev.support", run_name="__main__")
 PY
 ) || status=$?

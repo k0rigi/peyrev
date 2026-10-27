@@ -227,14 +227,21 @@ def _discover_chat(token: str, opener: Callable = urlopen) -> str | None:
 
 def configure_from_environment(environment: Mapping[str, str] | None = None, path: Path | str = SETTINGS_PATH, *,
                                notifier: Mapping[str, Callable] | None = None, discover: Callable = _discover_chat,
-                               base: str = PUBLIC_BASE) -> int:
+                               base: str = PUBLIC_BASE, keep: bool = False) -> int:
     """GitHub Secrets'tan gelen DESTEK_* değerlerini korumalı dosyaya yazar ve deneme bildirimi gönderir.
 
+    `keep` doğruysa ortamda verilmeyen anahtarlar mevcut (güvenilir) dosyadan korunur: Telegram eklenirken sunucuda
+    üretilen e-posta şifresi silinmez. Telegram belirteci değişince eski sohbet kimliği taşınmaz, yeniden bulunur.
     Root olarak çalışınca dosya root:peyrev 0640 olur (hizmet grup olarak okur). Çıktı yalnız kanal durumlarıdır;
     belirteç, şifre veya adres yazılmaz. Dönüş 0: ayarlanan her kanal deneme bildirimini iletti.
     """
     environment = os.environ if environment is None else environment
     values = {key: (environment.get(key) or "").strip() for key in SETTING_KEYS}
+    if keep:
+        existing = read_settings(path, owner=os.geteuid())
+        if values["DESTEK_TELEGRAM_TOKEN"] and values["DESTEK_TELEGRAM_TOKEN"] != existing.get("DESTEK_TELEGRAM_TOKEN"):
+            existing.pop("DESTEK_TELEGRAM_CHAT", None)  # a chat belongs to its bot
+        values = {key: value or existing.get(key, "") for key, value in values.items()}
     report = {"telegram": "ayarlanmadi", "eposta": "ayarlanmadi"}
     if values["DESTEK_TELEGRAM_TOKEN"] and not TELEGRAM_TOKEN.fullmatch(values["DESTEK_TELEGRAM_TOKEN"]):
         report["telegram"] = "gecersiz_belirtec"
