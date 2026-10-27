@@ -10,7 +10,8 @@ from test_accounts import login as studio_login
 
 from peyrev import users
 from peyrev.accounts import rules
-from peyrev.admin import auth, totp
+from peyrev.admin import auth, kurtarma, totp
+from peyrev.common import ApiError
 
 PASSWORD = "Gizli12345"
 ORIGIN = "https://peyrev.com"  # Settings.public_base in tests
@@ -420,3 +421,35 @@ def test_an_unreadable_secret_never_lets_anyone_in(app, client, core, manager):
     response = sign_in(client, kod="123456")
     assert (response.status_code, response.get_json()["kod"]) == (409, "IKI_ADIM_OKUNAMADI")
     assert panel_sessions(core) == []
+
+
+def test_the_only_administrator_gets_a_new_name_and_password_from_the_server_job(app, core, manager):
+    old = signed_in(app)
+    with core.db.transaction() as cur:
+        cur.execute("INSERT INTO sifre_kodlari (id, kullanici_id, kod_ozeti, olusturma, gecerlilik) "
+                    "VALUES (%s, %s, %s, %s, %s)", ("0" * 32, manager["id"], "0" * 64, START, START + timedelta(days=1)))
+    make_user(core, "kullanici@peyrev.test")
+    make_user(core, "eski@peyrev.test", rol="yonetici", durum="pasif")
+    result = kurtarma.recover(core, "admin@peyrev.test", "Peyrev Yönetici")
+    assert (result["kullanici_id"], result["giris"]) == (manager["id"], "admin@peyrev.test")
+    assert re.fullmatch(r"[A-Za-z0-9]{20}", result["sifre"]) and rules.password(result["sifre"])
+    assert old.get("/api/yonetim/ben").status_code == 401
+    assert sign_in(app.test_client(), "yonetici@peyrev.test").status_code == 401
+    assert sign_in(app.test_client(), "admin@peyrev.test").status_code == 401
+    me = signed_in(app, "admin@peyrev.test", sifre=result["sifre"]).get("/api/yonetim/ben").get_json()
+    assert me["yonetici"]["ad_soyad"] == "Peyrev Yönetici"
+    with core.db.transaction() as cur:
+        cur.execute("SELECT count(*) AS n FROM sifre_kodlari WHERE kullanici_id = %s AND kullanildi IS NULL",
+                    (manager["id"],))
+        assert cur.fetchone()["n"] == 0
+    [event] = events(core, "sifre_sunucuda_yenilendi")
+    assert (event["yonetici_id"], event["hedef"], event["ayrinti"]) == (
+        manager["id"], f"kullanici:{manager['id']}", {"kapatilan_panel_oturumu": 1})
+    assert result["sifre"] not in str([row["ayrinti"] for row in events(core)])
+
+
+def test_the_server_job_refuses_when_another_administrator_can_issue_a_code(core, manager):
+    make_user(core, "ikinci@peyrev.test", rol="yonetici")
+    with pytest.raises(ApiError, match="2 bulundu"):
+        kurtarma.recover(core, "admin@peyrev.test", "Peyrev Yönetici")
+    assert events(core) == []

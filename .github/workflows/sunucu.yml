@@ -15,6 +15,7 @@ on:
           - kurulum
           - deneme-hesabi-kapat
           - yoneticiler
+          - yonetici-sifre
           - destek-eposta
 
 permissions:
@@ -47,6 +48,7 @@ jobs:
             kurulum)        betik=deploy/kurulum.sh;  ortam='{"KIP":"uygula"}' ;;
             deneme-hesabi-kapat) betik=deploy/deneme-hesabi.sh; ortam='{}' ;;
             yoneticiler) betik=deploy/yoneticiler.sh; ortam='{}' ;;
+            yonetici-sifre) betik=deploy/yonetici-sifre.sh; ortam='{}' ;;
             destek-eposta) betik=deploy/destek-eposta.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
