@@ -17,6 +17,7 @@ on:
           - yoneticiler
           - yonetici-sifre
           - panel-tani
+          - destek-tani
           - destek-eposta
 
 permissions:
@@ -51,6 +52,7 @@ jobs:
             yoneticiler) betik=deploy/yoneticiler.sh; ortam='{}' ;;
             yonetici-sifre) betik=deploy/yonetici-sifre.sh; ortam='{}' ;;
             panel-tani) betik=deploy/panel-tani.sh; ortam='{}' ;;
+            destek-tani) betik=deploy/destek-tani.sh; ortam='{}' ;;
             destek-eposta) betik=deploy/destek-eposta.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
