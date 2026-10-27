@@ -23,9 +23,16 @@ Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
 ## Yönetim paneli
 
-`https://peyrev.com/yonetim/`; uçları `/api/yonetim/*` (`src/peyrev/admin/`). Bölümler: Özet, Kullanıcılar (hesap açma,
-modül hakları, şifre kodu, Studio oturumları, ajan ofisleri), Başvurular, Destek, Olaylar ve Hesabım. Sayfa da API'den,
+`https://peyrev.com/yonetim/`; uçları `/api/yonetim/*` (`src/peyrev/admin/`). Bölümler: Özet (sayılar, hızlı işlemler,
+yakında biten haklar), Kullanıcılar (tablo, hesap açma, modül hakları, şifre, Studio oturumları, ajan ofisleri),
+Başvurular, Destek, Olaylar ve Hesabım. Geniş ekranda solda menü, telefonda üstte kayan menü vardır. Sayfa da API'den,
 satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
+
+- **Şifre:** yeni hesap açılırken yönetici şifreyi kendisi belirleyebilir ("Üret" rastgele bir şifre yazar ve gösterir)
+  ya da kişiye tek kullanımlık şifre kodu verilir. Var olan hesabın şifresi ayrıntıdaki Şifre bölümünden belirlenir
+  (`POST /api/yonetim/kullanicilar/<id>/sifre`): açık şifre kodları harcanır, hesabın panel oturumları kapanır, Studio
+  belirteçleri bir sonraki kullanımda geçersizdir. Olay kaydına şifre yazılmaz. Yönetici kendi şifresini yalnız
+  Hesabım'dan, mevcut şifresiyle değiştirir.
 
 - **Giriş:** yalnız durumu `aktif`, rolü `yonetici` olan hesap girer. Giriş adı ve şifre Studio'yla aynıdır, hatalı
   deneme sınırı da ortaktır (15 dakikada hesap başına 10, adres başına 30). Hesap sayacı, hesabın asıl giriş adıyla ya

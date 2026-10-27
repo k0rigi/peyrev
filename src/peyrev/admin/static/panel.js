@@ -7,8 +7,8 @@
  *
  * Şifre kodu ve şifre değiştirme Studio'yla ortak hesap uçlarını (/api/rpa/hesap/*) kullanır; kurallar oradadır.
  *
- * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #kullanici-<id>, #basvurular, #destek, #destek-<no>,
- * #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
+ * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #yeni-kullanici, #kullanici-<id>, #basvurular, #destek,
+ * #destek-<no>, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
  */
 (function () {
   'use strict';
@@ -49,6 +49,7 @@
     yayin_surumu: 'Yayın sürümü', yanit_uzunlugu: 'Yanıt uzunluğu', not: 'Not', basvuru_id: 'Başvuru',
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
+    sifre: 'Şifre',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -137,6 +138,45 @@
     return text ? path + '?' + text : path;
   }
 
+  /** Adın baş harfleri (en çok iki); ad yoksa giriş adının ilk harfi. */
+  function initials(name, login) {
+    const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+    const letters = words.length ? words[0][0] + (words.length > 1 ? words[words.length - 1][0] : '') : String(login || '?')[0];
+    return letters.toLocaleUpperCase('tr');
+  }
+
+  function avatar(name, login, large) {
+    return h('span', { class: 'avatar' + (large ? ' avatar-large' : ''), 'aria-hidden': 'true', text: initials(name, login) });
+  }
+
+  /** Okunur rastgele şifre: karışabilecek harfler yok, en az bir harf ve bir rakam (sunucunun kuralı). */
+  function randomPassword() {
+    const letters = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
+    const digits = '23456789';
+    const pool = letters + digits;
+    const values = crypto.getRandomValues(new Uint32Array(12));
+    const chars = Array.from(values, (value) => pool[value % pool.length]);
+    chars[values[0] % 6] = digits[values[1] % digits.length];
+    chars[6 + (values[2] % 6)] = letters[values[3] % letters.length];
+    return chars.join('');
+  }
+
+  /** Şifre alanı ve "Üret" düğmesi: üretilen şifre görünür olur ki yönetici kişiye iletebilsin. */
+  function passwordInput(name, repeat) {
+    const control = input(name, { type: 'password', autocomplete: 'new-password', maxlength: 128 });
+    const make = button('Üret', () => {
+      const value = randomPassword();
+      control.type = 'text';
+      control.value = value;
+      if (repeat) {
+        repeat.type = 'text';
+        repeat.value = value;
+      }
+    }, { small: true });
+    make.title = 'Rastgele şifre üret ve göster';
+    return { control, node: h('div', { class: 'with-button' }, [control, make]) };
+  }
+
   function pill(text, tone) {
     return h('span', { class: 'pill' + (tone ? ' pill-' + tone : ''), text });
   }
@@ -176,7 +216,7 @@
   function field(label, control, options) {
     const settings = options || {};
     if (!control.id) control.id = nextId('alan');
-    const parts = [h('label', { for: control.id, text: label }), control];
+    const parts = [h('label', { for: control.id, text: label }), settings.wrapper || control];
     if (settings.hint) {
       const hintId = nextId('ipucu');
       control.setAttribute('aria-describedby', hintId);
@@ -396,7 +436,8 @@
 
   const ROUTES = [
     [/^ozet$/, 'ozet', () => renderSummary()],
-    [/^kullanicilar$/, 'kullanicilar', () => renderUsers()],
+    [/^kullanicilar$/, 'kullanicilar', () => renderUsers(false)],
+    [/^yeni-kullanici$/, 'kullanicilar', () => renderUsers(true)],
     [/^kullanici-(\d{1,18})$/, 'kullanicilar', (match) => renderUser(match[1])],
     [/^basvurular$/, 'basvurular', () => renderApplications()],
     [/^destek$/, 'destek', () => renderTickets()],
@@ -454,26 +495,42 @@
   }
 
   // ----- Özet ---------------------------------------------------------------------------------
-  function stat(value, label, href) {
-    return h(href ? 'a' : 'div', { class: 'stat', href },
-      [h('span', { class: 'stat-value', text: value }), h('span', { class: 'stat-label', text: label })]);
+  function stat(value, label, href, tone) {
+    return h(href ? 'a' : 'div', { class: 'stat' + (tone ? ' stat-' + tone : ''), href }, [
+      h('span', { class: 'stat-value', text: value }), h('span', { class: 'stat-label', text: label }),
+      href ? h('span', { class: 'stat-go', 'aria-hidden': 'true', text: 'Görüntüle →' }) : null,
+    ]);
+  }
+
+  function quickLink(href, icon, title, note) {
+    return h('a', { href }, [h('span', { class: 'quick-icon', 'aria-hidden': 'true', text: icon }),
+      h('span', null, [title, h('small', { text: note })])]);
   }
 
   function renderSummary() {
-    const view = page('Özet', { lead: 'Hesapların, başvuruların ve destek taleplerinin şu anki durumu.' });
+    const name = state.admin.ad_soyad || state.admin.giris;
+    const view = page('Merhaba, ' + String(name).split(' ')[0], {
+      lead: 'Hesapların, başvuruların ve destek taleplerinin şu anki durumu.',
+    });
+    document.title = 'Özet · ' + TITLE;
     reloadable(view.body, async (target, refresh) => {
       const [data, model] = await Promise.all([api('ozet'), api('ortak-model').catch(() => null)]);
       setBadges(data);
       target.replaceChildren(
         h('div', { class: 'stats' }, [
-          stat(data.aktif_kullanici, 'Aktif hesap', '#kullanicilar'),
-          stat(data.lisansli_kullanici, 'Peyrev\'i kullanabilen hesap'),
-          stat(data.yakinda_bitecek, '30 gün içinde hakkı bitecek hesap'),
-          stat(data.bekleyen_basvuru, 'Ödeme bekleyen başvuru', '#basvurular'),
-          stat(data.okunmamis_destek, 'Okunmamış destek talebi', '#destek'),
+          stat(data.aktif_kullanici, 'Aktif hesap', '#kullanicilar', 'accent'),
+          stat(data.lisansli_kullanici, 'Peyrev\'i kullanabilen hesap', null, 'ok'),
+          stat(data.yakinda_bitecek, '30 gün içinde hakkı bitecek hesap', null, data.yakinda_bitecek ? 'warn' : ''),
+          stat(data.bekleyen_basvuru, 'Ödeme bekleyen başvuru', '#basvurular', data.bekleyen_basvuru ? 'warn' : ''),
+          stat(data.okunmamis_destek, 'Okunmamış destek talebi', '#destek', data.okunmamis_destek ? 'info' : ''),
         ]),
-        endingSection(data),
-        modelSection(model, refresh),
+        section('bolum-hizli', 'Hızlı işlemler', [h('div', { class: 'quick' }, [
+          quickLink('#yeni-kullanici', '+', 'Yeni kullanıcı', 'Hesap aç, şifre ve lisans ver'),
+          quickLink('#basvurular', '✓', 'Başvuruları onayla', 'Ödemesi gelen başvuruyu hesaba çevir'),
+          quickLink('#destek', '?', 'Destek taleplerini yanıtla', 'Kullanıcının uygulamasında görünür'),
+          quickLink('#kullanicilar', '↻', 'Lisans uzat', 'Kullanıcıyı aç, Modül hakları'),
+        ])]),
+        h('div', { class: 'overview' }, [endingSection(data), modelSection(model, refresh)]),
       );
     });
   }
@@ -534,25 +591,43 @@
     return (row.bitis < today() ? 'Süresi doldu: ' : 'Bitiş: ') + day(row.bitis);
   }
 
-  function userCard(user) {
-    return h('article', { class: 'card' }, [
-      h('div', { class: 'card-head' }, [
-        h('h2', { class: 'card-title' }, h('a', { href: '#kullanici-' + user.kullanici_id, text: user.ad_soyad || user.giris })),
-        h('div', { class: 'pills' }, [
-          pill(ROLES[user.rol] || user.rol, user.rol === 'yonetici' ? 'accent' : ''),
-          user.durum === 'pasif' ? pill('Pasif', 'danger') : null,
-          user.oturum_acik ? pill('Studio açık', 'ok') : null,
+  function rightCell(user, module) {
+    const row = (user.moduller || {})[module];
+    const late = row && row.bitis && row.bitis < today();
+    const none = !row && !(module === 'MOD_RPA' && user.rol === 'yonetici');
+    return h('span', { class: 'right-text' + (late ? ' is-late' : '') + (none ? ' is-none' : ''), text: rightText(user, module) });
+  }
+
+  function userRow(user) {
+    return h('tr', null, [
+      h('td', null, h('div', { class: 'person' }, [
+        avatar(user.ad_soyad, user.giris),
+        h('div', { class: 'person-text' }, [
+          h('a', { class: 'person-name', href: '#kullanici-' + user.kullanici_id, text: user.ad_soyad || user.giris }),
+          h('span', { class: 'person-login' }, breakable(user.giris)),
         ]),
-      ]),
-      facts([
-        ['Giriş adı', breakable(user.giris)], ['Peyrev', rightText(user, 'MOD_RPA')], ['Ajanlar', rightText(user, 'MOD_AJAN')],
-        ['Telefon', user.telefon], ['Açılış', day(user.acilis)], ['Kaynak', SOURCES[user.kaynak] || user.kaynak],
-      ]),
+      ])),
+      h('td', { 'data-label': 'Peyrev' }, rightCell(user, 'MOD_RPA')),
+      h('td', { 'data-label': 'Ajanlar' }, rightCell(user, 'MOD_AJAN')),
+      h('td', { 'data-label': 'Durum' }, h('div', { class: 'pills' }, [
+        user.rol === 'yonetici' ? pill('Yönetici', 'accent') : null,
+        pill(user.durum === 'pasif' ? 'Pasif' : 'Aktif', user.durum === 'pasif' ? 'danger' : 'ok'),
+        user.oturum_acik ? pill('Studio açık') : null,
+      ])),
+      h('td', { 'data-label': 'Açılış', class: 'muted' }, day(String(user.acilis || '').split(' ')[0])),
     ]);
   }
 
-  function renderUsers() {
+  function usersTable(rows) {
+    return h('table', { class: 'table' }, [
+      h('thead', null, h('tr', null, ['Kullanıcı', 'Peyrev', 'Ajanlar', 'Durum', 'Açılış'].map((text) => h('th', { scope: 'col', text })))),
+      h('tbody', null, rows.map(userRow)),
+    ]);
+  }
+
+  function renderUsers(opening) {
     const create = button('Yeni kullanıcı', null, { kind: 'primary' });
+    create.classList.add('btn-plus');
     const view = page('Kullanıcılar', {
       actions: [create],
       lead: 'Bütün Peyrev hesapları. Hesabın ayrıntısında modül hakları, şifre kodu, Studio oturumları ve ajan ofisleri yönetilir.',
@@ -582,8 +657,11 @@
         return;
       }
       put(target,
-        h('p', { class: 'muted', role: 'status', text: data.toplam + ' hesap' }),
-        h('div', { class: 'cards' }, data.kullanicilar.map(userCard)),
+        h('section', { class: 'card table-card', 'aria-label': 'Hesaplar' }, [
+          h('div', { class: 'table-meta' }, [h('span', { role: 'status', text: data.toplam + ' hesap' }),
+            h('span', { text: 'Ayrıntı için satıra tıklayın' })]),
+          usersTable(data.kullanicilar),
+        ]),
         pager(data, (number) => {
           state.users.sayfa = number;
           return load();
@@ -598,6 +676,7 @@
     status.addEventListener('change', () => toolbar.requestSubmit());
     view.body.replaceChildren(creator, toolbar, list);
     load();
+    if (opening) create.click();
   }
 
   function newUserForm() {
@@ -609,6 +688,28 @@
     const start = input('baslangic', { type: 'date', value: today(), required: true });
     const end = input('bitis', { type: 'date', value: yearLater(), required: true });
     const agents = checkbox('ajan', 'Ajanlar hakkı da verilsin');
+    const repeat = input('tekrar', { type: 'password', autocomplete: 'new-password', maxlength: 128 });
+    const secret = passwordInput('sifre', repeat);
+    const byCode = h('input', { type: 'radio', name: 'sifre_yolu', value: 'kod' });
+    const byPassword = h('input', { type: 'radio', name: 'sifre_yolu', value: 'sifre', checked: true });
+    const passwordFields = [
+      field('Şifre', secret.control, { wrapper: secret.node, hint: '8-128 karakter; en az bir harf ve bir rakam. "Üret" rastgele bir şifre yazar ve gösterir.' }),
+      field('Şifre (tekrar)', repeat),
+    ];
+    const paintChoice = () => {
+      for (const node of passwordFields) node.hidden = !byPassword.checked;
+    };
+    byCode.addEventListener('change', paintChoice);
+    byPassword.addEventListener('change', paintChoice);
+    const choice = h('fieldset', { class: 'field wide choice-set' }, [
+      h('legend', { class: 'visually-hidden', text: 'İlk şifre' }),
+      h('div', { class: 'choice-row' }, [
+        h('label', { class: 'choice' }, [byPassword, h('span', null, ['Şifreyi ben belirleyeyim',
+          h('small', { text: 'Kişiye kullanıcı adı ve şifresini siz iletirsiniz.' })])]),
+        h('label', { class: 'choice' }, [byCode, h('span', null, ['Tek kullanımlık kod verilsin',
+          h('small', { text: 'Kişi şifresini Peyrev\'de "Şifre kodum var" ile kendisi belirler.' })])]),
+      ]),
+    ]);
     const result = h('div', { class: 'panel-section' });
     const node = form([
       field('Kullanıcı adı veya e-posta', login,
@@ -619,23 +720,38 @@
       field('Lisans başlangıcı', start),
       field('Lisans bitişi', end, { hint: 'Bitiş günü dahildir. Süresiz hak hesap açıldıktan sonra ayrıntıdan verilir.' }),
       h('div', { class: 'field wide' }, agents.node),
-    ], 'Hesabı aç', async () => {
-      const created = await api('kullanicilar', {
+      choice,
+    ].concat(passwordFields), 'Hesabı aç', async () => {
+      const body = {
         giris: login.value.trim(), ad_soyad: name.value.trim(), telefon: tel.value.trim(), rol: role.value,
         baslangic: start.value, bitis: end.value, ajan: agents.control.checked,
-      });
+      };
+      if (byPassword.checked) {
+        const problem = passwordProblem(secret.control.value, repeat.value);
+        if (problem) throw new Error(problem.replace('Yeni şifre', 'Şifre').replace('Yeni şifrede', 'Şifrede'));
+        body.sifre = secret.control.value;
+      }
+      const created = await api('kullanicilar', body);
       node.hidden = true;
-      put(result,
-        created.uyari ? h('p', { class: 'notice notice-warn', role: 'alert', text: created.uyari }) : null,
-        codeBox(created.kod, created.kullanici.giris + ' hesabı açıldı. İlk şifre kodu:',
-          'Kodu kişiye güvenli bir kanaldan iletin. ' + day(created.kod.gecerlilik) + ' saatine kadar geçerlidir ve '
-          + 'bir kez kullanılır. Kişi Peyrev giriş ekranında "Şifre kodum var" ile kullanıcı adını, kodu ve kendi '
-          + 'şifresini yazar. Kod bir daha gösterilmez.'),
-        h('div', { class: 'actions' }, [h('a', { class: 'btn', href: '#kullanici-' + created.kullanici.kullanici_id,
-          text: 'Hesabın ayrıntısını aç' })]),
-      );
-      result.querySelector('.code').setAttribute('tabindex', '-1');
-      result.querySelector('.code').focus();
+      const link = h('div', { class: 'actions' }, [h('a', { class: 'btn', href: '#kullanici-' + created.kullanici.kullanici_id,
+        text: 'Hesabın ayrıntısını aç' })]);
+      if (created.kod) {
+        put(result,
+          created.uyari ? h('p', { class: 'notice notice-warn', role: 'alert', text: created.uyari }) : null,
+          codeBox(created.kod, created.kullanici.giris + ' hesabı açıldı. İlk şifre kodu:',
+            'Kodu kişiye güvenli bir kanaldan iletin. ' + day(created.kod.gecerlilik) + ' saatine kadar geçerlidir ve '
+            + 'bir kez kullanılır. Kişi Peyrev giriş ekranında "Şifre kodum var" ile kullanıcı adını, kodu ve kendi '
+            + 'şifresini yazar. Kod bir daha gösterilmez.'),
+          link,
+        );
+        result.querySelector('.code').setAttribute('tabindex', '-1');
+        result.querySelector('.code').focus();
+      } else {
+        const done = h('p', { class: 'notice notice-ok', role: 'status', tabindex: '-1',
+          text: created.kullanici.giris + ' hesabı açıldı. Kişi Peyrev\'e bu kullanıcı adı ve belirlediğiniz şifreyle girer.' });
+        put(result, created.uyari ? h('p', { class: 'notice notice-warn', role: 'alert', text: created.uyari }) : null, done, link);
+        done.focus();
+      }
       say('Hesap açıldı.', 'ok');
     }, {
       confirm: () => (name.value.trim() || login.value.trim()) + ' için ' + ROLES[role.value].toLocaleLowerCase('tr')
@@ -649,25 +765,45 @@
   // ----- Kullanıcı ayrıntısı ------------------------------------------------------------------
   function renderUser(userId) {
     const view = page('Hesap', { back: ['#kullanicilar', 'Kullanıcılar'] });
+    view.head.hidden = true;
     const path = 'kullanicilar/' + userId;
     reloadable(view.body, async (target, refresh) => {
       const data = await api(path);
       const user = data.kullanici;
       view.retitle(user.ad_soyad || user.giris);
       const events = h('div', { class: 'panel-section' });
+      const profile = h('div', { class: 'profile' }, [
+        avatar(user.ad_soyad, user.giris, true),
+        h('div', { class: 'profile-text' }, [
+          h('h1', { tabindex: '-1', text: user.ad_soyad || user.giris }),
+          h('span', { class: 'profile-login' }, breakable(user.giris)),
+          h('div', { class: 'pills' }, [
+            user.rol === 'yonetici' ? pill('Yönetici', 'accent') : pill('Kullanıcı'),
+            pill(ACCOUNT_STATES[user.durum] || user.durum, user.durum === 'aktif' ? 'ok' : 'danger'),
+            pill('Peyrev: ' + (RIGHT_STATES[user.rpa] || user.rpa), user.rpa === 'aktif' ? 'ok' : 'warn'),
+          ]),
+        ]),
+      ]);
       target.replaceChildren(
-        accountSection(user, path, refresh),
-        rightsSection(user, path, refresh),
-        codeSection(user, path),
-        studioSection(data.oturumlar, path, refresh),
-        officeSection(data.ofisler, refresh),
-        otherSection(data),
-        section('bolum-olay', 'Son olaylar', [events]),
+        profile,
+        h('div', { class: 'detail-grid' }, [
+          h('div', { class: 'detail-col' }, [
+            rightsSection(user, path, refresh),
+            passwordAdminSection(user, path, refresh),
+            accountSection(user, path, refresh),
+          ]),
+          h('div', { class: 'detail-col' }, [
+            studioSection(data.oturumlar, path, refresh),
+            officeSection(data.ofisler, refresh),
+            otherSection(data),
+            section('bolum-olay', 'Son olaylar', [events]),
+          ]),
+        ]),
       );
       fill(events, async (node) => {
         const found = await api(query('olaylar', { hedef: 'kullanici:' + user.kullanici_id }));
         node.replaceChildren(found.olaylar.length
-          ? h('div', { class: 'cards' }, found.olaylar.slice(0, 10).map(eventCard))
+          ? h('div', { class: 'timeline' }, found.olaylar.slice(0, 10).map(eventCard))
           : empty('Bu hesapla ilgili olay yok.'));
       });
     });
@@ -717,11 +853,7 @@
       say('İki adımlı doğrulama sıfırlandı.', 'ok');
       refresh(id);
     }, { confirm: user.giris + ' için iki adımlı doğrulama kapatılsın mı? Panel oturumları kapanır; kişi şifresiyle girip Hesabım bölümünden yeniden açar.' }) : null;
-    return section(id, 'Hesap', [
-      h('div', { class: 'pills' }, [
-        pill(ROLES[user.rol] || user.rol, user.rol === 'yonetici' ? 'accent' : ''),
-        pill(ACCOUNT_STATES[user.durum] || user.durum, user.durum === 'aktif' ? 'ok' : 'danger'),
-      ]),
+    return section(id, 'Hesap bilgileri', [
       facts([
         ['Giriş adı', breakable(user.giris)], ['Peyrev kullanımı', RIGHT_STATES[user.rpa] || user.rpa],
         ['İki adımlı doğrulama', user.iki_adim ? 'Açık' : 'Kapalı'], ['Kaynak', SOURCES[user.kaynak] || user.kaynak],
@@ -776,8 +908,35 @@
     ].concat(blocks));
   }
 
+  function passwordAdminSection(user, path, refresh) {
+    const id = 'bolum-sifre-yonetim';
+    if (user.kullanici_id === state.admin.kullanici_id) {
+      return section(id, 'Şifre', [h('p', { class: 'muted' }, ['Kendi şifrenizi ',
+        h('a', { href: '#hesabim', text: 'Hesabım' }), ' bölümünden, mevcut şifrenizle değiştirirsiniz.'])]);
+    }
+    const repeat = input('tekrar', { type: 'password', autocomplete: 'new-password', maxlength: 128 });
+    const secret = passwordInput('sifre', repeat);
+    const setForm = form([
+      field('Yeni şifre', secret.control, { wrapper: secret.node, hint: '8-128 karakter; en az bir harf ve bir rakam.' }),
+      field('Yeni şifre (tekrar)', repeat),
+    ], 'Şifreyi kaydet', async () => {
+      const problem = passwordProblem(secret.control.value, repeat.value);
+      if (problem) throw new Error(problem);
+      await api(path + '/sifre', { sifre: secret.control.value });
+      say(user.giris + ' için yeni şifre kaydedildi. Kişi Peyrev\'e bu şifreyle girer.', 'ok');
+      refresh(id);
+    }, { confirm: user.giris + ' hesabının şifresi değişsin mi? Kişinin açık Peyrev oturumu yeni şifreyle yeniden giriş ister.' });
+    return section(id, 'Şifre', [
+      h('div', { class: 'sub-block' }, [
+        h('h3', { text: 'Şifreyi siz belirleyin' }),
+        h('p', { class: 'muted', text: 'Yeni şifreyi kişiye siz iletirsiniz. Açık Peyrev oturumu yeni şifreyle yeniden giriş ister.' }),
+        setForm,
+      ]),
+      h('div', { class: 'sub-block' }, codeSection(user, path)),
+    ]);
+  }
+
   function codeSection(user, path) {
-    const id = 'bolum-kod';
     const duration = select('saat', CODE_DURATIONS, user.kaynak === 'yonetim' ? '168' : '24');
     const result = h('div');
     const node = form([field('Geçerlilik', duration)], 'Şifre kodu üret', async () => {
@@ -791,12 +950,13 @@
       shown.focus();
       say('Şifre kodu üretildi.', 'ok');
     }, { confirm: user.giris + ' için yeni şifre kodu üretilsin mi? Önceki kullanılmamış kod geçersiz olur.' });
-    return section(id, 'Şifre kodu', [
-      h('p', { class: 'muted', text: 'Şifresini unutan ya da henüz belirlemeyen kişi için tek kullanımlık kod.'
+    return [
+      h('h3', { text: 'Ya da tek kullanımlık şifre kodu verin' }),
+      h('p', { class: 'muted', text: 'Kişi şifresini Peyrev\'de "Şifre kodum var" ile kendisi belirler.'
         + (user.durum === 'pasif' ? ' Hesap pasif olduğundan kod, hesap etkinleşene kadar kullanılamaz.' : '') }),
       node,
       result,
-    ]);
+    ];
   }
 
   function studioSection(sessions, path, refresh) {
@@ -1117,7 +1277,8 @@
     const text = String(value);
     if (/^\d{4}-\d{2}-\d{2}T/.test(text)) return instant(text);
     if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return day(text);
-    let names = Object.assign({}, ROLES, ACCOUNT_STATES, TICKET_STATES, state.ticketStates || {});
+    let names = Object.assign({ yonetici_belirledi: 'yönetici belirledi' }, ROLES, ACCOUNT_STATES, TICKET_STATES,
+      state.ticketStates || {});
     if (key === 'alanlar') names = DETAIL_LABELS;
     else if (key === 'modul' || key === 'moduller') names = MODULES;
     else if (key === 'paket') names = PACKAGES;
@@ -1171,7 +1332,7 @@
       }
       put(target,
         h('p', { class: 'muted', role: 'status', text: data.toplam + ' olay' }),
-        h('div', { class: 'cards' }, data.olaylar.map(eventCard)),
+        h('div', { class: 'card timeline-card' }, h('div', { class: 'timeline' }, data.olaylar.map(eventCard))),
         pager(data, (number) => {
           state.events.sayfa = number;
           return load();
@@ -1189,6 +1350,7 @@
       const data = await api('ben');
       state.admin = data.yonetici;
       $('yonetici-adi').textContent = data.yonetici.ad_soyad || data.yonetici.giris;
+      $('yonetici-harf').textContent = initials(data.yonetici.ad_soyad, data.yonetici.giris);
       target.replaceChildren(
         section('bolum-profil', 'Hesap', [
           facts([['Ad soyad', data.yonetici.ad_soyad], ['Giriş adı', breakable(data.yonetici.giris)],
@@ -1331,6 +1493,7 @@
   function enter(admin) {
     state.admin = admin;
     $('yonetici-adi').textContent = admin.ad_soyad || admin.giris;
+    $('yonetici-harf').textContent = initials(admin.ad_soyad, admin.giris);
     views.boot.hidden = true;
     views.login.hidden = true;
     views.app.hidden = false;

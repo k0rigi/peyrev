@@ -227,12 +227,14 @@ def list_users(core, admin_id: int, *, ara: Any = None, durum: Any = None, limit
 
 
 def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: Any, bitis: Any, ajan: Any = False,
-                telefon: Any = None, onizleme: bool = False) -> dict[str, Any]:
-    """Yönetimden hesap açar: kaynak 'yonetim', kimsenin bilmediği rastgele şifre,
-    MOD_RPA (ajan ise MOD_AJAN) [baslangic, bitis] ve 7 gün geçerli ilk şifre kodu. Kişi Studio'da "Şifre kodum var"
-    ile kendi şifresini belirler. `onizleme` doğruysa hiçbir şey yazılmaz, yalnız denetim sonucu döner."""
+                telefon: Any = None, sifre: Any = None, onizleme: bool = False) -> dict[str, Any]:
+    """Yönetimden hesap açar: kaynak 'yonetim', MOD_RPA (ajan ise MOD_AJAN) [baslangic, bitis]. `sifre` verilirse hesap
+    o şifreyle açılır ve kod üretilmez; verilmezse şifre kimsenin bilmediği rastgele bir değerdir ve 7 gün geçerli ilk
+    şifre kodu döner (kişi Studio'da "Şifre kodum var" ile kendi şifresini belirler; kod None değilse gösterilir).
+    `onizleme` doğruysa hiçbir şey yazılmaz, yalnız denetim sonucu döner."""
     if not isinstance(giris, str) or not rules.LOGIN.fullmatch(giris):
         raise ApiError("Kullanıcı adı 3-64 karakter (harf, rakam, . _ + -) ya da geçerli bir e-posta olmalıdır.")
+    password = None if sifre is None else rules.password(sifre, giris)
     name = rules.text(ad_soyad, "Ad soyad", 2, 120)
     phone = rules.phone(telefon)
     starts_on, ends_on = rules.day(baslangic, "Başlangıç"), rules.day(bitis, "Bitiş")
@@ -241,7 +243,7 @@ def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: An
     if type(ajan) is not bool:
         raise ApiError("Ajanlar seçimi geçersiz.")
     modules = [users.RPA] + ([users.AGENTS] if ajan else [])
-    password_hash = None if onizleme else generate_password_hash(secrets.token_urlsafe(48))
+    password_hash = None if onizleme else generate_password_hash(password or secrets.token_urlsafe(48))
     taken = ApiError("Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin.", 409, "HESAP_VAR")
     with core.db.transaction() as cur:
         _admin(cur, admin_id)
@@ -272,6 +274,10 @@ def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: An
         user_id = cur.fetchone()["id"]
         for module in modules:
             _write_module(cur, user_id, module, starts_on, ends_on, moment, today)
+        if password is not None:
+            # The event says only that the administrator chose the password, never the password itself.
+            _event(core, cur, admin_id, "kullanici_acildi", f"kullanici:{user_id}", **summary, sifre="yonetici_belirledi")
+            return {"kullanici_id": user_id, "giris": giris, "kod": None, "gecerlilik": None}
         code, expires = _issue_code(cur, admin_id, user_id, moment, timedelta(days=INITIAL_CODE_DAYS))
         _event(core, cur, admin_id, "kullanici_acildi", f"kullanici:{user_id}", **summary,
                kod_gecerlilik=expires.isoformat())

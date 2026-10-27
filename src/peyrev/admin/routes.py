@@ -160,14 +160,15 @@ def api_blueprint(core) -> Blueprint:
 
     @blueprint.post("/kullanicilar")
     def user_create():
-        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan"},
+        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan", "sifre"},
                          {"giris", "ad_soyad", "baslangic", "bitis"})
         role = data.get("rol", "kullanici")
         if not isinstance(role, str) or role not in service.ROLES:
             raise ApiError("Rol geçersiz.")
         created = accounts_admin.create_user(core, me(), giris=data["giris"], ad_soyad=data["ad_soyad"],
                                              baslangic=data["baslangic"], bitis=data["bitis"],
-                                             ajan=data.get("ajan", False), telefon=data.get("telefon"))
+                                             ajan=data.get("ajan", False), telefon=data.get("telefon"),
+                                             sifre=data.get("sifre") or None)
         warning = None
         if role != "kullanici":
             # Accounts are opened as users; the role follows in its own recorded step. The account and its one-time
@@ -177,9 +178,9 @@ def api_blueprint(core) -> Blueprint:
             except Exception:  # noqa: BLE001 - the code is shown either way
                 LOG.exception("Yeni hesaba yönetici rolü verilemedi (kullanıcı %s).", created["kullanici_id"])
                 role, warning = "kullanici", ROLE_NOT_SET
+        code = {"kod": {"kod": created["kod"], "gecerlilik": created["gecerlilik"]}} if created["kod"] else {}
         return ok(201, kullanici={"kullanici_id": created["kullanici_id"], "giris": created["giris"], "rol": role},
-                  kod={"kod": created["kod"], "gecerlilik": created["gecerlilik"]},
-                  **({"uyari": warning} if warning else {}))
+                  **code, **({"uyari": warning} if warning else {}))
 
     @blueprint.get("/kullanicilar/<int:user_id>")
     def user_detail(user_id: int):
@@ -221,6 +222,11 @@ def api_blueprint(core) -> Blueprint:
         data = json_body({"saat"})
         return ok(kod=accounts_admin.issue_password_code(core, me(), user_id,
                                                          hours=data.get("saat", accounts_admin.CODE_HOURS)))
+
+    @blueprint.post("/kullanicilar/<int:user_id>/sifre")
+    def user_password(user_id: int):
+        data = json_body({"sifre"}, {"sifre"})
+        return ok(kullanici=service.set_password(core, me(), user_id, data["sifre"]))
 
     @blueprint.post("/kullanicilar/<int:user_id>/oturumlari-kapat")
     def user_sessions_close(user_id: int):

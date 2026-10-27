@@ -14,13 +14,21 @@
 <p class="boot" id="acilis" role="status">Panel açılıyor…</p>
 
 <main class="login" id="giris" hidden>
-  <div class="login-card">
-    <div class="brand">
-      <img src="/assets/peyrev-mark-192.png" alt="" width="40" height="40">
-      <span class="brand-name">Peyrev</span>
+  <section class="login-side" aria-hidden="true">
+    <div class="login-side-inner">
+      <span class="login-mark"><img src="/assets/peyrev-mark-192.png" alt="" width="56" height="56"></span>
+      <p class="login-kicker">Peyrev yönetimi</p>
+      <p class="login-slogan">Hesaplar, lisanslar, başvurular ve destek tek yerde.</p>
+      <ul class="login-points">
+        <li>Hesap açın, şifre belirleyin, lisans süresini uzatın</li>
+        <li>Ödemesi gelen başvuruyu tek tıkla hesaba çevirin</li>
+        <li>Kullanıcıların destek taleplerini yanıtlayın</li>
+      </ul>
     </div>
+  </section>
+  <div class="login-card">
     <form class="login-form" id="giris-formu" novalidate aria-labelledby="giris-baslik">
-      <h1 id="giris-baslik">Yönetim paneli</h1>
+      <h1 id="giris-baslik">Yönetim paneline giriş</h1>
       <p class="muted">Yalnız platform yöneticileri girebilir.</p>
       <label class="field">Kullanıcı adı veya e-posta
         <input name="giris" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="150" required>
@@ -33,7 +41,7 @@
         <span class="hint">Doğrulama uygulamanızdaki 6 haneli kod.</span>
       </label>
       <p class="notice notice-error" id="giris-durumu" role="alert" hidden></p>
-      <button class="btn btn-primary btn-block" type="submit">Giriş yap</button>
+      <button class="btn btn-primary btn-block btn-large" type="submit">Giriş yap</button>
       <button class="btn btn-quiet btn-block" type="button" id="kod-ac" aria-controls="sifre-kodu-formu">Şifre kodum var</button>
     </form>
     <form class="login-form" id="sifre-kodu-formu" novalidate aria-labelledby="sifre-kodu-baslik" hidden>
@@ -56,7 +64,7 @@
         <input name="tekrar" type="password" autocomplete="new-password" maxlength="128" required>
       </label>
       <p class="notice notice-error" id="sifre-kodu-durumu" role="alert" hidden></p>
-      <button class="btn btn-primary btn-block" type="submit">Şifremi belirle</button>
+      <button class="btn btn-primary btn-block btn-large" type="submit">Şifremi belirle</button>
       <button class="btn btn-quiet btn-block" type="button" id="kod-kapat">Girişe dön</button>
     </form>
   </div>
@@ -64,25 +72,39 @@
 
 <div class="app" id="uygulama" hidden>
   <a class="skip" href="#icerik">İçeriğe geç</a>
-  <header class="topbar">
+  <aside class="sidebar">
     <a class="brand" href="#ozet">
-      <img src="/assets/peyrev-mark-192.png" alt="" width="32" height="32">
-      <span class="brand-name">Peyrev</span>
-      <span class="brand-sub">Yönetim</span>
+      <img src="/assets/peyrev-mark-192.png" alt="" width="36" height="36">
+      <span class="brand-text"><span class="brand-name">Peyrev</span><span class="brand-sub">Yönetim</span></span>
     </a>
+    <nav class="sections" aria-label="Bölümler">
+      <a href="#ozet" data-section="ozet">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"/></svg>
+        <span class="nav-label">Özet</span></a>
+      <a href="#kullanicilar" data-section="kullanicilar">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1M16 3.5a4 4 0 0 1 0 7.5M19 14.5a6 6 0 0 1 3 5.2V21"/></svg>
+        <span class="nav-label">Kullanıcılar</span></a>
+      <a href="#basvurular" data-section="basvurular">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></svg>
+        <span class="nav-label">Başvurular</span> <span class="badge" id="rozet-basvuru" hidden></span></a>
+      <a href="#destek" data-section="destek">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></svg>
+        <span class="nav-label">Destek</span> <span class="badge" id="rozet-destek" hidden></span></a>
+      <a href="#olaylar" data-section="olaylar">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2"/></svg>
+        <span class="nav-label">Olaylar</span></a>
+      <a href="#hesabim" data-section="hesabim">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 14H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.1V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <span class="nav-label">Hesabım</span></a>
+    </nav>
     <div class="who">
-      <span class="who-name" id="yonetici-adi"></span>
-      <button class="btn btn-quiet" type="button" id="cikis">Çıkış</button>
+      <span class="who-avatar" id="yonetici-harf" aria-hidden="true"></span>
+      <span class="who-text"><span class="who-name" id="yonetici-adi"></span><span class="who-role">Yönetici</span></span>
+      <button class="who-exit" type="button" id="cikis" aria-label="Çıkış yap" title="Çıkış yap">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg>
+      </button>
     </div>
-  </header>
-  <nav class="sections" aria-label="Bölümler">
-    <a href="#ozet" data-section="ozet">Özet</a>
-    <a href="#kullanicilar" data-section="kullanicilar">Kullanıcılar</a>
-    <a href="#basvurular" data-section="basvurular">Başvurular <span class="badge" id="rozet-basvuru" hidden></span></a>
-    <a href="#destek" data-section="destek">Destek <span class="badge" id="rozet-destek" hidden></span></a>
-    <a href="#olaylar" data-section="olaylar">Olaylar</a>
-    <a href="#hesabim" data-section="hesabim">Hesabım</a>
-  </nav>
+  </aside>
   <main class="content" id="icerik" tabindex="-1"></main>
   <div class="toast" id="bildirim-alani">
     <p class="toast-text" id="bildirim" role="status" aria-live="polite"></p>

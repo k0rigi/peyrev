@@ -32,6 +32,8 @@ TYPES = {
     "modul_ayarlandi": "Modül hakkı verildi veya değişti",
     "modul_kaldirildi": "Modül hakkı kaldırıldı",
     "sifre_kodu_uretildi": "Şifre kodu üretildi",
+    "sifre_belirlendi": "Şifre yönetimden belirlendi",
+    "sifre_sunucuda_yenilendi": "Yönetici şifresi sunucuda yenilendi",
     "oturumlar_kapatildi": "Studio oturumları kapatıldı",
     "basvuru_onaylandi": "Başvuru onaylandı",
     "basvuru_reddedildi": "Başvuru reddedildi",

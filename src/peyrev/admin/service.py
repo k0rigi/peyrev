@@ -14,6 +14,7 @@ from typing import Any
 
 import psycopg
 from psycopg import Cursor
+from werkzeug.security import generate_password_hash
 
 from .. import users
 from ..accounts import applications, rules
@@ -153,6 +154,26 @@ def update_details(core, admin_id: int, user_id: int, *, ad_soyad: Any, telefon:
             # Only the names of the fields: the event log keeps no personal values.
             events.record(core, cur, admin_id, "bilgiler_degisti", f"kullanici:{user_id}", alanlar=changed)
     return {"kullanici_id": user_id, "giris": login, "ad_soyad": name, "telefon": phone, "degisti": bool(changed)}
+
+
+def set_password(core, admin_id: int, user_id: int, sifre: Any) -> dict[str, Any]:
+    """Başka bir hesabın şifresini yönetici belirler (kural Studio'yla aynı). Açık şifre kodları harcanır, hesabın panel
+    oturumları kapanır; şifre izi değiştiği için Studio, ajan ve destek belirteçleri bir sonraki kullanımda geçersizdir.
+    Kendi şifresini yönetici Hesabım'dan, mevcut şifresiyle değiştirir."""
+    with core.db.transaction() as cur:
+        require_admin(cur, admin_id)
+        if user_id == admin_id:
+            raise ApiError("Kendi şifrenizi Hesabım bölümünden değiştirin.")
+        user = _account(cur, user_id)
+        password = rules.password(sifre, user["giris"])
+        moment = core.clock.now()
+        cur.execute("UPDATE kullanicilar SET sifre_hash = %s, guncelleme = %s WHERE id = %s",
+                    (generate_password_hash(password), moment, user_id))
+        cur.execute("UPDATE sifre_kodlari SET kullanildi = %s WHERE kullanici_id = %s AND kullanildi IS NULL",
+                    (moment, user_id))
+        closed = auth.end_sessions(cur, user_id)
+        events.record(core, cur, admin_id, "sifre_belirlendi", f"kullanici:{user_id}", kapatilan_panel_oturumu=closed)
+    return {"kullanici_id": user_id, "kapatilan_panel_oturumu": closed}
 
 
 def set_role(core, admin_id: int, user_id: int, rol: Any) -> dict[str, Any]:

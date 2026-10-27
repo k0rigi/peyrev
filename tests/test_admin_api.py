@@ -156,6 +156,7 @@ ENDPOINTS = [
     ("POST", "kullanicilar/{user}/moduller/{module}", {"bitis": ""}),
     ("POST", "kullanicilar/{user}/moduller/{module}/kaldir", {}),
     ("POST", "kullanicilar/{user}/sifre-kodu", {}),
+    ("POST", "kullanicilar/{user}/sifre", {"sifre": "Yeni12345"}),
     ("POST", "kullanicilar/{user}/oturumlari-kapat", {}),
     ("POST", "kullanicilar/{user}/iki-adim-sifirla", {}),
     ("POST", "ofisler/{office}/durum", {"durum": "pasif"}),
@@ -466,6 +467,45 @@ def test_a_new_account_gets_a_first_code_that_is_shown_once(app, core, world, br
         assert (taken.status_code, taken.get_json()) == (409, {
             "success": False, "kod": "HESAP_VAR",
             "message": "Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin."})
+
+
+def test_a_new_account_can_be_opened_with_a_password_the_administrator_chooses(app, core, world, browser):
+    weak = post(browser, "kullanicilar", {**NEW_USER, "sifre": "kisa"})
+    assert (weak.status_code, weak.get_json()["message"]) == (400, "Şifre 8-128 karakter olmalıdır.")
+    assert sql(core, "SELECT id FROM kullanicilar WHERE giris = 'BASBUG_1'") == []
+    response = post(browser, "kullanicilar", {**NEW_USER, "sifre": "Basbug2026"})
+    assert response.status_code == 201
+    data = response.get_json()
+    user_id = data["kullanici"]["kullanici_id"]
+    assert "kod" not in data and sql(core, f"SELECT id FROM sifre_kodlari WHERE kullanici_id = {user_id}") == []
+    assert studio_login(app.test_client(), kullanici="BASBUG_1", sifre="Basbug2026").status_code == 200
+    [details] = [entry[3] for entry in new_events(core, 0) if entry[1] == "kullanici_acildi"]
+    assert details["sifre"] == "yonetici_belirledi" and "kod_gecerlilik" not in details
+    assert "Basbug2026" not in json.dumps([event["ayrinti"] for event in audit(core)])
+    # An empty password field means "send a code", as before.
+    assert "kod" in post(browser, "kullanicilar", {**NEW_USER, "giris": "ikinci", "sifre": ""}).get_json()
+
+
+def test_the_administrator_sets_another_accounts_password(app, core, world, browser):
+    path = f"kullanicilar/{world.ayse['id']}/sifre"
+    code = post(browser, f"kullanicilar/{world.ayse['id']}/sifre-kodu", {}).get_json()["kod"]["kod"]
+    for bad, message in (("kisa1", "Şifre 8-128 karakter olmalıdır."),
+                         ("sadeceharf", "Şifrede en az bir harf ve bir rakam bulunmalıdır.")):
+        answer = post(browser, path, {"sifre": bad})
+        assert (answer.status_code, answer.get_json()["message"]) == (400, message), bad
+    assert post(browser, path, {"sifre": "Yeni2026ab"}).get_json()["kullanici"] == {
+        "kullanici_id": world.ayse["id"], "kapatilan_panel_oturumu": 0}
+    assert studio_login(app.test_client(), kullanici="ayse@ornek.test", sifre=PASSWORD).status_code == 401
+    assert studio_login(app.test_client(), kullanici="ayse@ornek.test", sifre="Yeni2026ab").status_code == 200
+    # The code issued before is spent.
+    assert app.test_client().post("/api/rpa/hesap/sifre-yenile", json={
+        "kullanici": "ayse@ornek.test", "kod": code, "yeni_sifre": "Baska2026"}).status_code == 401
+    [event] = [entry for entry in new_events(core, 0) if entry[1] == "sifre_belirlendi"]
+    assert event == (world.manager["id"], "sifre_belirlendi", f"kullanici:{world.ayse['id']}",
+                     {"kapatilan_panel_oturumu": 0})
+    assert "Yeni2026ab" not in json.dumps([row["ayrinti"] for row in audit(core)])
+    own = post(browser, f"kullanicilar/{world.manager['id']}/sifre", {"sifre": "Kendim2026"})
+    assert (own.status_code, own.get_json()["message"]) == (400, "Kendi şifrenizi Hesabım bölümünden değiştirin.")
 
 
 def test_a_new_administrator_account_is_opened_and_the_role_follows(app, core, world, browser, monkeypatch):
