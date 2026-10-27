@@ -5,10 +5,12 @@ import io
 import json
 import logging
 import os
+import smtplib
 import subprocess
 import sys
 import threading
 import time
+import urllib.error
 from pathlib import Path
 from urllib.parse import parse_qs
 
@@ -221,11 +223,26 @@ def test_the_setup_job_writes_a_private_file_finds_the_chat_and_reports_without_
     def unreachable(value):
         raise OSError("getUpdates " + value)
 
-    for discover in (lambda _token: None, unreachable):
+    for discover, state in ((lambda _token: None, "sohbet_bulunamadi"), (unreachable, "sohbet_aranamadi:OSError")):
         code = notify.configure_from_environment({"DESTEK_TELEGRAM_TOKEN": token}, path=path, discover=discover,
                                                  notifier={})
         output = capsys.readouterr().out
-        assert code == 1 and json.loads(output)["telegram"] == "sohbet_bulunamadi" and token not in output
+        assert code == 1 and json.loads(output)["telegram"] == state and token not in output
+    # A failed send names the error type and code, never its text (a Telegram address carries the token).
+    def refused(*_args):
+        raise smtplib.SMTPAuthenticationError(535, b"bad " + token.encode())
+
+    def conflict(*_args):
+        raise urllib.error.HTTPError("https://api.telegram.org/bot" + token + "/sendMessage", 409, "Conflict", None, None)
+
+    code = notify.configure_from_environment(
+        {"DESTEK_TELEGRAM_TOKEN": token, "DESTEK_TELEGRAM_CHAT": "1", "DESTEK_SMTP_HOST": "h", "DESTEK_SMTP_USER": "u",
+         "DESTEK_SMTP_PASSWORD": "p", "DESTEK_EPOSTA_ALICI": "a@ornek.test"}, path=path,
+        notifier={"telegram": conflict, "eposta": refused})
+    output = capsys.readouterr().out
+    assert code == 1 and json.loads(output) == {"telegram": "gonderilemedi:HTTPError/409",
+                                                "eposta": "gonderilemedi:SMTPAuthenticationError/535"}
+    assert token not in output
     code = notify.configure_from_environment({"DESTEK_TELEGRAM_TOKEN": "bozuk", "DESTEK_SMTP_HOST": "smtp.gmail.com"},
                                              path=path, notifier={})
     assert code == 1 and json.loads(capsys.readouterr().out) == {"telegram": "gecersiz_belirtec", "eposta": "eksik_ayar"}

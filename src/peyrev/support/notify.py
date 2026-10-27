@@ -225,6 +225,13 @@ def _discover_chat(token: str, opener: Callable = urlopen) -> str | None:
     return None
 
 
+def _reason(error: BaseException) -> str:
+    """Hatanın türü ve varsa sayısal kodu (SMTP yanıt kodu, HTTP durumu); iletisi yazılmaz, çünkü Telegram adresi
+    belirteci içerir."""
+    code = getattr(error, "smtp_code", None) or getattr(error, "code", None)
+    return type(error).__name__ + (f"/{code}" if isinstance(code, int) else "")
+
+
 def configure_from_environment(environment: Mapping[str, str] | None = None, path: Path | str = SETTINGS_PATH, *,
                                notifier: Mapping[str, Callable] | None = None, discover: Callable = _discover_chat,
                                base: str = PUBLIC_BASE, keep: bool = False) -> int:
@@ -249,10 +256,11 @@ def configure_from_environment(environment: Mapping[str, str] | None = None, pat
     if values["DESTEK_TELEGRAM_TOKEN"] and not values["DESTEK_TELEGRAM_CHAT"]:
         try:
             values["DESTEK_TELEGRAM_CHAT"] = discover(values["DESTEK_TELEGRAM_TOKEN"]) or ""
-        except Exception:  # noqa: BLE001 - the token stays out of the output.
+            if not values["DESTEK_TELEGRAM_CHAT"]:
+                report["telegram"] = "sohbet_bulunamadi"  # nobody has written to the bot yet
+        except Exception as error:  # noqa: BLE001 - only the type and code: the token stays out of the output.
             values["DESTEK_TELEGRAM_CHAT"] = ""
-        if not values["DESTEK_TELEGRAM_CHAT"]:
-            report["telegram"] = "sohbet_bulunamadi"
+            report["telegram"] = "sohbet_aranamadi:" + _reason(error)
     for value in values.values():
         if any(ord(char) < 32 for char in value) or len(value) > 512:
             raise SystemExit("Ayar değerleri geçersiz.")
@@ -287,14 +295,14 @@ def configure_from_environment(environment: Mapping[str, str] | None = None, pat
         try:
             channels["telegram"](settings, subject + "\n\n" + text)
             report["telegram"] = "gonderildi"
-        except Exception:  # noqa: BLE001 - reported as a state, without the error text.
-            report["telegram"] = "gonderilemedi"
+        except Exception as error:  # noqa: BLE001 - reported as a state and error type, without the error text.
+            report["telegram"] = "gonderilemedi:" + _reason(error)
     if mail_ready(settings):
         try:
             channels["eposta"](settings, subject, text)
             report["eposta"] = "gonderildi"
-        except Exception:  # noqa: BLE001 - reported as a state, without the error text.
-            report["eposta"] = "gonderilemedi"
+        except Exception as error:  # noqa: BLE001 - reported as a state and error type, without the error text.
+            report["eposta"] = "gonderilemedi:" + _reason(error)
     elif any(values[key] for key in ("DESTEK_SMTP_HOST", "DESTEK_SMTP_USER", "DESTEK_EPOSTA_ALICI")):
         report["eposta"] = "eksik_ayar"
     print(json.dumps(report, ensure_ascii=False, sort_keys=True))
