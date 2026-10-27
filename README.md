@@ -25,9 +25,14 @@ Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
 `https://peyrev.com/yonetim/`; uçları `/api/yonetim/*` (`src/peyrev/admin/`). Bölümler: Özet (sayılar, hızlı işlemler,
 yakında biten haklar), Kullanıcılar (tablo, hesap açma, modül hakları, şifre, Studio oturumları, ajan ofisleri),
-Başvurular, Destek, Olaylar ve Hesabım. Geniş ekranda solda menü, telefonda üstte kayan menü vardır. Sayfa da API'den,
+Başvurular, Destek, Eğitim, Olaylar ve Hesabım. Geniş ekranda solda menü, telefonda üstte kayan menü vardır. Sayfa da API'den,
 satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
 
+- **Eğitim:** peyrev.com/egitim/ sayfasındaki ücretsiz videolar. Video YouTube'a (herkese açık ya da liste dışı)
+  yüklenir, panelde bağlantısı (watch, youtu.be, shorts, embed, live), başlığı, kategorisi, sırası ve yayın durumu
+  girilir; yalnız 11 karakterlik video kimliği saklanır (`egitim_videolari`). Herkese açık liste `GET /api/egitim`,
+  yalnız yayındaki videolar. Sayfa küçük resmi i.ytimg.com'dan gösterir, oynatıcıyı ziyaretçi oynat'a basınca
+  youtube-nocookie.com'dan açar; sayfanın CSP kuralı yalnız bu iki adrese izin verir.
 - **Şifre:** yeni hesap açılırken yönetici şifreyi kendisi belirleyebilir ("Üret" rastgele bir şifre yazar ve gösterir)
   ya da kişiye tek kullanımlık şifre kodu verilir. Var olan hesabın şifresi ayrıntıdaki Şifre bölümünden belirlenir
   (`POST /api/yonetim/kullanicilar/<id>/sifre`): açık şifre kodları harcanır, hesabın panel oturumları kapanır, Studio

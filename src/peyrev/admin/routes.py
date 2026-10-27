@@ -16,6 +16,7 @@ from ..common import LOG, ApiError, client_ip, json_body, ok
 from ..llm import admin as llm_admin
 from ..support import answer_ticket, file_response, list_tickets, open_ticket, ticket_attachment
 from . import auth, service
+from . import egitim as training
 
 PREFIX = "/api/yonetim"
 USERS_PAGE = 50
@@ -287,6 +288,28 @@ def api_blueprint(core) -> Blueprint:
         return file_response(found, inline=found[1].startswith("image/"))
 
     # ----- olaylar ---------------------------------------------------------------------------------
+    # ----- eğitim videoları ------------------------------------------------------------------------
+    TRAINING_FIELDS = {"baglanti", "baslik", "aciklama", "kategori", "sira", "yayinda"}
+
+    @blueprint.get("/egitim")
+    def training_list():
+        return ok(videolar=training.listing(core, me()))
+
+    @blueprint.post("/egitim")
+    def training_create():
+        data = json_body(TRAINING_FIELDS, {"baglanti", "baslik"})
+        return ok(201, video=training.create(core, me(), data))
+
+    @blueprint.post("/egitim/<int:video_id>")
+    def training_update(video_id: int):
+        data = json_body(TRAINING_FIELDS, {"baglanti", "baslik"})
+        return ok(video=training.update(core, me(), video_id, data))
+
+    @blueprint.post("/egitim/<int:video_id>/sil")
+    def training_delete(video_id: int):
+        json_body(set())
+        return ok(video=training.delete(core, me(), video_id))
+
     @blueprint.get("/olaylar")
     def event_list():
         return ok(**service.event_page(core, me(), page=_page(request.args.get("sayfa")),

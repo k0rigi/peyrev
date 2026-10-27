@@ -42,6 +42,9 @@ TYPES = {
     "destek_durum": "Destek talebinin durumu değişti",
     "ajan_ofisi_durumu": "Ajan ofisinin durumu değişti",
     "llm_kuyruk_bosaltma": "Ortak model kuyruğu boşaltıldı",
+    "egitim_eklendi": "Eğitim videosu eklendi",
+    "egitim_degisti": "Eğitim videosu değişti",
+    "egitim_silindi": "Eğitim videosu silindi",
 }
 
 

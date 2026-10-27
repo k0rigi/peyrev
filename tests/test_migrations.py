@@ -29,7 +29,7 @@ def test_migrated_accounts_become_tasima_and_the_old_value_is_refused(fresh):
                 cur.execute(path.read_text(encoding="utf-8"))
                 cur.execute("INSERT INTO schema_migrations (version, name) VALUES (%s, %s)", (path.name[:4], path.name))
         cur.execute("INSERT INTO kullanicilar (giris, kaynak) VALUES ('tasinan', 'orkestrai'), ('yeni', 'basvuru')")
-    assert migrate.apply(fresh) == ["0007_eski_sistem.sql"]
+    assert migrate.apply(fresh)[0] == "0007_eski_sistem.sql"
     with fresh.transaction() as cur:
         cur.execute("SELECT giris, kaynak FROM kullanicilar ORDER BY id")
         assert [tuple(row.values()) for row in cur.fetchall()] == [("tasinan", "tasima"), ("yeni", "basvuru")]

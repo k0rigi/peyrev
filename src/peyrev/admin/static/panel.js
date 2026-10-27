@@ -8,7 +8,7 @@
  * Şifre kodu ve şifre değiştirme Studio'yla ortak hesap uçlarını (/api/rpa/hesap/*) kullanır; kurallar oradadır.
  *
  * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #yeni-kullanici, #kullanici-<id>, #basvurular, #destek,
- * #destek-<no>, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
+ * #destek-<no>, #egitim, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
  */
 (function () {
   'use strict';
@@ -49,7 +49,8 @@
     yayin_surumu: 'Yayın sürümü', yanit_uzunlugu: 'Yanıt uzunluğu', not: 'Not', basvuru_id: 'Başvuru',
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
-    sifre: 'Şifre',
+    sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
+    sira: 'Sıra',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -442,6 +443,7 @@
     [/^basvurular$/, 'basvurular', () => renderApplications()],
     [/^destek$/, 'destek', () => renderTickets()],
     [/^destek-(\d{1,10})$/, 'destek', (match) => renderTicket(match[1])],
+    [/^egitim$/, 'egitim', () => renderTraining()],
     [/^olaylar$/, 'olaylar', () => renderEvents()],
     [/^hesabim$/, 'hesabim', () => renderAccount()],
   ];
@@ -1247,6 +1249,99 @@
     });
   }
 
+  // ----- Eğitim ------------------------------------------------------------------------------
+  /** Video formu: yeni video ya da var olanın düzenlenmesi. Bağlantı YouTube'un herhangi bir biçimi olabilir. */
+  function trainingForm(item, categories, done) {
+    const link = input('baglanti', { value: item ? 'https://youtu.be/' + item.video : '', maxlength: 500, required: true,
+      placeholder: 'https://www.youtube.com/watch?v=…', autocomplete: 'off', spellcheck: 'false' });
+    const title = input('baslik', { value: item ? item.baslik : '', maxlength: 150, required: true });
+    const listId = nextId('kategoriler');
+    const category = input('kategori', { value: item ? item.kategori : '', maxlength: 60, list: listId,
+      placeholder: 'Genel' });
+    const order = input('sira', { type: 'number', min: 0, max: 9999, value: item ? item.sira : 0 });
+    const about = h('textarea', { name: 'aciklama', maxlength: 1000, rows: 3 });
+    about.value = item ? item.aciklama : '';
+    const live = checkbox('yayinda', 'Sitede yayında', item ? item.yayinda : true);
+    const options = h('datalist', { id: listId }, categories.map((name) => h('option', { value: name })));
+    return form([
+      field('YouTube bağlantısı', link, { wide: true,
+        hint: 'Videoyu YouTube\'a herkese açık ya da liste dışı yükleyin; bağlantısını buraya yapıştırın.' }),
+      field('Başlık', title),
+      field('Kategori', category, { hint: 'Sayfada videolar kategoriye göre süzülür. Boşsa "Genel".' }),
+      field('Sıra', order, { hint: 'Küçük sayı önce gösterilir.' }),
+      field('Açıklama (isteğe bağlı)', about, { wide: true }),
+      h('div', { class: 'field wide' }, [live.node, options]),
+    ], item ? 'Değişiklikleri kaydet' : 'Videoyu ekle', async () => {
+      const body = { baglanti: link.value.trim(), baslik: title.value.trim(), kategori: category.value.trim(),
+        aciklama: about.value, sira: Number(order.value || 0), yayinda: live.control.checked };
+      const result = await api(item ? 'egitim/' + item.id : 'egitim', body);
+      say(item ? 'Video güncellendi.' : '"' + result.video.baslik + '" eklendi.', 'ok');
+      done();
+    });
+  }
+
+  function trainingCard(item, categories, reload) {
+    const url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(item.video);
+    const editor = h('div', { hidden: true });
+    const edit = button('Düzenle', () => {
+      editor.hidden = !editor.hidden;
+      if (!editor.hidden) editor.replaceChildren(trainingForm(item, categories, reload));
+    }, { small: true });
+    const remove = button('Sil', async () => {
+      await api('egitim/' + item.id + '/sil', {});
+      say('Video silindi.', 'ok');
+      return reload();
+    }, { small: true, kind: 'danger', confirm: '"' + item.baslik + '" silinsin mi? Sitedeki eğitim sayfasından kalkar.' });
+    return h('article', { class: 'card' }, [
+      h('div', { class: 'card-head' }, [
+        h('h2', { class: 'card-title', text: item.baslik }),
+        h('div', { class: 'pills' }, [pill(item.kategori, 'accent'),
+          pill(item.yayinda ? 'Yayında' : 'Gizli', item.yayinda ? 'ok' : 'warn'), pill('Sıra ' + item.sira)]),
+      ]),
+      item.aciklama ? h('p', { class: 'muted', text: item.aciklama }) : null,
+      h('div', { class: 'actions' }, [h('a', { class: 'btn btn-small', href: url, target: '_blank', rel: 'noopener',
+        text: 'YouTube\'da aç' }), edit, remove]),
+      editor,
+    ]);
+  }
+
+  function renderTraining() {
+    const create = button('Yeni video', null, { kind: 'primary' });
+    create.classList.add('btn-plus');
+    const url = '/egitim/';
+    const view = page('Eğitim videoları', {
+      actions: [h('div', { class: 'actions' }, [h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener',
+        text: 'Sayfayı gör' }), create])],
+      lead: 'peyrev.com/egitim sayfasındaki ücretsiz eğitim videoları. Videolar YouTube\'da durur; burada bağlantısı, '
+        + 'başlığı, kategorisi ve sırası tutulur. Gizli videolar sitede görünmez.',
+    });
+    const creator = h('section', { class: 'card', hidden: true, 'aria-label': 'Yeni video' });
+    const list = h('div', { class: 'panel-section' });
+    let categories = [];
+    const load = () => fill(list, async (target) => {
+      const data = await api('egitim');
+      categories = Array.from(new Set(data.videolar.map((item) => item.kategori)));
+      if (!data.videolar.length) {
+        target.replaceChildren(empty('Henüz video yok. "Yeni video" ile ilk eğitim videonuzu ekleyin.'));
+        return;
+      }
+      target.replaceChildren(h('p', { class: 'muted', role: 'status', text: data.videolar.length + ' video' }),
+        h('div', { class: 'cards' }, data.videolar.map((item) => trainingCard(item, categories, load))));
+    });
+    create.addEventListener('click', () => {
+      creator.hidden = !creator.hidden;
+      if (!creator.hidden) {
+        creator.replaceChildren(h('h2', { text: 'Yeni video' }), trainingForm(null, categories, () => {
+          creator.hidden = true;
+          return load();
+        }));
+        creator.querySelector('input').focus();
+      }
+    });
+    view.body.replaceChildren(creator, list);
+    load();
+  }
+
   // ----- Olaylar ------------------------------------------------------------------------------
   function targetLink(target) {
     if (!target) return null;
@@ -1254,6 +1349,8 @@
     if (match) return h('a', { href: '#kullanici-' + match[1], text: 'Hesap #' + match[1] });
     match = /^talep:(\d+)$/.exec(target);
     if (match) return h('a', { href: '#destek-' + match[1], text: 'Talep #' + match[1] });
+    match = /^egitim:(\d+)$/.exec(target);
+    if (match) return h('a', { href: '#egitim', text: 'Eğitim videosu #' + match[1] });
     match = /^(ajan_ofisi|basvuru):([0-9a-f]{8})[0-9a-f]{24}$/.exec(target);
     if (match) return (match[1] === 'basvuru' ? 'Başvuru ' : 'Ajan ofisi ') + match[2] + '…';
     return target === 'llm_isler' ? 'Ortak model kuyruğu' : target;

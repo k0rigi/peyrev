@@ -117,9 +117,11 @@ class World:
              "veri": base64.b64encode(PNG).decode()}])
         assert apply(app.test_client(), ad_soyad="Mehmet Kaya", eposta="mehmet@ornek.test").status_code == 201
         self.application = pending(core, "mehmet@ornek.test")
+        self.video = sql(core, "INSERT INTO egitim_videolari (baslik, video_kimligi) VALUES ('İlk akış', "
+                               "'dQw4w9WgXcQ') RETURNING id")[0]["id"]
         self.ids = {"user": self.ayse["id"], "office": self.office, "ticket": self.ticket["no"],
                     "attachment": self.ticket["ekler"][0]["id"], "application": self.application,
-                    "module": users.AGENTS}
+                    "module": users.AGENTS, "video": self.video}
 
     def path(self, template):
         return template.format(**self.ids)
@@ -168,6 +170,10 @@ ENDPOINTS = [
     ("POST", "destek/{ticket}/yanit", {"metin": "İnceliyoruz."}),
     ("GET", "destek/{ticket}/ek/{attachment}", None),
     ("GET", "olaylar", None),
+    ("GET", "egitim", None),
+    ("POST", "egitim", {"baglanti": "https://youtu.be/dQw4w9WgXcQ", "baslik": "Yeni video"}),
+    ("POST", "egitim/{video}", {"baglanti": "https://youtu.be/dQw4w9WgXcQ", "baslik": "Değişen video"}),
+    ("POST", "egitim/{video}/sil", {}),
 ]
 POSTS = [endpoint for endpoint in ENDPOINTS if endpoint[0] == "POST"]
 
