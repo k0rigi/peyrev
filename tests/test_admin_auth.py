@@ -277,6 +277,9 @@ def test_a_new_password_a_passive_account_or_a_lost_role_ends_the_session(app, c
     {"Origin": "null"},
     {"Origin": "http://peyrev.com"},
     {"Origin": "https://peyrev.com.evil.test"},
+    {"Origin": "https://peyrev.com,https://evil.test"},
+    {"Origin": "https://evil.test,https://peyrev.com"},
+    {"Origin": ","},
     {"Origin": None, "Referer": "https://evil.test/yonetim/"},
     {"Origin": None, "Referer": "https://peyrev.com.evil.test/yonetim/"},
     {"Sec-Fetch-Site": "cross-site"},
@@ -302,6 +305,14 @@ def test_the_referer_stands_in_for_a_missing_origin_and_reads_need_no_header(app
                        headers=sent).status_code == 200
     assert client.get("/api/yonetim/ben").status_code == 200  # no header, no origin: a read changes nothing
     assert client.post("/api/yonetim/cikis", json={}, headers=sent).status_code == 200
+
+
+def test_the_origin_copy_added_by_the_proxy_is_accepted(client, manager):
+    # OpenLiteSpeed forwards the browser's Origin and adds its own; gunicorn joins them as "a,b".
+    sent = {**HEADERS, "Origin": f"{ORIGIN},{ORIGIN}", "Sec-Fetch-Site": "same-origin"}
+    assert client.post("/api/yonetim/giris", json={"giris": "yonetici@peyrev.test", "sifre": PASSWORD},
+                       headers=sent).status_code == 200
+    assert client.post("/api/yonetim/cikis", json={}, headers={**sent, "Origin": f"{ORIGIN}, {ORIGIN}"}).status_code == 200
 
 
 def test_totp_codes_follow_rfc_6238():

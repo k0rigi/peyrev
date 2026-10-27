@@ -76,7 +76,8 @@ def same_origin(core) -> bool:
     base = core.settings.public_base.rstrip("/")
     origin = request.headers.get("Origin")
     if origin is not None:
-        return origin == base
+        # OpenLiteSpeed's proxy adds its own copy of Origin and gunicorn joins the two with a comma: every copy must match.
+        return {value.strip() for value in origin.split(",")} == {base}
     referer = request.headers.get("Referer") or ""
     return referer == base or referer.startswith(base + "/")
 
