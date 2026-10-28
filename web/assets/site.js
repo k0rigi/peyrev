@@ -2,7 +2,8 @@
  *
  * Gövde, sunucunun kabul ettiği alanlardır (peyrev.accounts.applications): SENT'teki adlar ve her zaman onay: true.
  * "tekrar" yalnız tarayıcıda denetlenir; boş telefon ve boş bal küpü (web_sitesi) gönderilmez. Önden denetimler sunucunun
- * kurallarıyla aynı metinleri verir; son söz her zaman sunucunundur ve yanıtındaki metin olduğu gibi gösterilir.
+ * kurallarıyla aynı metinleri verir; son söz her zaman sunucunundur ve yanıtındaki metin olduğu gibi gösterilir. Başvuru
+ * alınınca form yerini onay ekranına (#basvuru-tamam) bırakır.
  */
 (function () {
   'use strict';
@@ -23,6 +24,19 @@
     status.textContent = text;
     status.className = 'form-status' + (tone ? ' is-' + tone : '');
     status.hidden = !text;
+  }
+
+  /** Gönderilen başvurunun onay ekranı: form gizlenir, sunucunun metni ve başvuru e-postası metin olarak yazılır. */
+  function done(text, email) {
+    form.reset();
+    show('');
+    document.getElementById('basvuru-tamam-metni').textContent = text;
+    document.getElementById('basvuru-tamam-eposta').textContent = email;
+    const panel = document.getElementById('basvuru-tamam');
+    panel.hidden = false;
+    form.classList.add('is-done');
+    form.scrollIntoView({ block: 'start' });
+    panel.focus({ preventScroll: true });
   }
 
   function clearMarks() {
@@ -91,9 +105,7 @@
         show(answer.message || FAILED, 'error');
         return;
       }
-      form.reset();
-      show(answer.message || 'Başvurunuz alındı.', 'ok');
-      status.focus();
+      done(answer.message || 'Başvurunuz alındı.', body.eposta);
     } finally {
       submit.disabled = false;
       submit.textContent = submitText;

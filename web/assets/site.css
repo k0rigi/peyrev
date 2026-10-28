@@ -316,6 +316,7 @@ main:focus { outline: none; }
 .card > p { color: var(--muted); }
 .card strong { color: var(--text); }
 .apply { scroll-margin-top: 84px; }
+@media (max-width: 899px) { .apply { scroll-margin-top: 120px; } }
 
 .fields { display: grid; gap: 16px; align-items: start; }
 @media (min-width: 640px) { .fields { grid-template-columns: 1fr 1fr; } }
@@ -349,6 +350,13 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin:
 .form-status.is-ok { background: var(--ok-soft); color: var(--ok); }
 .form-status:focus { outline: none; }
 .apply .button { justify-self: start; }
+.apply.is-done > :not(.apply-done) { display: none; }
+.apply-done { display: grid; gap: 14px; justify-items: start; }
+.apply-done:focus { outline: none; }
+.apply-done-mark { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; font-size: 1.5rem;
+  font-weight: 800; background: var(--ok-soft); color: var(--ok); }
+.apply-done > p:not(.hint) { color: var(--muted); }
+.apply-done-mail strong { overflow-wrap: anywhere; }
 @media (max-width: 479px) { .apply .button { justify-self: stretch; } }
 
 .account { gap: 14px; background: var(--surface-2); box-shadow: none; }

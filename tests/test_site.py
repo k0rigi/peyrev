@@ -265,3 +265,14 @@ def test_the_links_inside_the_page_have_their_targets():
             if name in node.attrs:
                 assert set(node.attrs[name].split()) <= ids, (node.tag, name)
 
+
+
+def test_a_received_application_replaces_the_form_with_a_confirmation():
+    code = re.sub(r"/\*.*?\*/", "", SCRIPT, flags=re.DOTALL)
+    assert "done(answer.message || 'Başvurunuz alındı.', body.eposta);" in code
+    assert "getElementById('basvuru-tamam-metni').textContent = text;" in code
+    assert "getElementById('basvuru-tamam-eposta').textContent = email;" in code
+    assert "form.classList.add('is-done');" in code
+    panel = re.search(r'<div class="apply-done" id="basvuru-tamam" tabindex="-1" hidden>(.*?)\n        </div>', HTML, re.DOTALL)
+    assert panel and 'id="basvuru-tamam-metni"></p>' in panel.group(1) and 'id="basvuru-tamam-eposta"></strong>' in panel.group(1)
+    assert ".apply.is-done > :not(.apply-done) { display: none; }" in (WEB / "assets" / "site.css").read_text(encoding="utf-8")
