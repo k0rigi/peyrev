@@ -18,8 +18,8 @@ ana sayfa, eğitim sayfası, güncelleme dosyaları (`/indir/`) ve kişiye özel
    gerekirse önceki sürüme döner. Kurulum ve bakım işleri **Sunucu işleri** iş akışıyla yapılır.
    Bütün sunucu iş akışları aynı eşzamanlılık grubundadır (`peyrev-sunucu`): bir seferde tek iş başlatılır; ikinci iş
    bekleyen ilkinin yerine geçer. SSH bağlantısı kurulamadı hatası geçicidir: yalnız düşen iş yeniden çalıştırılır.
-3. **Diğer siteler bozulmaz.** Sunucu paylaşımlıdır: peyrev.com'un yanında başka müşteri siteleri (hmtgross.com,
-   mkticaret.com, altunhukuk.av.tr) ve e-postaları çalışır. Kurulum ve sunucu işleri sitelerin durum kodlarını önce ve
+3. **Diğer siteler bozulmaz.** Sunucu paylaşımlıdır: peyrev.com'un yanında başka müşteri siteleri ve
+   e-postaları çalışır; adları depoya yazılmaz (betikler OpenLiteSpeed'in sanal sunucu klasörlerinden okur). Kurulum ve sunucu işleri sitelerin durum kodlarını önce ve
    sonra karşılaştırır. OpenLiteSpeed ayarı ve PostgreSQL dışındaki servisler kullanıcının onayı olmadan değiştirilmez.
    Eski sistem (orkestrai.net) 2026-10-26'da sunucudan tamamen kaldırıldı; Peyrev hiçbir şekilde ona bağlı değildir.
 4. **Lisans sözleşmesi bozulmaz.** Firma yoktur, her hesap bir kişidir. Studio'yu açmak için hesapta `MOD_RPA` hakkı

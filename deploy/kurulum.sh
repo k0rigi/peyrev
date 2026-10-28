@@ -24,12 +24,15 @@ SECRETS=/etc/peyrev
 BACKUPS=/var/backups/peyrev
 LSWS=/usr/local/lsws
 VHOST=$LSWS/conf/vhosts/$SITE/vhost.conf
-SITES="altunhukuk.av.tr hmtgross.com mkticaret.com"
+# Diğer siteler depoda adıyla yazılmaz: OpenLiteSpeed'in sanal sunucu klasörlerinden okunur (peyrev.com hariç); adlar
+# yalnız şifreli rapora, sayıları GENEL satırına yazılır.
+SITES=$(for d in "$LSWS"/conf/vhosts/*/; do n=${d%/}; n=${n##*/}; case "$n" in ("$SITE"|Example) ;; (*.*) printf '%s ' "$n" ;; esac; done)
 MARK_BEGIN="# >>> peyrev vekili (deploy/kurulum.sh yönetir)"
 MARK_END="# <<< peyrev vekili"
 STEP=başlangıç
 
 genel() { printf 'GENEL: %s\n' "$*"; }
+[ -n "$SITES" ] || { echo "Sunucudaki diğer siteler bulunamadı."; genel "diğer siteler bulunamadı; durduruldu"; exit 1; }
 adim() { STEP=$1; printf '\n========== %s ==========\n' "$1"; }
 not() { printf '  * %s\n' "$*"; }
 trap 'rc=$?; printf "HATA: %s adımında, satır %s (çıkış %s)\n" "$STEP" "$LINENO" "$rc"; genel "kurulum başarısız: $STEP"' ERR
@@ -331,7 +334,7 @@ fi
 # ---------------------------------------------------------------------------------------------------------------------
 adim "Son denetim"
 if require_same "$BEFORE"; then
-  genel "diğer siteler değişmedi: $(snapshot | tr -s ' ')"
+  genel "diğer siteler değişmedi ($(wc -w <<<"$SITES" | tr -d ' ') site)"
 else
   echo "Site durumları başlangıçtan farklı."; genel "site durumları başlangıçtan farklı"; exit 1
 fi

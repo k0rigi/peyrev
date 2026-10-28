@@ -21,7 +21,11 @@ TRANSFER=/var/tmp/peyrev-aktarim
 genel() { printf 'GENEL: %s\n' "$*"; }
 sql() { mysql --defaults-file=/root/.my.cnf -N -B cyberpanel -e "$1"; }
 code() { curl -sk -o /dev/null -w '%{http_code}' --max-time 10 --resolve "$1:443:127.0.0.1" "https://$1/" </dev/null || true; }
-BEFORE="peyrev=$(code peyrev.com) hmtgross=$(code hmtgross.com) mkticaret=$(code mkticaret.com)"
+# Diğer siteler depoda adıyla yazılmaz: OpenLiteSpeed'in sanal sunucu klasörlerinden okunur.
+SITES=$(for d in /usr/local/lsws/conf/vhosts/*/; do n=${d%/}; n=${n##*/}; case "$n" in ("$DOMAIN"|Example) ;; (*.*) printf '%s ' "$n" ;; esac; done)
+[ -n "$SITES" ] || { echo "Sunucudaki diğer siteler bulunamadı."; genel "diğer siteler bulunamadı; durduruldu"; exit 1; }
+sites() { local s out="peyrev=$(code "$DOMAIN")"; for s in $SITES; do out="$out $s=$(code "$s")"; done; printf '%s' "$out"; }
+BEFORE=$(sites)
 echo "siteler: $BEFORE"
 
 exists=$(sql "SELECT COUNT(*) FROM e_users WHERE email = '$ADDRESS'")
@@ -110,7 +114,7 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
 done
 echo "  kutudaki ileti: $before → $after"
 [ "$CREATED" = 1 ] && printf 'KUTU_SIFRESI: %s\n' "$PW"
-AFTER="peyrev=$(code peyrev.com) hmtgross=$(code hmtgross.com) mkticaret=$(code mkticaret.com)"
+AFTER=$(sites)
 echo "siteler: $AFTER"
 [ "$AFTER" = "$BEFORE" ] || { genel "site durumları değişti"; exit 1; }
 if [ "$status" = 0 ] && [ "$after" -gt "$before" ]; then
