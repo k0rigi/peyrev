@@ -7,7 +7,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PAGES = [ROOT / "web" / "index.html", ROOT / "web" / "egitim" / "index.html", ROOT / "deploy" / "indir" / "index.html"]
+PAGES = [ROOT / "web" / "index.html", ROOT / "web" / "egitim" / "index.html", ROOT / "web" / "topluluk" / "index.html",
+         ROOT / "deploy" / "indir" / "index.html"]
 ASSET = re.compile(r'(/assets/([\w.-]+\.(?:css|js)))(?:\?v=[0-9a-f]+)?"')
 
 

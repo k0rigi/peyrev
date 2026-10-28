@@ -7,7 +7,19 @@ peyrev.com'un merkezi sunucusu. Peyrev Studio (masaüstü akış stüdyosu) şu 
 - destek talepleri ve bildirimleri,
 - ajan ofisleri, görevler, onaylar ve ortak model erişimi,
 - imzalı güncelleme dosyaları (`/indir/`) ve kişiye özel indirme bağlantıları (`/api/indir/<anahtar>`),
-- ücretsiz eğitim videoları (`/egitim/`).
+- ücretsiz eğitim videoları (`/egitim/`),
+- üyelere özel topluluk (`/topluluk/`, `/api/topluluk/*`).
+
+**Topluluk:** yalnız aboneliği devam eden hesaplar girer (Studio'nun lisans kuralı: `MOD_RPA` ve geçmemiş bitiş;
+yönetici satırsız); hem okuma hem yazma üyelere özeldir, sayfa arama motorlarına kapalıdır. Giriş Peyrev kullanıcı
+adı ve şifresiyle, Studio girişiyle aynı deneme sınırıyla yapılır; oturum `peyrev_uye` çerezindedir (HttpOnly, Secure,
+SameSite=Strict, Path=/api/topluluk; 14 gün, 3 gün işlemsizlikte biter); abonelik her istekte yeniden denetlenir.
+Kategoriler: Duyurular ve belgeler (yalnız yönetici yazar), Soru ve yardım, Akış paylaşımı, Öneri ve fikir. Konu ve
+yorumlar hemen yayınlanır; yeni konu Telegram ve e-postayla bildirilir. Konuya Studio'nun "Dışa aktar" dosyası
+(en çok 1 MB) eklenebilir; adımları özetlenir, komut çalıştırma, web betiği, veritabanına yazma, dosya işlemi ve
+dışarıya gönderim yapan adımlar "dikkat" olarak işaretlenir; diğer üyeler indirip Studio'da içe aktarır. Üyeler
+birbirinin yalnız adını görür. Saatte en çok 5 konu ve 30 yazı. Yazar kendi konusunu ve yorumunu siler; panelin
+Topluluk bölümünden konu sabitlenir, yoruma kapatılır, gizlenir ya da silinir, yorum gizlenir ya da silinir.
 
 **İndirme:** sitede ve `/indir/` sayfasında kurulum dosyası bağlantısı yoktur; `/indir/` yalnız bilgi sayfasıdır
 (`deploy/indir/index.html`, Dağıtım yazar; Studio yayınındaki indirme sayfası kurulmaz). Ödeme onaylanınca (başvuru

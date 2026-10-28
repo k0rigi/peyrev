@@ -8,7 +8,7 @@
  * Şifre kodu ve şifre değiştirme Studio'yla ortak hesap uçlarını (/api/rpa/hesap/*) kullanır; kurallar oradadır.
  *
  * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #yeni-kullanici, #kullanici-<id>, #basvurular, #destek,
- * #destek-<no>, #egitim, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
+ * #destek-<no>, #topluluk, #topluluk-<id>, #egitim, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
  */
 (function () {
   'use strict';
@@ -50,7 +50,8 @@
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
-    sira: 'Sıra', eposta: 'E-posta', silinen_basvuru: 'Silinen başvuru',
+    sira: 'Sıra', eposta: 'E-posta', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
+    gizli: 'Gizli', yorum: 'Yorum',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -443,6 +444,8 @@
     [/^basvurular$/, 'basvurular', () => renderApplications()],
     [/^destek$/, 'destek', () => renderTickets()],
     [/^destek-(\d{1,10})$/, 'destek', (match) => renderTicket(match[1])],
+    [/^topluluk$/, 'topluluk', () => renderCommunity()],
+    [/^topluluk-(\d{1,18})$/, 'topluluk', (match) => renderCommunityTopic(match[1])],
     [/^egitim$/, 'egitim', () => renderTraining()],
     [/^olaylar$/, 'olaylar', () => renderEvents()],
     [/^hesabim$/, 'hesabim', () => renderAccount()],
@@ -1302,6 +1305,129 @@
     });
   }
 
+  // ----- Topluluk -----------------------------------------------------------------------------
+  const COMMUNITY_CATEGORIES = { duyuru: 'Duyurular ve belgeler', soru: 'Soru ve yardım', akis: 'Akış paylaşımı',
+    oneri: 'Öneri ve fikir' };
+
+  function communityPills(item) {
+    return h('div', { class: 'pills' }, [
+      pill(COMMUNITY_CATEGORIES[item.kategori] || item.kategori, 'accent'),
+      item.sabit ? pill('Sabit', 'ok') : null,
+      item.kilitli ? pill('Yoruma kapalı', 'warn') : null,
+      item.gizli ? pill('Gizli', 'danger') : null,
+      item.akis ? pill('Akış ekli') : null,
+    ]);
+  }
+
+  function renderCommunity() {
+    const url = '/topluluk/';
+    const view = page('Topluluk', {
+      actions: [h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener', text: 'Topluluğu aç' })],
+      lead: 'Aboneliği devam eden üyelerin konuları, yorumları ve paylaştığı akışlar. Yazılanlar hemen yayınlanır; '
+        + 'buradan sabitler, yoruma kapatır, gizler ya da silersiniz. Duyuru ve belgeleri topluluk sayfasından '
+        + '"Duyurular ve belgeler" kategorisinde siz yazarsınız.',
+    });
+    const search = input('ara', { type: 'search', maxlength: 100, placeholder: 'Başlık veya metin', autocomplete: 'off' });
+    const kind = select('kategori', [['', 'Tümü']].concat(Object.entries(COMMUNITY_CATEGORIES)), '');
+    const toolbar = h('form', { class: 'toolbar', role: 'search' },
+      [field('Ara', search), field('Kategori', kind), button('Ara', null, { submit: true })]);
+    const list = h('div', { class: 'panel-section' });
+    const state = { sayfa: 1 };
+    const load = () => fill(list, async (target) => {
+      const data = await api(query('topluluk', { ara: search.value.trim(), kategori: kind.value, sayfa: state.sayfa }));
+      if (!data.konular.length) {
+        target.replaceChildren(empty('Henüz konu yok.'));
+        return;
+      }
+      put(target,
+        h('p', { class: 'muted', role: 'status', text: data.toplam + ' konu' }),
+        h('div', { class: 'cards' }, data.konular.map((item) => h('article', { class: 'card' }, [
+          h('div', { class: 'card-head' }, [
+            h('h2', { class: 'card-title' }, h('a', { href: '#topluluk-' + item.id, text: item.baslik })),
+            communityPills(item),
+          ]),
+          h('p', { class: 'muted', text: item.ozet }),
+          facts([['Yazan', item.yazar.ad + ' (' + item.yazar_giris + ')'], ['Yanıt', item.yanit_sayisi],
+            ['Görüntülenme', item.goruntulenme], ['Açılış', day(item.olusturma)], ['Son hareket', day(item.son_hareket)]]),
+        ]))),
+        pager(data, (number) => {
+          state.sayfa = number;
+          return load();
+        }),
+      );
+    });
+    toolbar.addEventListener('submit', (event) => {
+      event.preventDefault();
+      state.sayfa = 1;
+      load();
+    });
+    kind.addEventListener('change', () => toolbar.requestSubmit());
+    view.body.replaceChildren(toolbar, list);
+    load();
+  }
+
+  function renderCommunityTopic(topicId) {
+    const view = page('Konu', { back: ['#topluluk', 'Topluluk'] });
+    const path = 'topluluk/' + topicId;
+    reloadable(view.body, async (target, refresh) => {
+      const data = await api(path);
+      const topic = data.konu;
+      view.retitle(topic.baslik);
+      const flag = (key, on, off, question) => button(topic[key] ? off : on, async () => {
+        await api(path, { [key]: !topic[key] });
+        say('Konu güncellendi.', 'ok');
+        refresh('bolum-konu');
+      }, { confirm: question });
+      const remove = button('Konuyu sil', async () => {
+        await api(path + '/sil', {});
+        say('Konu silindi.', 'ok');
+        location.hash = '#topluluk';
+      }, { kind: 'danger', confirm: '"' + topic.baslik + '" konusu yorumları ve akışıyla birlikte silinsin mi? Geri alınamaz.' });
+      const flow = topic.akis && typeof topic.akis === 'object' ? section('bolum-akis', 'Ekli akış: ' + topic.akis.ad, [
+        h('p', { class: 'muted', text: topic.akis.adim_sayisi + ' adım · ' + Math.max(1, Math.round(topic.akis.boyut / 1024))
+          + ' KB · ' + topic.akis.indirme + ' kez indirildi' }),
+        h('ol', { class: 'flow-summary' }, topic.akis.adimlar.map((step) => h('li', {
+          class: step.dikkat ? 'is-risky' : null, 'data-derinlik': String(Math.min(step.derinlik, 6)),
+        }, [(step.baslik || step.tur) + ' ', h('span', { class: 'muted', text: '(' + step.tur + ')' })]))),
+      ]) : null;
+      const comments = data.yorumlar.length ? h('div', { class: 'thread' }, data.yorumlar.map((item) => h('div', {
+        class: 'message kullanici' + (item.gizli ? ' is-hidden' : ''),
+      }, [
+        h('span', { class: 'message-meta', text: item.yazar.ad + ' (' + item.yazar_giris + ') · ' + day(item.olusturma)
+          + (item.gizli ? ' · gizli' : '') }),
+        item.metin,
+        h('div', { class: 'actions' }, [
+          button(item.gizli ? 'Göster' : 'Gizle', async () => {
+            await api('topluluk/yorum/' + item.id, { gizli: !item.gizli });
+            say('Yorum güncellendi.', 'ok');
+            refresh('bolum-yorum');
+          }, { small: true }),
+          button('Sil', async () => {
+            await api('topluluk/yorum/' + item.id + '/sil', {});
+            say('Yorum silindi.', 'ok');
+            refresh('bolum-yorum');
+          }, { small: true, kind: 'danger', confirm: 'Bu yorum silinsin mi? Geri alınamaz.' }),
+        ]),
+      ]))) : empty('Henüz yorum yok.');
+      put(target,
+        section('bolum-konu', 'Konu', [
+          communityPills(topic),
+          facts([['Yazan', topic.yazar.ad + ' (' + topic.yazar_giris + ')'], ['Açılış', day(topic.olusturma)],
+            ['Yanıt', topic.yanit_sayisi], ['Görüntülenme', topic.goruntulenme]]),
+          h('div', { class: 'message kullanici' }, topic.metin),
+          h('div', { class: 'actions' }, [
+            flag('sabit', 'Sabitle', 'Sabitlemeyi kaldır'),
+            flag('kilitli', 'Yoruma kapat', 'Yoruma aç'),
+            flag('gizli', 'Gizle', 'Göster', topic.gizli ? null : 'Konu üyelerden gizlensin mi?'),
+            remove,
+          ]),
+        ]),
+        flow,
+        section('bolum-yorum', 'Yorumlar', [comments]),
+      );
+    });
+  }
+
   // ----- Eğitim ------------------------------------------------------------------------------
   /** Video formu: yeni video ya da var olanın düzenlenmesi. Bağlantı YouTube'un herhangi bir biçimi olabilir. */
   function trainingForm(item, categories, done) {
@@ -1402,6 +1528,8 @@
     if (match) return h('a', { href: '#kullanici-' + match[1], text: 'Hesap #' + match[1] });
     match = /^talep:(\d+)$/.exec(target);
     if (match) return h('a', { href: '#destek-' + match[1], text: 'Talep #' + match[1] });
+    match = /^topluluk:(\d+)$/.exec(target);
+    if (match) return h('a', { href: '#topluluk-' + match[1], text: 'Topluluk konusu #' + match[1] });
     match = /^egitim:(\d+)$/.exec(target);
     if (match) return h('a', { href: '#egitim', text: 'Eğitim videosu #' + match[1] });
     match = /^(ajan_ofisi|basvuru):([0-9a-f]{8})[0-9a-f]{24}$/.exec(target);

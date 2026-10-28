@@ -119,9 +119,14 @@ class World:
         self.application = pending(core, "mehmet@ornek.test")
         self.video = sql(core, "INSERT INTO egitim_videolari (baslik, video_kimligi) VALUES ('İlk akış', "
                                "'dQw4w9WgXcQ') RETURNING id")[0]["id"]
+        self.topic = sql(core, "INSERT INTO topluluk_konulari (kategori, baslik, metin, yazar_id, olusturma, son_hareket) "
+                               "VALUES ('soru', 'Bir soru', 'Metin', %s, now(), now()) RETURNING id",
+                         (self.ayse["id"],))[0]["id"]
+        self.comment = sql(core, "INSERT INTO topluluk_yorumlari (konu_id, yazar_id, metin, olusturma) VALUES "
+                                 "(%s, %s, 'Yorum', now()) RETURNING id", (self.topic, self.ayse["id"]))[0]["id"]
         self.ids = {"user": self.ayse["id"], "office": self.office, "ticket": self.ticket["no"],
                     "attachment": self.ticket["ekler"][0]["id"], "application": self.application,
-                    "module": users.AGENTS, "video": self.video}
+                    "module": users.AGENTS, "video": self.video, "topic": self.topic, "comment": self.comment}
 
     def path(self, template):
         return template.format(**self.ids)
@@ -176,6 +181,12 @@ ENDPOINTS = [
     ("POST", "egitim", {"baglanti": "https://youtu.be/dQw4w9WgXcQ", "baslik": "Yeni video"}),
     ("POST", "egitim/{video}", {"baglanti": "https://youtu.be/dQw4w9WgXcQ", "baslik": "Değişen video"}),
     ("POST", "egitim/{video}/sil", {}),
+    ("GET", "topluluk", None),
+    ("GET", "topluluk/{topic}", None),
+    ("POST", "topluluk/{topic}", {"sabit": True}),
+    ("POST", "topluluk/{topic}/sil", {}),
+    ("POST", "topluluk/yorum/{comment}", {"gizli": True}),
+    ("POST", "topluluk/yorum/{comment}/sil", {}),
 ]
 POSTS = [endpoint for endpoint in ENDPOINTS if endpoint[0] == "POST"]
 

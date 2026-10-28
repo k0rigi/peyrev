@@ -288,6 +288,8 @@ main:focus { outline: none; }
 
 .learn { display: grid; gap: 24px; align-items: center; }
 .learn > div { display: grid; gap: 12px; }
+.learn-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.page-hero .lead a { color: var(--gold-on-night); }
 @media (min-width: 820px) { .learn { grid-template-columns: minmax(0, 1fr) auto; } }
 
 .download { display: grid; gap: 28px; align-items: center; }
@@ -390,6 +392,79 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin:
 .notice { padding: 40px 24px; border-radius: var(--radius); border: 1px dashed var(--line); text-align: center; color: var(--muted);
   background: var(--surface); display: grid; gap: 8px; justify-items: center; }
 .notice strong { color: var(--text); font-size: 1.125rem; }
+
+/* ----- topluluk ------------------------------------------------------------------------------- */
+.page-hero-small { padding: 48px 0 36px; }
+.band-tight { padding: 40px 0 80px; }
+.community { display: grid; gap: 18px; }
+.community-gate { display: grid; gap: 20px; align-items: start; }
+@media (min-width: 900px) { .community-gate { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.community-login { gap: 14px; }
+.community-login input, .community-form input:not([type="file"]), .community-form select, .community-form textarea,
+.community-search input {
+  font: inherit; font-weight: 400; color: var(--text); width: 100%; min-height: 46px; padding: 10px 14px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
+}
+.community-form textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
+.community-form textarea:focus, .community-form select:focus, .community-search input:focus {
+  border-color: var(--link); box-shadow: 0 0 0 3px rgb(227 183 101 / 0.25); outline: none; }
+.community-login .button, .community-form .button { justify-self: start; }
+.community-about { gap: 14px; }
+.community-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.community-bar p { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.community-bar-actions { display: flex; gap: 8px; }
+.community-tools { display: grid; gap: 12px; }
+@media (min-width: 900px) { .community-tools { grid-template-columns: minmax(0, 1fr) minmax(260px, 360px); align-items: center; } }
+.community-tools .filters { margin: 0; }
+.community-search { display: flex; gap: 8px; }
+.community-search input { min-height: 40px; }
+.community-topics { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.community-card, .community-topic { display: grid; gap: 8px; padding: 20px 22px; border-radius: 16px; background: var(--surface);
+  border: 1px solid var(--line); box-shadow: var(--shadow); }
+.community-card.is-pinned { border-color: var(--gold); }
+.community-card h3 { font-size: 1.125rem; }
+.community-card h3 a { color: var(--text); text-decoration: none; }
+.community-card h3 a:hover { text-decoration: underline; }
+.community-card-head { display: flex; flex-wrap: wrap; gap: 6px; }
+.community-excerpt { color: var(--muted); font-size: 0.9375rem; }
+.community-meta { color: var(--muted); font-size: 0.8125rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; }
+.community-author { display: inline-flex; align-items: center; gap: 6px; color: var(--text); font-weight: 650; }
+.community-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.community-topic { gap: 14px; padding: 26px; }
+.community-topic h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+.community-back { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.9375rem; justify-self: start; }
+.community-back:hover { color: var(--text); }
+.community .community-subtitle { font-size: 1.375rem; letter-spacing: -0.02em; margin-top: 8px; }
+.community .community-form h2, .community .community-login h2, .community .community-about h2 { font-size: 1.5rem; }
+.community-topic > .button { justify-self: start; }
+.community-replies { display: grid; gap: 10px; }
+.community-reply { display: grid; gap: 6px; padding: 16px 18px; border-radius: 14px; background: var(--surface);
+  border: 1px solid var(--line); }
+.community-reply .button { justify-self: start; }
+.community-form { gap: 14px; }
+.community-pager { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; }
+.community-flow { display: grid; gap: 12px; padding: 18px 20px; border-radius: 14px; background: var(--surface-2);
+  border: 1px solid var(--line); }
+.community-flow-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.community-flow h2 { font-size: 1.125rem; }
+.community-steps { margin: 8px 0 0; padding-left: 22px; display: grid; gap: 4px; font-size: 0.9375rem; }
+.community-steps code { font-size: 0.75rem; color: var(--muted); }
+.community-steps li[data-derinlik="1"] { margin-left: 16px; }
+.community-steps li[data-derinlik="2"] { margin-left: 32px; }
+.community-steps li[data-derinlik="3"] { margin-left: 48px; }
+.community-steps li[data-derinlik="4"], .community-steps li[data-derinlik="5"], .community-steps li[data-derinlik="6"] { margin-left: 64px; }
+.community-steps li.is-risky { color: var(--danger); font-weight: 650; }
+.community details > summary { cursor: pointer; font-weight: 650; }
+.chip { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+  background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.chip-duyuru, .chip-pin { background: rgb(227 183 101 / 0.18); color: var(--link); border-color: transparent; }
+.chip-akis, .chip-flow { background: rgb(48 71 224 / 0.10); color: #3047e0; border-color: transparent; }
+.chip-soru { background: rgb(46 107 53 / 0.10); color: var(--ok); border-color: transparent; }
+@media (prefers-color-scheme: dark) { .chip-akis, .chip-flow { color: #9fb0ff; } }
+.tag-team { background: var(--text); color: var(--bg); text-transform: none; }
+.button-quiet-dark { color: var(--muted); background: transparent; border-color: var(--line); }
+.button-quiet-dark:hover { color: var(--danger); border-color: var(--danger); }
 
 /* ----- indirme sayfaları (kişisel bağlantı ve /indir/ bilgisi) --------------------------------------- */
 .download-page { max-width: 760px; }

@@ -18,6 +18,7 @@ from ..support import answer_ticket, file_response, list_tickets, open_ticket, t
 from . import auth, service
 from . import egitim as training
 from . import indirme as downloads
+from . import topluluk as community
 
 PREFIX = "/api/yonetim"
 USERS_PAGE = 50
@@ -327,6 +328,35 @@ def api_blueprint(core) -> Blueprint:
     def training_delete(video_id: int):
         json_body(set())
         return ok(video=training.delete(core, me(), video_id))
+
+    # ----- topluluk moderasyonu -------------------------------------------------------------------
+    @blueprint.get("/topluluk")
+    def community_list():
+        return ok(**community.listing(core, me(), kategori=_optional(request.args.get("kategori")),
+                                      ara=_optional(request.args.get("ara")), sayfa=_page(request.args.get("sayfa"))))
+
+    @blueprint.get("/topluluk/<int:topic_id>")
+    def community_detail(topic_id: int):
+        return ok(**community.detail(core, me(), topic_id))
+
+    @blueprint.post("/topluluk/<int:topic_id>")
+    def community_flags(topic_id: int):
+        return ok(**community.set_flags(core, me(), topic_id, json_body(set(community.FLAGS))))
+
+    @blueprint.post("/topluluk/<int:topic_id>/sil")
+    def community_delete(topic_id: int):
+        json_body(set())
+        return ok(konu=community.delete_topic(core, me(), topic_id))
+
+    @blueprint.post("/topluluk/yorum/<int:comment_id>")
+    def community_comment_hide(comment_id: int):
+        data = json_body({"gizli"}, {"gizli"})
+        return ok(**community.hide_comment(core, me(), comment_id, data["gizli"]))
+
+    @blueprint.post("/topluluk/yorum/<int:comment_id>/sil")
+    def community_comment_delete(comment_id: int):
+        json_body(set())
+        return ok(**community.delete_comment(core, me(), comment_id))
 
     @blueprint.get("/olaylar")
     def event_list():

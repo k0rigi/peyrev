@@ -541,3 +541,13 @@ pre {
   .toast, .stat, .btn, input, select, textarea { transition: none; }
   .loading::before { animation: none; }
 }
+
+/* ----- topluluk --------------------------------------------------------------------------------- */
+.message.is-hidden { opacity: 0.55; border-style: dashed; }
+.message .actions { margin-top: 10px; white-space: normal; }
+.flow-summary { margin: 0; padding-left: 22px; display: grid; gap: 4px; font-size: 0.875rem; }
+.flow-summary li[data-derinlik="1"] { margin-left: 16px; }
+.flow-summary li[data-derinlik="2"] { margin-left: 32px; }
+.flow-summary li[data-derinlik="3"] { margin-left: 48px; }
+.flow-summary li[data-derinlik="4"], .flow-summary li[data-derinlik="5"], .flow-summary li[data-derinlik="6"] { margin-left: 64px; }
+.flow-summary li.is-risky { color: var(--danger); font-weight: 600; }

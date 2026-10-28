@@ -45,9 +45,10 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     from .agents import create_blueprint as agents
     from .llm import create_blueprint as llm
     from .support import create_blueprint as support
+    from .topluluk import create_blueprint as community
 
     for blueprint in (health.create_blueprint(core), egitim.create_blueprint(core), indirme.create_blueprint(core),
-                      accounts(core), support(core), agents(core), llm(core), admin(core)):
+                      accounts(core), support(core), community(core), agents(core), llm(core), admin(core)):
         app.register_blueprint(blueprint)
     app.config["PEYREV_VERSION"] = __version__
     return app

@@ -271,11 +271,12 @@ def test_style_and_script_addresses_carry_the_current_content_stamp():
     Değiştirdiyseniz: python tools/surum-damgasi.py"""
     import hashlib
 
-    pages = [WEB / "index.html", WEB / "egitim" / "index.html", WEB.parent / "deploy" / "indir" / "index.html"]
+    pages = [WEB / "index.html", WEB / "egitim" / "index.html", WEB / "topluluk" / "index.html",
+             WEB.parent / "deploy" / "indir" / "index.html"]
     found = []
     for page in pages:
         for name, stamp in re.findall(r'"/assets/([\w.-]+\.(?:css|js))(?:\?v=([0-9a-f]+))?"', page.read_text(encoding="utf-8")):
             expected = hashlib.sha256((WEB / "assets" / name).read_bytes()).hexdigest()[:10]
             assert stamp == expected, f"{page.name}: {name} damgası eski; python tools/surum-damgasi.py çalıştırın"
             found.append(name)
-    assert {"site.css", "site.js", "egitim.js"} <= set(found)
+    assert {"site.css", "site.js", "egitim.js", "topluluk.js"} <= set(found)

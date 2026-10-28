@@ -47,6 +47,10 @@ TYPES = {
     "egitim_silindi": "Eğitim videosu silindi",
     "indirme_baglantisi": "İndirme bağlantısı oluşturuldu",
     "kullanici_silindi": "Hesap silindi",
+    "topluluk_konu": "Topluluk konusu düzenlendi",
+    "topluluk_konu_silindi": "Topluluk konusu silindi",
+    "topluluk_yorum": "Topluluk yorumu gizlendi veya açıldı",
+    "topluluk_yorum_silindi": "Topluluk yorumu silindi",
 }
 
 
