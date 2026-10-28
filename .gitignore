@@ -14,3 +14,7 @@ build/
 secrets/
 # Şifreli sunucu raporlarının açılmış hali (tools/rapor-coz.py); kişisel veri içerir
 raporlar/
+
+# İç kurallar ve skill'ler yalnız bu bilgisayarda (depo herkese açık)
+CLAUDE.md
+.claude/
