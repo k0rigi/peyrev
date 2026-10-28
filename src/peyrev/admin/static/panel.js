@@ -50,7 +50,7 @@
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
-    sira: 'Sıra', eposta: 'E-posta',
+    sira: 'Sıra', eposta: 'E-posta', silinen_basvuru: 'Silinen başvuru',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -851,6 +851,14 @@
         say(user.giris + ' etkinleştirildi.', 'ok');
         refresh(id);
       }, { confirm: user.giris + ' yeniden etkinleştirilsin mi?' });
+    const remove = self ? null : button('Hesabı kalıcı olarak sil', async () => {
+      const typed = window.prompt('Bu hesap kalıcı olarak silinecek: lisans hakları, oturumlar, destek talepleri, ajan '
+        + 'ofisleri ve başvurusu da gider. Geri alınamaz.\n\nOnaylamak için giriş adını aynen yazın: ' + user.giris);
+      if (typed === null) return;
+      await api(path + '/sil', { giris: typed.trim() });
+      say(user.giris + ' hesabı silindi.', 'ok');
+      location.hash = '#kullanicilar';
+    }, { kind: 'danger' });
     const reset = user.iki_adim && !self ? button('İki adımlı doğrulamayı sıfırla', async () => {
       await api(path + '/iki-adim-sifirla', {});
       say('İki adımlı doğrulama sıfırlandı.', 'ok');
@@ -864,7 +872,7 @@
       ]),
       details,
       roleForm,
-      status || reset ? h('div', { class: 'actions' }, [status, reset]) : null,
+      status || reset || remove ? h('div', { class: 'actions' }, [status, reset, remove]) : null,
     ]);
   }
 

@@ -230,6 +230,11 @@ def api_blueprint(core) -> Blueprint:
         data = json_body({"sifre"}, {"sifre"})
         return ok(kullanici=service.set_password(core, me(), user_id, data["sifre"]))
 
+    @blueprint.post("/kullanicilar/<int:user_id>/sil")
+    def user_delete(user_id: int):
+        data = json_body({"giris"}, {"giris"})
+        return ok(kullanici=service.delete_user(core, me(), user_id, data["giris"]))
+
     @blueprint.post("/kullanicilar/<int:user_id>/indirme")
     def user_download(user_id: int):
         data = json_body({"eposta"}, {"eposta"})

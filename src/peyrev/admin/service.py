@@ -177,6 +177,26 @@ def set_password(core, admin_id: int, user_id: int, sifre: Any) -> dict[str, Any
     return {"kullanici_id": user_id, "kapatilan_panel_oturumu": closed}
 
 
+def delete_user(core, admin_id: int, user_id: int, giris: Any) -> dict[str, Any]:
+    """Hesabı kalıcı olarak siler; `giris` hesabın giriş adıyla aynı yazılmalıdır (kazara silmeye karşı).
+    Lisans hakları, Studio ve panel oturumları, şifre kodları, destek talepleri ve ekleri, ajan ofisleri, görevleri ve
+    onayları, ortak model işleri ve indirme bağlantıları hesapla birlikte gider (CASCADE); hesabın başvuruları da
+    silinir. Geri alınamaz. Yönetici kendini silemez. Olay kaydında yalnız giriş adı kalır."""
+    with core.db.transaction() as cur:
+        require_admin(cur, admin_id)
+        if user_id == admin_id:
+            raise ApiError("Kendi hesabınızı silemezsiniz.")
+        user = _account(cur, user_id)
+        if not isinstance(giris, str) or giris.strip() != user["giris"]:
+            raise ApiError("Silmeyi onaylamak için hesabın giriş adını aynen yazın.")
+        cur.execute("DELETE FROM basvurular WHERE kullanici_id = %s OR lower(eposta) = lower(%s)", (user_id, user["giris"]))
+        applications = cur.rowcount
+        cur.execute("DELETE FROM kullanicilar WHERE id = %s", (user_id,))
+        events.record(core, cur, admin_id, "kullanici_silindi", f"kullanici:{user_id}", giris=user["giris"],
+                      silinen_basvuru=applications)
+    return {"kullanici_id": user_id, "giris": user["giris"], "silindi": True}
+
+
 def set_role(core, admin_id: int, user_id: int, rol: Any) -> dict[str, Any]:
     """'kullanici' ya da 'yonetici'. Yönetici kendi yetkisini kaldıramaz; yetkisi kalkan hesabın panel oturumları kapanır.
     Studio lisansı rolden etkilenir: yönetici MOD_RPA satırı olmadan da Studio'yu kullanır, kullanıcı satır ister."""

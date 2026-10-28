@@ -46,6 +46,10 @@ satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
   girilir; yalnız 11 karakterlik video kimliği saklanır (`egitim_videolari`). Herkese açık liste `GET /api/egitim`,
   yalnız yayındaki videolar. Sayfa küçük resmi i.ytimg.com'dan gösterir, oynatıcıyı ziyaretçi oynat'a basınca
   youtube-nocookie.com'dan açar; sayfanın CSP kuralı yalnız bu iki adrese izin verir.
+- **Hesap silme:** hesabın Bilgiler bölümündeki "Hesabı kalıcı olarak sil" (`POST /api/yonetim/kullanicilar/<id>/sil`,
+  gövdede giriş adı aynen yazılır). Lisans hakları, oturumlar, şifre kodları, destek talepleri, ajan ofisleri ve
+  görevleri, ortak model işleri, indirme bağlantıları ve hesabın başvuruları birlikte silinir; geri alınamaz. Yönetici
+  kendini silemez; olay kaydında yalnız giriş adı kalır. Geçici olarak kapatmak için hesap pasif yapılır.
 - **Şifre:** yeni hesap açılırken yönetici şifreyi kendisi belirleyebilir ("Üret" rastgele bir şifre yazar ve gösterir)
   ya da kişiye tek kullanımlık şifre kodu verilir. Var olan hesabın şifresi ayrıntıdaki Şifre bölümünden belirlenir
   (`POST /api/yonetim/kullanicilar/<id>/sifre`): açık şifre kodları harcanır, hesabın panel oturumları kapanır, Studio

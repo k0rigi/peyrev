@@ -46,6 +46,7 @@ TYPES = {
     "egitim_degisti": "Eğitim videosu değişti",
     "egitim_silindi": "Eğitim videosu silindi",
     "indirme_baglantisi": "İndirme bağlantısı oluşturuldu",
+    "kullanici_silindi": "Hesap silindi",
 }
 
 

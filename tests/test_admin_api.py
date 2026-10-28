@@ -160,6 +160,7 @@ ENDPOINTS = [
     ("POST", "kullanicilar/{user}/sifre-kodu", {}),
     ("POST", "kullanicilar/{user}/sifre", {"sifre": "Yeni12345"}),
     ("POST", "kullanicilar/{user}/indirme", {"eposta": False}),
+    ("POST", "kullanicilar/{user}/sil", {"giris": "ayse@ornek.test"}),
     ("POST", "kullanicilar/{user}/oturumlari-kapat", {}),
     ("POST", "kullanicilar/{user}/iki-adim-sifirla", {}),
     ("POST", "ofisler/{office}/durum", {"durum": "pasif"}),
@@ -926,3 +927,30 @@ def test_events_are_listed_newest_first_with_filters_and_pages(core, world, brow
     [moved] = get(browser, "olaylar?tur=tasima_tamamlandi").get_json()["olaylar"]
     assert (moved["tur_adi"], moved["yonetici"], moved["hedef"], moved["ayrinti"]) == (
         "tasima_tamamlandi", None, None, {"hesap": 3})
+
+
+def test_an_account_is_deleted_with_everything_it_owns_only_with_its_login_typed(app, core, world, browser):
+    user_id = world.ayse["id"]
+    before = {table: sql(core, f"SELECT count(*) AS n FROM {table} WHERE {column} = %s", (user_id,))[0]["n"]
+              for table, column in (("kullanici_modulleri", "kullanici_id"), ("oturumlar", "kullanici_id"),
+                                    ("destek_talepleri", "kullanici_id"), ("ajan_ofisleri", "sahip_id"))}
+    assert all(before.values()), before
+    for typed in ("", "AYSE@ornek.test", "ayse"):
+        answer = post(browser, f"kullanicilar/{user_id}/sil", {"giris": typed})
+        assert (answer.status_code, answer.get_json()["message"]) == (
+            400, "Silmeyi onaylamak için hesabın giriş adını aynen yazın."), typed
+    own = post(browser, f"kullanicilar/{world.manager['id']}/sil", {"giris": "yonetici@peyrev.test"})
+    assert (own.status_code, own.get_json()["message"]) == (400, "Kendi hesabınızı silemezsiniz.")
+    # Her approved application (same address) goes with the account.
+    sql(core, "UPDATE basvurular SET eposta = 'ayse@ornek.test' WHERE id = %s", (world.application,))
+    deleted = post(browser, f"kullanicilar/{user_id}/sil", {"giris": "ayse@ornek.test"})
+    assert deleted.get_json()["kullanici"] == {"kullanici_id": user_id, "giris": "ayse@ornek.test", "silindi": True}
+    assert sql(core, "SELECT id FROM kullanicilar WHERE id = %s", (user_id,)) == []
+    for table, column in (("kullanici_modulleri", "kullanici_id"), ("oturumlar", "kullanici_id"),
+                          ("destek_talepleri", "kullanici_id"), ("ajan_ofisleri", "sahip_id")):
+        assert sql(core, f"SELECT count(*) AS n FROM {table} WHERE {column} = %s", (user_id,))[0]["n"] == 0, table
+    assert sql(core, "SELECT count(*) AS n FROM basvurular WHERE id = %s", (world.application,))[0]["n"] == 0
+    assert [entry[3] for entry in new_events(core, 0) if entry[1] == "kullanici_silindi"] == [
+        {"giris": "ayse@ornek.test", "silinen_basvuru": 1}]
+    assert get(browser, f"kullanicilar/{user_id}").status_code == 404
+    assert post(browser, f"kullanicilar/{user_id}/sil", {"giris": "ayse@ornek.test"}).status_code == 404
