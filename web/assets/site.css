@@ -393,6 +393,18 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin:
   background: var(--surface); display: grid; gap: 8px; justify-items: center; }
 .notice strong { color: var(--text); font-size: 1.125rem; }
 
+/* ----- indirme sayfaları (kişisel bağlantı ve /indir/ bilgisi) --------------------------------------- */
+.download-page { max-width: 760px; }
+.download-page .card { gap: 16px; }
+.download-page h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); letter-spacing: -0.03em; }
+.download-page p { color: var(--muted); }
+.download-choices { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.download-choice { display: grid; gap: 4px; padding: 20px 22px; border-radius: 16px; text-decoration: none;
+  background: var(--text); color: var(--bg); transition: transform 0.1s ease; }
+.download-choice:hover { transform: translateY(-1px); }
+.download-choice strong { font-size: 1.25rem; color: inherit; }
+.download-choice span { opacity: 0.75; font-size: 0.9375rem; }
+
 /* ----- alt bölüm ------------------------------------------------------------------------------- */
 .site-footer { border-top: 1px solid var(--line); padding: 56px 0 28px; color: var(--muted); font-size: 0.9375rem; }
 .footer-grid { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }

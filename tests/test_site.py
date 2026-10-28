@@ -226,7 +226,7 @@ def test_the_page_loads_nothing_from_another_origin():
         assert node.tag not in ("iframe", "object", "embed", "base"), node.tag
     assert loaded and all(value.startswith("/") and not value.startswith("//") for _tag, value in loaded), loaded
     for _tag, value in loaded:
-        assert (WEB / value.removeprefix("/")).is_file(), value  # every file the page loads exists
+        assert (WEB / value.split("?")[0].removeprefix("/")).is_file(), value  # every file the page loads exists
     assert not re.search(r"@import|url\(|@font-face", STYLE)  # the style sheet loads nothing either; fonts are local
     assert not re.search(r"https?://", SCRIPT)
 
@@ -239,7 +239,8 @@ def test_the_page_follows_its_own_content_security_policy():
     assert not [source for sources in policy.values() for source in sources if source not in ("'self'", "'none'")]
     # No inline script, style or event handler: everything the page runs is /assets/site.js.
     scripts = PAGE.all("script")
-    assert [node.attrs for node in scripts] == [{"src": "/assets/site.js", "defer": None}]
+    assert [{**node.attrs, "src": node.attrs["src"].split("?")[0]} for node in scripts] == [
+        {"src": "/assets/site.js", "defer": None}]
     assert all(not node.text() for node in scripts) and PAGE.all("style") == []
     for node in PAGE.root.walk():
         assert not [name for name in node.attrs if name.startswith("on") or name == "style"], node.tag
@@ -263,3 +264,18 @@ def test_the_links_inside_the_page_have_their_targets():
         for name in ("aria-labelledby", "aria-describedby", "for"):
             if name in node.attrs:
                 assert set(node.attrs[name].split()) <= ids, (node.tag, name)
+
+
+def test_style_and_script_addresses_carry_the_current_content_stamp():
+    """Tarayıcı stil ve betiği 7 gün saklar; adres içeriğin özetini taşımazsa değişiklik görünmez.
+    Değiştirdiyseniz: python tools/surum-damgasi.py"""
+    import hashlib
+
+    pages = [WEB / "index.html", WEB / "egitim" / "index.html", WEB.parent / "deploy" / "indir" / "index.html"]
+    found = []
+    for page in pages:
+        for name, stamp in re.findall(r'"/assets/([\w.-]+\.(?:css|js))(?:\?v=([0-9a-f]+))?"', page.read_text(encoding="utf-8")):
+            expected = hashlib.sha256((WEB / "assets" / name).read_bytes()).hexdigest()[:10]
+            assert stamp == expected, f"{page.name}: {name} damgası eski; python tools/surum-damgasi.py çalıştırın"
+            found.append(name)
+    assert {"site.css", "site.js", "egitim.js"} <= set(found)

@@ -76,7 +76,8 @@ def test_both_bundles_of_a_version_share_its_folder_and_each_publishes_only_its_
     assert result["feed"] == "stable.manifest" and not (root / "index.html").exists()
     assert remote["current_version"]("stable.manifest") == "1.1.0" and remote["current_version"]() is None
     result = publish(remote, bundle(tmp_path / "peyrev.tar.gz", "1.1.0", "guncelleme.manifest", DOWNLOAD), "1.1.0")
-    assert result["feed"] == "guncelleme.manifest" and (root / "index.html").is_file()
+    # The bundle's download page is never installed: /indir/ keeps the notice that the deploy writes.
+    assert result["feed"] == "guncelleme.manifest" and not (root / "index.html").exists()
     assert sorted(item.name for item in (root / "releases" / "1.1.0").iterdir()) == sorted({**DOWNLOAD, **UPDATE})
     assert remote["inspect_root"]()["transition_version"] == remote["inspect_root"]()["current_version"] == "1.1.0"
 

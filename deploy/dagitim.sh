@@ -85,6 +85,10 @@ adim "Statik site"
 SITE_USER=$(stat -c %U "/home/$SITE")
 rsync -a --delete --exclude '/indir/' --exclude '/.well-known/' --chown="$SITE_USER:$SITE_USER" --chmod=D755,F644 \
   "$REL/web/" "$WEB/"
+# /indir/ holds the signed update feeds and installers (installed apps update from there); its page is only a notice,
+# installers go out as personal links (/api/indir/<anahtar>).
+install -d -m 755 -o "$SITE_USER" -g "$SITE_USER" "$WEB/indir"
+install -m 644 -o "$SITE_USER" -g "$SITE_USER" "$REL/deploy/indir/index.html" "$WEB/indir/index.html"
 ls -la "$WEB" | sed 's/^/  /'
 
 adim "Temizlik"

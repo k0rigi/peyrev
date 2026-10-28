@@ -61,7 +61,7 @@ jobs:
       - name: Arşiv
         id: arsiv
         run: |
-          git archive --format=tar.gz -o peyrev.tar.gz HEAD src web deploy/requirements.lock pyproject.toml
+          git archive --format=tar.gz -o peyrev.tar.gz HEAD src web deploy/requirements.lock deploy/indir pyproject.toml
           echo "sha=$(sha256sum peyrev.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - name: Sunucuya dağıt
         env:

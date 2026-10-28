@@ -2,7 +2,7 @@
 
 Bu depo (`k0rigi/peyrev`, yerel kopya `~/Desktop/peyrev`) peyrev.com'un merkezi sunucusudur: lisans ve hesaplar, şifre
 işlemleri, bireysel başvurular, destek talepleri, ajan ofisleri, ortak model erişimi, yönetim paneli (`/yonetim/`),
-ana sayfa ve indirme sayfası (`/indir/`). Python 3.12, Flask 3, Gunicorn, PostgreSQL 16. Masaüstü uygulaması
+ana sayfa, eğitim sayfası, güncelleme dosyaları (`/indir/`) ve kişiye özel indirme bağlantıları. Python 3.12, Flask 3, Gunicorn, PostgreSQL 16. Masaüstü uygulaması
 **Peyrev Studio** ayrı depodadır: `k0rigi/peyrev-studio`, yerel kopya `/Users/k0rigi/Desktop/Web projeleri/peyrev-studio`
 (kendi CLAUDE.md'si geçerlidir). Arayüz, belgeler, commit mesajları ve kullanıcıya dönük tüm metinler Türkçedir.
 
@@ -67,13 +67,14 @@ Sunucu işi başlatmak: `POST /repos/k0rigi/peyrev/actions/workflows/sunucu.yml/
 | --- | --- |
 | `src/peyrev/app.py`, `common.py`, `config.py`, `core.py`, `db.py` | Uygulama fabrikası, ortak hata biçimi ve güvenlik başlıkları, kanonik adres (www → https://peyrev.com), HSTS, ayarlar, veritabanı havuzu |
 | `src/peyrev/accounts/` | Studio lisansı (`licensing.py`, protokol 2), oturumlar, şifre işlemleri, başvurular ve uzatma istekleri, deneme sınırları ve sahte özetle süre eşitleme (`rules.py`) |
+| `src/peyrev/indirme.py`, `admin/indirme.py`, `eposta.py` | Kişiye özel indirme bağlantıları (`/api/indir/<anahtar>`), ödeme onayında müşteriye e-posta |
 | `src/peyrev/egitim.py`, `admin/egitim.py` | Ücretsiz eğitim videoları: herkese açık liste ve panelden yönetim (YouTube kimliği saklanır) |
 | `src/peyrev/support/` | Destek talepleri ve bildirimler (Telegram, e-posta; `/etc/peyrev/destek.env`) |
 | `src/peyrev/agents/`, `src/peyrev/llm/` | Ajan ofisleri, görevler, onaylar; ortak model kuyruğu (sunucuda kapalı: işlemcide AVX yok) |
 | `src/peyrev/admin/` | Yönetim paneli: kimlik, iki adımlı doğrulama, CSRF, uçlar, sayfa (`static/panel.js`, `panel.css`) |
 | `src/peyrev/migrations/` | Veritabanı geçişleri (`python -m peyrev.migrate`) |
 | `web/` | Statik site: ana sayfa ve başvuru formu, `egitim/` (videolar `/api/egitim`'den), `assets/ekran/` (Studio'dan alınmış ekran görüntüleri), `.htaccess` (www ve http yönlendirmesi) |
-| `deploy/` | Sunucuda çalışan betikler (kurulum, dağıtım, destek ayarları, deneme hesabı) ve özetli bağımlılıklar |
+| `deploy/` | Sunucuda çalışan betikler (kurulum, dağıtım, destek ayarları, deneme hesabı), özetli bağımlılıklar ve `/indir/` bilgi sayfası (`deploy/indir/`) |
 | `.github/workflows/` | Testler, Dağıtım, Sunucu işleri, Studio yayını, Destek bildirim ayarları |
 | `tools/rapor-coz.py` | Şifreli sunucu raporlarını açar |
 

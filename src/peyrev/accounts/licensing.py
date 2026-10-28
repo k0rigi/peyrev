@@ -61,8 +61,8 @@ def outdated(core, data: dict) -> ApiError | None:
     if (version_tuple(data.get("surum")) >= MINIMUM_VERSION and type(data.get("protokol")) is int
             and data["protokol"] >= PROTOCOL and valid_nonce(data.get("nonce"))):
         return None
-    return ApiError(f"Bu Peyrev sürümü artık desteklenmiyor. Güncel sürümü {core.settings.public_base}/indir/ "
-                    "adresinden kurun.", 403, "YETKI_YOK", neden="ESKI_SURUM")
+    return ApiError("Bu Peyrev sürümü artık desteklenmiyor. Güncel sürümün indirme bağlantısı için info@peyrev.com "
+                    "adresine yazın.", 403, "YETKI_YOK", neden="ESKI_SURUM")
 
 
 def license_refusal(cur: Cursor, user: dict[str, Any], today: date) -> tuple[ApiError | None, date | None]:

@@ -278,9 +278,8 @@ def publish(version, expected_hash, token):
                         os.rename(source / name, existing)
             else:
                 os.rename(source, target)
-            # Publish the discoverable feed only after every package is in place.
-            if 'index.html' in known:
-                os.replace(staging / 'index.html', ROOT / 'index.html')
+            # Publish the discoverable feed only after every package is in place. The bundle's download page is not
+            # installed: /indir/ shows the notice that deploy/dagitim.sh writes, installers go out as personal links.
             os.replace(staging / feed, ROOT / feed)
         return {'ok': True, 'action': 'publish', 'version': version, 'feed': feed,
                 'package_count': len(expected_names)}

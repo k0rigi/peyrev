@@ -16,7 +16,7 @@ import psycopg
 from psycopg import Cursor
 from werkzeug.security import generate_password_hash
 
-from .. import users
+from .. import indirme, users
 from ..accounts import applications, rules
 from ..agents import admin as agents_admin
 from ..common import ApiError
@@ -107,13 +107,14 @@ def user_detail(core, admin_id: int, user_id: int) -> dict[str, Any]:
         tickets = cur.fetchone()
         cur.execute("SELECT id, paket, olusturma, karar_zamani FROM basvurular WHERE kullanici_id = %s", (user_id,))
         application = cur.fetchone()
+        download = indirme.status(cur, user_id, core.clock.now())
     offices = agents_admin.user_offices(core, user_id)
     for office in offices["ofisler"]:
         for key in ("olusturma", "guncelleme"):
             office[key] = rules.stamp(datetime.fromisoformat(office[key])) if office[key] else None
     return {"kullanici": account, "oturumlar": studio,
             "ofisler": {"sinir": offices["ofis_siniri"], "liste": offices["ofisler"]},
-            "destek": {"toplam": tickets["toplam"], "acik": tickets["acik"]},
+            "destek": {"toplam": tickets["toplam"], "acik": tickets["acik"]}, "indirme": download,
             "basvuru": None if application is None else {
                 "id": application["id"], "paket": application["paket"], "olusturma": rules.stamp(application["olusturma"]),
                 "karar": rules.stamp(application["karar_zamani"])}}

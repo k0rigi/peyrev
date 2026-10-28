@@ -452,6 +452,7 @@ a.stat { transition: transform 0.15s ease, border-color 0.15s ease; }
 .code {
   font-family: var(--mono); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.08em; user-select: all;
 }
+.code-link { font-size: 0.875rem; letter-spacing: 0; word-break: break-all; }
 
 .rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .steps { margin: 0; padding-left: 22px; display: grid; gap: 6px; }

@@ -150,8 +150,8 @@ def test_old_studio_versions_protocols_and_missing_random_values_are_refused(cli
                      login(client, nonce="AB" * 16), login(client, nonce="ab" * 16 + "\n"), login(client, nonce="a" * 31)):
         body = response.get_json()
         assert response.status_code == 403 and (body["kod"], body["neden"]) == ("YETKI_YOK", "ESKI_SURUM")
-        assert body["message"] == ("Bu Peyrev sürümü artık desteklenmiyor. Güncel sürümü https://peyrev.com/indir/ "
-                                   "adresinden kurun.")
+        assert body["message"] == ("Bu Peyrev sürümü artık desteklenmiyor. Güncel sürümün indirme bağlantısı için "
+                                   "info@peyrev.com adresine yazın.")
     with core.db.transaction() as cur:
         cur.execute("SELECT count(*) AS n FROM oturumlar")
         assert cur.fetchone()["n"] == 0  # refused requests open no session

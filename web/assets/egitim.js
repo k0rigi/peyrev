@@ -77,7 +77,7 @@
     }
     const videos = data.videolar.filter((video) => video && VIDEO.test(String(video.video)));
     if (!videos.length) {
-      empty('Eğitim videoları yakında burada.', 'İlk videolar hazırlanıyor; Peyrev\'i indirip denemeye şimdiden başlayabilirsiniz.');
+      empty('Eğitim videoları yakında burada.', 'İlk videolar hazırlanıyor. Bu arada Peyrev hakkında her şeyi ana sayfada bulabilirsiniz.');
       return;
     }
     list.replaceChildren(...videos.map(card));

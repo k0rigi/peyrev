@@ -159,6 +159,7 @@ ENDPOINTS = [
     ("POST", "kullanicilar/{user}/moduller/{module}/kaldir", {}),
     ("POST", "kullanicilar/{user}/sifre-kodu", {}),
     ("POST", "kullanicilar/{user}/sifre", {"sifre": "Yeni12345"}),
+    ("POST", "kullanicilar/{user}/indirme", {"eposta": False}),
     ("POST", "kullanicilar/{user}/oturumlari-kapat", {}),
     ("POST", "kullanicilar/{user}/iki-adim-sifirla", {}),
     ("POST", "ofisler/{office}/durum", {"durum": "pasif"}),

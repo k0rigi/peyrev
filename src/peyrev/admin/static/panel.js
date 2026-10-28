@@ -50,7 +50,7 @@
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
-    sira: 'Sıra',
+    sira: 'Sıra', eposta: 'E-posta',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -791,6 +791,7 @@
         h('div', { class: 'detail-grid' }, [
           h('div', { class: 'detail-col' }, [
             rightsSection(user, path, refresh),
+            downloadSection(user, data.indirme, path, refresh),
             passwordAdminSection(user, path, refresh),
             accountSection(user, path, refresh),
           ]),
@@ -961,6 +962,46 @@
     ];
   }
 
+  const MAIL_STATES = {
+    gonderildi: 'E-postayla gönderildi.', istenmedi: 'E-posta gönderilmedi; bağlantıyı aşağıdan kopyalayın.',
+    adres_yok: 'Hesabın giriş adı bir e-posta adresi değil; bağlantıyı aşağıdan kopyalayıp iletin.',
+    ayar_yok: 'E-posta ayarı yok; bağlantıyı aşağıdan kopyalayıp iletin.',
+    gonderilemedi: 'E-posta gönderilemedi; bağlantıyı aşağıdan kopyalayıp iletin.',
+  };
+
+  function downloadSection(user, current, path, refresh) {
+    const id = 'bolum-indirme';
+    const result = h('div');
+    const create = async (mail) => {
+      const data = (await api(path + '/indirme', { eposta: mail })).indirme;
+      const url = data.baglanti;
+      result.replaceChildren(h('div', { class: 'code-box' }, [
+        h('p', { text: MAIL_STATES[data.eposta] || data.eposta }),
+        h('p', { class: 'code code-link', tabindex: '-1', text: url }),
+        h('p', { class: 'muted', text: day(data.gecerlilik) + ' saatine kadar geçerli. Önceki bağlantı iptal oldu. '
+          + 'Bağlantı bir daha gösterilmez.' }),
+        h('div', { class: 'actions' }, [button('Bağlantıyı kopyala', () => copy(url, 'Bağlantı'))]),
+      ]));
+      result.querySelector('.code').focus();
+      say(MAIL_STATES[data.eposta] || 'Bağlantı oluşturuldu.', data.eposta === 'gonderildi' || !mail ? 'ok' : 'error');
+    };
+    const mailable = /@/.test(user.giris);
+    const state = current
+      ? (current.gecerli ? 'Geçerli · ' + day(current.gecerlilik) + ' saatine kadar' : 'Süresi doldu ya da iptal edildi')
+        + ' · ' + current.kullanim + ' kez indirildi' : 'Henüz bağlantı gönderilmedi';
+    return section(id, 'İndirme bağlantısı', [
+      h('div', { class: 'pills' }, [pill(state, current && current.gecerli ? 'ok' : '')]),
+      h('p', { class: 'muted', text: 'Peyrev\'in kurulum dosyaları sitede herkese gösterilmez; kişi kendi bağlantısıyla '
+        + 'indirir. Bağlantı 30 gün geçerlidir, yenisi eskisini iptal eder. Ödeme onayında kendiliğinden gönderilir.' }),
+      h('div', { class: 'actions' }, [
+        mailable ? button('E-postayla gönder', () => create(true), { kind: 'primary',
+          confirm: user.giris + ' adresine yeni indirme bağlantısı gönderilsin mi?' }) : null,
+        button('Yalnız bağlantı oluştur', () => create(false)),
+      ]),
+      result,
+    ]);
+  }
+
   function studioSection(sessions, path, refresh) {
     const id = 'bolum-studio';
     const intro = h('p', { class: 'muted', text: 'Hesap aynı anda tek bilgisayarda açık olabilir. Kapatılan oturumun Studio\'su en geç 10 dakika içinde giriş ekranına döner.' });
@@ -1069,7 +1110,11 @@
       const body = { baslangic: start.value, bitis: end.value, paket: plan.value };
       if (note.value.trim()) body.not = note.value.trim();
       const result = await api('basvurular/' + item.id + '/onayla', body);
-      say(result.hesap.eposta + ' hesabı açıldı. Kişi Peyrev\'e başvurudaki şifresiyle girebilir.', 'ok');
+      const mailed = result.indirme && result.indirme.eposta === 'gonderildi';
+      say(result.hesap.eposta + ' hesabı açıldı. ' + (mailed
+        ? 'İndirme bağlantısı ve giriş bilgileri e-postayla gönderildi.'
+        : 'İndirme bağlantısı e-postayla gönderilemedi; hesabın sayfasındaki İndirme bölümünden bağlantıyı kopyalayıp iletin.'),
+      mailed ? 'ok' : 'error');
       refreshBadges();
       return reload();
     }, {
@@ -1374,7 +1419,8 @@
     const text = String(value);
     if (/^\d{4}-\d{2}-\d{2}T/.test(text)) return instant(text);
     if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return day(text);
-    let names = Object.assign({ yonetici_belirledi: 'yönetici belirledi' }, ROLES, ACCOUNT_STATES, TICKET_STATES,
+    let names = Object.assign({ yonetici_belirledi: 'yönetici belirledi', gonderildi: 'gönderildi',
+      gonderilemedi: 'gönderilemedi', istenmedi: 'istenmedi', adres_yok: 'adres yok', ayar_yok: 'ayar yok' }, ROLES, ACCOUNT_STATES, TICKET_STATES,
       state.ticketStates || {});
     if (key === 'alanlar') names = DETAIL_LABELS;
     else if (key === 'modul' || key === 'moduller') names = MODULES;

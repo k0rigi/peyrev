@@ -17,6 +17,7 @@ from ..llm import admin as llm_admin
 from ..support import answer_ticket, file_response, list_tickets, open_ticket, ticket_attachment
 from . import auth, service
 from . import egitim as training
+from . import indirme as downloads
 
 PREFIX = "/api/yonetim"
 USERS_PAGE = 50
@@ -229,6 +230,11 @@ def api_blueprint(core) -> Blueprint:
         data = json_body({"sifre"}, {"sifre"})
         return ok(kullanici=service.set_password(core, me(), user_id, data["sifre"]))
 
+    @blueprint.post("/kullanicilar/<int:user_id>/indirme")
+    def user_download(user_id: int):
+        data = json_body({"eposta"}, {"eposta"})
+        return ok(indirme=downloads.send(core, me(), user_id, mail=data["eposta"]))
+
     @blueprint.post("/kullanicilar/<int:user_id>/oturumlari-kapat")
     def user_sessions_close(user_id: int):
         data = json_body({"oturum_id"})
@@ -252,9 +258,16 @@ def api_blueprint(core) -> Blueprint:
     @blueprint.post("/basvurular/<application_id>/onayla")
     def application_approve(application_id: str):
         data = json_body({"baslangic", "bitis", "paket", "not"}, {"bitis"})
-        return ok(hesap=accounts_admin.approve_application(
+        account = accounts_admin.approve_application(
             core, me(), application_id, bitis=data["bitis"], baslangic=_optional(data.get("baslangic")),
-            paket=_optional(data.get("paket")), note=data.get("not")))
+            paket=_optional(data.get("paket")), note=data.get("not"))
+        # The account is open whatever happens next; a failed link or mail is reported, never raised.
+        try:
+            link = downloads.send(core, me(), account["kullanici_id"], mail=True, welcome=True)
+        except Exception:  # noqa: BLE001
+            LOG.exception("Onaylanan hesaba indirme bağlantısı hazırlanamadı (kullanıcı %s).", account["kullanici_id"])
+            link = {"eposta": "gonderilemedi", "baglanti": None}
+        return ok(hesap=account, indirme=link)
 
     @blueprint.post("/basvurular/<application_id>/reddet")
     def application_reject(application_id: str):

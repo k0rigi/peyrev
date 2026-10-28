@@ -39,15 +39,15 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     common.register(app)
     logging.getLogger("peyrev").setLevel(logging.INFO)
 
-    from . import egitim, health
+    from . import egitim, health, indirme
     from .accounts import create_blueprint as accounts
     from .admin import create_blueprint as admin
     from .agents import create_blueprint as agents
     from .llm import create_blueprint as llm
     from .support import create_blueprint as support
 
-    for blueprint in (health.create_blueprint(core), egitim.create_blueprint(core), accounts(core), support(core),
-                      agents(core), llm(core), admin(core)):
+    for blueprint in (health.create_blueprint(core), egitim.create_blueprint(core), indirme.create_blueprint(core),
+                      accounts(core), support(core), agents(core), llm(core), admin(core)):
         app.register_blueprint(blueprint)
     app.config["PEYREV_VERSION"] = __version__
     return app
