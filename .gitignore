@@ -12,3 +12,5 @@ build/
 *.key
 .env
 secrets/
+# Şifreli sunucu raporlarının açılmış hali (tools/rapor-coz.py); kişisel veri içerir
+raporlar/
