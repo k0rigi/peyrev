@@ -19,6 +19,7 @@ on:
           - panel-tani
           - destek-tani
           - eposta-dns
+          - eposta-tani
           - destek-eposta
 
 permissions:
@@ -55,6 +56,7 @@ jobs:
             panel-tani) betik=deploy/panel-tani.sh; ortam='{}' ;;
             destek-tani) betik=deploy/destek-tani.sh; ortam='{}' ;;
             eposta-dns) betik=deploy/eposta-dns.sh; ortam='{}' ;;
+            eposta-tani) betik=deploy/eposta-tani.sh; ortam='{}' ;;
             destek-eposta) betik=deploy/destek-eposta.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
