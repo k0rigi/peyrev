@@ -31,7 +31,7 @@ SESSION_REQUIRED = {"success": False, "kod": "OTURUM_GEREKLI", "message": "Yöne
 SESSION_CLOSED = {"success": False, "kod": "OTURUM_GECERSIZ", "message": "Oturumunuz kapandı. Yeniden giriş yapın."}
 PNG = b"\x89PNG\r\n\x1a\n" + bytes(range(64))
 FLOW = {"adimlar": [{"tur": "window.click", "parametreler": {"hedef": "***"}}]}
-NEW_USER = {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "baslangic": "2026-10-26", "bitis": "2027-10-26"}
+NEW_USER = {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-26", "bitis": "2027-10-26"}
 
 
 def get(client, path):
@@ -474,21 +474,21 @@ def test_a_new_account_gets_a_first_code_that_is_shown_once(app, core, world, br
     assert response.status_code == 201
     data = response.get_json()
     user_id = data["kullanici"]["kullanici_id"]
-    assert data["kullanici"] == {"kullanici_id": user_id, "giris": "BASBUG_1", "rol": "kullanici"}
+    assert data["kullanici"] == {"kullanici_id": user_id, "giris": "ORNEK_7", "rol": "kullanici"}
     assert re.fullmatch(r"[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}", data["kod"]["kod"])
     assert data["kod"]["gecerlilik"] == "2026-11-02 12:00" and "uyari" not in data
     [(admin_id, _kind, target, details)] = [entry for entry in new_events(core, 0) if entry[1] == "kullanici_acildi"]
     assert (admin_id, target) == (world.manager["id"], f"kullanici:{user_id}")
-    assert details == {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "moduller": [users.RPA, users.AGENTS],
+    assert details == {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "moduller": [users.RPA, users.AGENTS],
                        "baslangic": "2026-10-26", "bitis": "2027-10-26", "kod_gecerlilik": later(core, days=7)}
     assert data["kod"]["kod"] not in json.dumps([event["ayrinti"] for event in audit(core)])
     # The person sets a password with the code and signs in to Studio.
     reset = app.test_client().post("/api/rpa/hesap/sifre-yenile", json={
-        "kullanici": "basbug_1", "kod": data["kod"]["kod"], "yeni_sifre": "Basbug2026"})
+        "kullanici": "ornek_7", "kod": data["kod"]["kod"], "yeni_sifre": "Ornek2026x"})
     assert reset.status_code == 200, reset.get_json()
-    assert studio_login(app.test_client(), kullanici="BASBUG_1", sifre="Basbug2026").status_code == 200
+    assert studio_login(app.test_client(), kullanici="ORNEK_7", sifre="Ornek2026x").status_code == 200
     # The same user name, or one that is the part before "@" of an address, signs in already: refused.
-    for login in ("basbug_1", "AYSE"):
+    for login in ("ornek_7", "AYSE"):
         taken = post(browser, "kullanicilar", {**NEW_USER, "giris": login})
         assert (taken.status_code, taken.get_json()) == (409, {
             "success": False, "kod": "HESAP_VAR",
@@ -498,16 +498,16 @@ def test_a_new_account_gets_a_first_code_that_is_shown_once(app, core, world, br
 def test_a_new_account_can_be_opened_with_a_password_the_administrator_chooses(app, core, world, browser):
     weak = post(browser, "kullanicilar", {**NEW_USER, "sifre": "kisa"})
     assert (weak.status_code, weak.get_json()["message"]) == (400, "Şifre 8-128 karakter olmalıdır.")
-    assert sql(core, "SELECT id FROM kullanicilar WHERE giris = 'BASBUG_1'") == []
-    response = post(browser, "kullanicilar", {**NEW_USER, "sifre": "Basbug2026"})
+    assert sql(core, "SELECT id FROM kullanicilar WHERE giris = 'ORNEK_7'") == []
+    response = post(browser, "kullanicilar", {**NEW_USER, "sifre": "Ornek2026x"})
     assert response.status_code == 201
     data = response.get_json()
     user_id = data["kullanici"]["kullanici_id"]
     assert "kod" not in data and sql(core, f"SELECT id FROM sifre_kodlari WHERE kullanici_id = {user_id}") == []
-    assert studio_login(app.test_client(), kullanici="BASBUG_1", sifre="Basbug2026").status_code == 200
+    assert studio_login(app.test_client(), kullanici="ORNEK_7", sifre="Ornek2026x").status_code == 200
     [details] = [entry[3] for entry in new_events(core, 0) if entry[1] == "kullanici_acildi"]
     assert details["sifre"] == "yonetici_belirledi" and "kod_gecerlilik" not in details
-    assert "Basbug2026" not in json.dumps([event["ayrinti"] for event in audit(core)])
+    assert "Ornek2026x" not in json.dumps([event["ayrinti"] for event in audit(core)])
     # An empty password field means "send a code", as before.
     assert "kod" in post(browser, "kullanicilar", {**NEW_USER, "giris": "ikinci", "sifre": ""}).get_json()
 
@@ -541,7 +541,7 @@ def test_a_new_administrator_account_is_opened_and_the_role_follows(app, core, w
     assert created["kullanici"]["rol"] == "yonetici" and "uyari" not in created
     user_id = created["kullanici"]["kullanici_id"]
     assert [entry[1:] for entry in new_events(core, 0) if entry[2] == f"kullanici:{user_id}"] == [
-        ("kullanici_acildi", f"kullanici:{user_id}", {"giris": "ikinci@peyrev.test", "ad_soyad": "Basbuğ Bir",
+        ("kullanici_acildi", f"kullanici:{user_id}", {"giris": "ikinci@peyrev.test", "ad_soyad": "Örnek Yedi",
                                                       "moduller": [users.RPA], "baslangic": "2026-10-26",
                                                       "bitis": "2027-10-26",
                                                       "kod_gecerlilik": later(core, days=7)}),

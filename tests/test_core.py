@@ -44,11 +44,11 @@ def test_www_and_plain_http_go_to_the_canonical_https_address(client):
 
 def test_login_names_match_case_insensitively_and_by_short_name(core):
     ayse = make_user(core, "Ayse@Firma.Test")
-    make_user(core, "BASBUG_1")
+    make_user(core, "ORNEK_7")
     with core.db.transaction() as cur:
         assert [row["id"] for row in users.find_by_login(cur, "ayse@firma.test")] == [ayse["id"]]
         assert [row["id"] for row in users.find_by_login(cur, "AYSE")] == [ayse["id"]]
-        assert [row["giris"] for row in users.find_by_login(cur, "basbug_1")] == ["BASBUG_1"]
+        assert [row["giris"] for row in users.find_by_login(cur, "ornek_7")] == ["ORNEK_7"]
         assert users.find_by_login(cur, "  ") == []
 
 

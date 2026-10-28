@@ -51,7 +51,7 @@ def test_only_an_active_administrator_may_act(core, manager):
              (admin.close_sessions, (staff["id"],)), (admin.set_status, (staff["id"], "pasif")),
              (admin.set_module, (staff["id"], users.AGENTS), {"bitis": None}),
              (admin.remove_module, (staff["id"], users.RPA)), (admin.reject_application, ("a" * 32,)),
-             (admin.create_user, (), {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "baslangic": "2026-10-26",
+             (admin.create_user, (), {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-26",
                                       "bitis": "2027-10-26"})]
     for call, args, *options in calls:
         for actor in (staff["id"], retired["id"], 999999):
@@ -250,32 +250,32 @@ def test_a_passive_account_cannot_sign_in_and_its_sessions_close(client, core, m
 
 
 def test_an_account_opened_by_the_administrator_sets_its_first_password_with_a_seven_day_code(client, core, manager):
-    options = {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "baslangic": "2026-10-18", "bitis": "2027-09-27",
+    options = {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-18", "bitis": "2027-09-27",
                "ajan": True}
     preview = admin.create_user(core, manager["id"], **options, onizleme=True)
-    assert preview == {"durum": "hazir", "giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "moduller": ["MOD_RPA", "MOD_AJAN"],
+    assert preview == {"durum": "hazir", "giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "moduller": ["MOD_RPA", "MOD_AJAN"],
                        "baslangic": "2026-10-18", "bitis": "2027-09-27"}
     with core.db.transaction() as cur:
         cur.execute("SELECT count(*) AS n FROM kullanicilar")
         assert cur.fetchone()["n"] == 1 and events(core) == []  # the preview writes nothing
     created = admin.create_user(core, manager["id"], **options)
-    assert created["giris"] == "BASBUG_1" and created["gecerlilik"] == "2026-11-02 12:00"
+    assert created["giris"] == "ORNEK_7" and created["gecerlilik"] == "2026-11-02 12:00"
     user, rights = account(core, created["kullanici_id"])
     assert (user["kaynak"], user["rol"], user["durum"]) == ("yonetim", "kullanici", "aktif")
     assert rights[users.AGENTS] == {"baslangic": date(2026, 10, 18), "bitis": date(2027, 9, 27)} == rights[users.RPA]
     # Nobody knows the first password: the person uses the code with the user name (any letter case).
-    assert login(client, kullanici="BASBUG_1").get_json()["kod"] == "HATALI_GIRIS"
-    reset = client.post("/api/rpa/hesap/sifre-yenile", json={"kullanici": "basbug_1", "kod": created["kod"],
+    assert login(client, kullanici="ORNEK_7").get_json()["kod"] == "HATALI_GIRIS"
+    reset = client.post("/api/rpa/hesap/sifre-yenile", json={"kullanici": "ornek_7", "kod": created["kod"],
                                                               "yeni_sifre": "Yepyeni2027"})
     assert reset.status_code == 200
-    assert studio_license(client, login(client, kullanici="basbug_1", sifre="Yepyeni2027"))["kullanici"] == "BASBUG_1"
+    assert studio_license(client, login(client, kullanici="ornek_7", sifre="Yepyeni2027"))["kullanici"] == "ORNEK_7"
     [event] = events(core, "kullanici_acildi")
-    assert event["ayrinti"] == {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "moduller": ["MOD_RPA", "MOD_AJAN"],
+    assert event["ayrinti"] == {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "moduller": ["MOD_RPA", "MOD_AJAN"],
                                 "baslangic": "2026-10-18", "bitis": "2027-09-27",
                                 "kod_gecerlilik": "2026-11-02T09:00:00+00:00"}
     # A user name also signs in as the part before "@" of any address, so both must be free.
     make_user(core, "ali@ornek.test")
-    for name in ("basbug_1", "ALI", "ali@ornek.test"):
+    for name in ("ornek_7", "ALI", "ali@ornek.test"):
         taken = refused(admin.create_user, core, manager["id"], **{**options, "giris": name})
         assert (taken.status, taken.kod, str(taken)) == (409, "HESAP_VAR",
                                                          "Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin.")
@@ -295,7 +295,7 @@ def test_an_account_opened_by_the_administrator_sets_its_first_password_with_a_s
     ({"ajan": "evet"}, "Ajanlar seçimi geçersiz."),
 ])
 def test_an_invalid_new_account_is_refused_without_writing(core, manager, changes, message):
-    options = {"giris": "BASBUG_1", "ad_soyad": "Basbuğ Bir", "baslangic": "2026-10-18", "bitis": "2027-09-27",
+    options = {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-18", "bitis": "2027-09-27",
                **changes}
     error = refused(admin.create_user, core, manager["id"], **options)
     assert (error.status, error.kod, str(error)) == (400, "GECERSIZ", message)
@@ -334,7 +334,7 @@ def test_recorded_events_carry_no_secrets(client, core, manager):
     apply(client, paket="rpa_ajan")
     result = admin.approve_application(core, manager["id"], pending_id(core), bitis="2027-10-26")
     code = admin.issue_password_code(core, manager["id"], result["kullanici_id"])["kod"]
-    created = admin.create_user(core, manager["id"], giris="BASBUG_1", ad_soyad="Basbuğ Bir", baslangic="2026-10-26",
+    created = admin.create_user(core, manager["id"], giris="ORNEK_7", ad_soyad="Örnek Yedi", baslangic="2026-10-26",
                                 bitis="2027-10-26")
     admin.close_sessions(core, manager["id"], result["kullanici_id"])
     admin.set_status(core, manager["id"], result["kullanici_id"], "pasif")

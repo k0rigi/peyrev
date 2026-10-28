@@ -573,16 +573,16 @@ def test_every_stored_hash_format_has_a_decoy():
 def test_a_migrated_werkzeug_hash_signs_in_and_stays_as_it_is(client, core):
     legacy = generate_password_hash("Eski12345", method="pbkdf2:sha256:260000", salt_length=16)
     assert re.fullmatch(r"pbkdf2:sha256:260000\$[A-Za-z0-9]{16}\$[0-9a-f]{64}", legacy)  # the old system's Werkzeug 2.0
-    make_user(core, "BASBUG_1", modules={users.RPA: None}, alan_id=2, user_id=63)
+    make_user(core, "ORNEK_7", modules={users.RPA: None}, alan_id=2, user_id=63)
     with core.db.transaction() as cur:
         cur.execute("UPDATE kullanicilar SET sifre_hash = %s WHERE id = 63", (legacy,))
-    claims = studio_license(client, login(client, kullanici="basbug_1", sifre="Eski12345"))
-    assert (claims["kullanici_id"], claims["kullanici"], claims["firma_id"]) == (63, "BASBUG_1", 2)
+    claims = studio_license(client, login(client, kullanici="ornek_7", sifre="Eski12345"))
+    assert (claims["kullanici_id"], claims["kullanici"], claims["firma_id"]) == (63, "ORNEK_7", 2)
     with core.db.transaction() as cur:
         assert users.get(cur, 63)["sifre_hash"] == legacy
         cur.execute("UPDATE kullanicilar SET sifre_hash = 'md5$tuz$ozet' WHERE id = 63")
     # An unknown hash format never matches and never fails the request.
-    assert login(client, kullanici="basbug_1", sifre="Eski12345").get_json()["kod"] == "HATALI_GIRIS"
+    assert login(client, kullanici="ornek_7", sifre="Eski12345").get_json()["kod"] == "HATALI_GIRIS"
 
 
 def test_the_module_serves_exactly_the_studio_and_application_endpoints(app):
