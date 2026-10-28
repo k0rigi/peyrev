@@ -9,7 +9,7 @@
 <title>Peyrev · Masaüstü akış stüdyosu</title>
 <link rel="icon" href="/assets/peyrev-mark-32.png">
 <link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
-<link rel="stylesheet" href="/assets/site.css?v=aeb100f76f">
+<link rel="stylesheet" href="/assets/site.css?v=85a8690fc8">
 <script src="/assets/site.js?v=97facf07ab" defer></script>
 </head>
 <body>
@@ -55,8 +55,8 @@
     </div>
     <div class="wrap">
       <figure class="shot shot-hero">
-        <img src="/assets/ekran/editor-koyu.webp" width="2000" height="1250" decoding="async"
-          alt="Peyrev akış düzenleyicisi: solda adım kütüphanesi, ortada Excel'den ERP'ye fatura girişi akışı, sağda kullanım rehberi.">
+        <img src="/assets/ekran/hero-diyagram-koyu.webp" width="2000" height="1250" decoding="async"
+          alt="Peyrev akış düzenleyicisinde diyagram: sipariş kontrolü akışının döngüsü, koşulu ve son çalışmanın izleri; sağda seçili Koşul adımının ayarları.">
       </figure>
     </div>
     <div class="wrap">
@@ -82,8 +82,8 @@
           <p class="tour-step">01 · Tasarlayın</p>
           <h3 id="tur-1">Adımları kütüphaneden seçin, akış kendiliğinden kurulsun.</h3>
           <p>Pencere, fare ve klavye, ekran, dosya ve Excel, veri, Google Sheets, veritabanı, web, e-posta ve API
-            kategorilerindeki 93 adımdan istediğinizi ekleyin. Bir adımın çıktısı sonraki adımda değişken olarak
-            kullanılır; akış liste olarak okunur.</p>
+            kategorilerindeki 93 adımdan istediğinizi diyagrama ekleyin. Bir adımın çıktısı sonraki adımda değişken
+            olarak kullanılır; akış başlangıçtan bitişe soldan sağa okunur.</p>
           <ul class="checks">
             <li>Adım arama ve sık kullanılanlar</li>
             <li>Hareketleri kaydederek adım oluşturma</li>
@@ -94,7 +94,7 @@
           <picture>
             <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/tur-editor-koyu.webp">
             <img src="/assets/ekran/tur-editor.webp" width="1800" height="1205" loading="lazy" decoding="async"
-              alt="Akış düzenleyicisinde adım kütüphanesi ve fatura girişi akışının adımları.">
+              alt="Diyagram görünümünde adım kütüphanesi ve Excel'den ERP'ye fatura girişi akışının başlangıcı.">
           </picture>
         </figure>
       </article>
@@ -113,8 +113,11 @@
           </ul>
         </div>
         <figure class="shot">
-          <img src="/assets/ekran/tur-diyagram.webp" width="1800" height="704" loading="lazy" decoding="async"
-            alt="Sipariş kontrolü akışının diyagram görünümü: döngü, koşul ve departman raporu adımları.">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/tur-diyagram-koyu.webp">
+            <img src="/assets/ekran/tur-diyagram.webp" width="1800" height="1364" loading="lazy" decoding="async"
+              alt="Kritik stok uyarısı akışının diyagramı: her ürün için döngü, koşulun doğru ve değilse yolları.">
+          </picture>
         </figure>
       </article>
 
@@ -134,8 +137,8 @@
         <figure class="shot">
           <picture>
             <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/tur-ayar-koyu.webp">
-            <img src="/assets/ekran/tur-ayar.webp" width="1800" height="1426" loading="lazy" decoding="async"
-              alt="Alanı doldur adımının ayarları ve nasıl kullanılır rehberi.">
+            <img src="/assets/ekran/tur-ayar.webp" width="1800" height="1205" loading="lazy" decoding="async"
+              alt="Diyagramda seçili PDF'ten oku adımının ayarları ve nasıl kullanılır rehberi.">
           </picture>
         </figure>
       </article>
@@ -229,61 +232,99 @@
       <div class="section-head center">
         <p class="kicker">Örnek akışlar</p>
         <h2 id="ornek-baslik">Her departmanın tekrar eden bir işi var.</h2>
-        <p class="section-lead">Adların her biri Peyrev'in adım kütüphanesindeki gerçek adımlardır.</p>
+        <p class="section-lead">Diyagramlar Peyrev'de kurulmuş örnek akışlardır; her kutu adım kütüphanesindeki gerçek bir
+          adımdır. Büyütmek için diyagrama tıklayın.</p>
       </div>
       <ul class="examples">
         <li class="example">
-          <p class="example-dept">Muhasebe</p>
-          <h3>Fatura girişi: Excel'den ERP'ye</h3>
-          <p>Excel'deki faturaları ERP'nin fatura ekranına satır satır girer; giremediğini not eder, sonucu e-postayla bildirir.</p>
-          <ol class="chain">
-            <li>Excel / CSV oku</li><li>Pencereyi tanı</li><li class="loop">Her satır için</li><li>Alanı doldur</li>
-            <li>Pencerede tıkla</li><li class="guard">Hata olursa</li><li>E-posta gönder</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">Muhasebe</p>
+            <h3>Fatura girişi: Excel'den ERP'ye</h3>
+            <p>Excel'deki faturaları ERP'nin fatura ekranına satır satır girer; giremediğini not eder, işlenenleri raporlar ve muhasebeye e-postayla bildirir.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/fatura.webp" target="_blank" rel="noopener"
+            aria-label="Fatura girişi: Excel'den ERP'ye diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/fatura-koyu.webp">
+              <img src="/assets/ekran/akis/fatura.webp" width="2400" height="249" loading="lazy" decoding="async"
+                alt="Fatura girişi: Excel'den ERP'ye akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
         <li class="example">
-          <p class="example-dept">Finans</p>
-          <h3>Günlük döviz kurları</h3>
-          <p>Kur sayfasındaki tabloyu okur, Excel'e yazar ve ekibe mesaj gönderir. Her sabah 09.00'da kendiliğinden.</p>
-          <ol class="chain">
-            <li>Web sayfası aç</li><li>Web tablosunu oku</li><li>Excel / CSV'ye yaz</li><li>Mesaj gönder</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">Finans</p>
+            <h3>Günlük döviz kurları</h3>
+            <p>Kur sayfasındaki tabloyu okur, Excel'e yazar ve ekibe Telegram'dan bildirir. Hafta içi her sabah 09.00'da kendiliğinden.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/kur.webp" target="_blank" rel="noopener"
+            aria-label="Günlük döviz kurları diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/kur-koyu.webp">
+              <img src="/assets/ekran/akis/kur.webp" width="2400" height="262" loading="lazy" decoding="async"
+                alt="Günlük döviz kurları akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
         <li class="example">
-          <p class="example-dept">Muhasebe</p>
-          <h3>PDF faturaları arşivle</h3>
-          <p>Gelen kutusundaki faturaların PDF'ini okur; tutar bulunursa ay klasörüne taşır, bulunamazsa kontrole bırakır.</p>
-          <ol class="chain">
-            <li>E-postaları oku</li><li class="loop">Her satır için</li><li>PDF'ten oku</li><li class="branch">Koşul</li>
-            <li>Dosya kopyala / taşı</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">Muhasebe</p>
+            <h3>PDF faturaları arşivle</h3>
+            <p>Gelen kutusundaki faturaların PDF'ini okur; tutar bulunursa ay klasörüne taşır, bulunamazsa kontrole bırakır.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/pdf.webp" target="_blank" rel="noopener"
+            aria-label="PDF faturaları arşivle diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/pdf-koyu.webp">
+              <img src="/assets/ekran/akis/pdf.webp" width="2400" height="393" loading="lazy" decoding="async"
+                alt="PDF faturaları arşivle akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
         <li class="example">
-          <p class="example-dept">Depo</p>
-          <h3>Kritik stok uyarısı</h3>
-          <p>Veritabanındaki stokları iki saatte bir denetler; eşiğin altındaki ürünleri satın almaya bildirir.</p>
-          <ol class="chain">
-            <li>Veritabanı sorgusu</li><li class="loop">Her satır için</li><li class="branch">Koşul</li>
-            <li>Listeye ekle</li><li>Mesaj gönder</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">Depo</p>
+            <h3>Kritik stok uyarısı</h3>
+            <p>Veritabanındaki stokları iki saatte bir denetler; eşiğin altındaki ürünleri listeler ve satın almaya bildirir.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/stok.webp" target="_blank" rel="noopener"
+            aria-label="Kritik stok uyarısı diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/stok-koyu.webp">
+              <img src="/assets/ekran/akis/stok.webp" width="2400" height="392" loading="lazy" decoding="async"
+                alt="Kritik stok uyarısı akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
         <li class="example">
-          <p class="example-dept">Satış</p>
-          <h3>Web formuna toplu kayıt</h3>
-          <p>Google Sheets'teki müşteri listesini web paneline tek tek girer ve her satırın sonucunu tabloya geri yazar.</p>
-          <ol class="chain">
-            <li>Sheets satırlarını oku</li><li>Web sayfası aç</li><li class="loop">Her satır için</li>
-            <li>Web alanını doldur</li><li>Web öğesine tıkla</li><li>Sheets hücresine yaz</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">Satış</p>
+            <h3>Web formuna toplu kayıt</h3>
+            <p>Google Sheets'teki müşteri listesini web paneline tek tek girer ve her satırın sonucunu tabloya geri yazar.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/web.webp" target="_blank" rel="noopener"
+            aria-label="Web formuna toplu kayıt diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/web-koyu.webp">
+              <img src="/assets/ekran/akis/web.webp" width="2400" height="214" loading="lazy" decoding="async"
+                alt="Web formuna toplu kayıt akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
         <li class="example">
-          <p class="example-dept">İnsan kaynakları</p>
-          <h3>Bordro dosyalarını dağıt</h3>
-          <p>Klasördeki bordro PDF'lerini listeler, dosya adındaki sicile göre çalışana e-postayla gönderir.</p>
-          <ol class="chain">
-            <li>Klasördeki dosyaları listele</li><li class="loop">Her satır için</li><li>Metin işlemi</li>
-            <li>Veritabanı sorgusu</li><li>E-posta gönder</li>
-          </ol>
+          <div class="example-text">
+            <p class="example-dept">İnsan kaynakları</p>
+            <h3>Bordro dosyalarını dağıt</h3>
+            <p>Klasördeki bordro PDF'lerini listeler, dosya adındaki sicile göre çalışanı bulur ve bordrosunu e-postayla gönderir.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/bordro.webp" target="_blank" rel="noopener"
+            aria-label="Bordro dosyalarını dağıt diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/bordro-koyu.webp">
+              <img src="/assets/ekran/akis/bordro.webp" width="2400" height="344" loading="lazy" decoding="async"
+                alt="Bordro dosyalarını dağıt akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
         </li>
       </ul>
     </div>

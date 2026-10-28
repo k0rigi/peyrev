@@ -226,24 +226,22 @@ main:focus { outline: none; }
 .shot-small { margin: 40px auto 0; max-width: 900px; background: var(--night-2);
   box-shadow: 0 0 0 1px var(--night-line), 0 30px 80px rgb(0 0 0 / 0.5); }
 
-/* ----- örnek akışlar --------------------------------------------------------------------------- */
-.examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
-.example { display: grid; gap: 12px; align-content: start; padding: 26px; border-radius: var(--radius);
-  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
-.example h3 { font-size: 1.1875rem; }
-.example > p:not(.example-dept) { color: var(--muted); font-size: 0.9625rem; }
+/* ----- örnek akışlar: başlık ve açıklama, altında Peyrev'deki diyagramı ----------------------------------- */
+.examples { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.example { display: grid; gap: 18px; padding: 24px; border-radius: var(--radius); background: var(--surface);
+  border: 1px solid var(--line); box-shadow: var(--shadow); }
+@media (min-width: 900px) { .example { padding: 28px 30px; } }
+.example-text { display: grid; gap: 8px; }
+@media (min-width: 900px) { .example-text { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); column-gap: 32px;
+  align-items: start; } .example-text > p:not(.example-dept) { grid-column: 2; grid-row: 1 / span 2; } }
+.example h3 { font-size: 1.25rem; }
+.example-text > p:not(.example-dept) { color: var(--muted); font-size: 0.9625rem; }
 .example-dept { justify-self: start; font-size: 0.75rem; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase;
   padding: 3px 10px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
-.chain { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; }
-.chain li { font-size: 0.8125rem; font-weight: 650; padding: 5px 10px; border-radius: 8px; background: var(--surface-2);
-  border: 1px solid var(--line); }
-.chain li + li::before { content: "→"; margin: 0 6px 0 -2px; color: var(--muted); font-weight: 500; }
-.chain li { display: inline-flex; align-items: center; }
-.chain li + li { border-left-width: 1px; }
-.chain .loop { background: rgb(48 71 224 / 0.10); border-color: rgb(48 71 224 / 0.3); }
-.chain .branch { background: rgb(227 183 101 / 0.16); border-color: rgb(227 183 101 / 0.45); }
-.chain .guard { background: rgb(161 39 30 / 0.08); border-color: rgb(161 39 30 / 0.3); }
+.example-diagram { display: block; border-radius: 12px; overflow: hidden; border: 1px solid var(--line);
+  background: var(--surface-2); overflow-x: auto; }
+.example-diagram img { width: 100%; min-width: 760px; }
+.example-diagram:hover { border-color: var(--link); }
 
 /* ----- adım kütüphanesi ------------------------------------------------------------------------ */
 .catalog { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px;
