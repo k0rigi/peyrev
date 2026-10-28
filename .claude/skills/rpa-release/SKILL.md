@@ -47,8 +47,8 @@ chmod +x "$SCRATCH/ghapi.sh"
 - Kullanıcıya dönük değişiklikleri README ve `docs/` içine işle.
 - 1.2.0'dan beri `scripts/build_desktop.py` içindeki `MAC_PROGRAM` ve `MAC_BUNDLE_ID` `Peyrev` ve `com.peyrev.studio`'dur; derleme yalnız indirme imajını üretir. 1.1.0'ın güncelleme imajı `stable.manifest` ile peyrev.com'da durur (yeniden imza için oradan indirilir). Bu sürüm yalnız 1.1.0 ve sonrası tarafından kurulur; sürüm notunda macOS'un Erişilebilirlik ve Ekran Kaydı iznini bir kez daha isteyebileceğini yaz.
 - `"$PY" -m pytest -p no:cacheprovider`, `"$PY" -m ruff check .`, `node --check src/peyrev_studio/static/app.js`.
-- Commit + push. Push'ta **Python checks** yalnız Python 3.12'yi çalıştırır; yayından önce bir kez **Run workflow** ile tam 3.11–3.14 matrisini başlat (`POST /repos/k0rigi/peyrev-studio/actions/workflows/tests.yml/dispatches`). macOS ve Windows'taki tüm işler başarılı olmalıdır.
-- Bu depo ve `peyrev` deposu açık olduğu sürece testler, derleme ve peyrev.com yayını ücretsizdir. Bir depo gizli yapıldıysa önce kotayı kontrol et (`GET /users/k0rigi/settings/billing/usage`; 2.000 dk, macOS 10×, Windows 2×) ve kota yetmeyecekse kullanıcıya sor.
+- Commit + push. Studio deposu gizlidir; push'ta Actions çalışmaz. Testler yerelde geçmiş olmalıdır; **Build desktop apps** paketlemeden önce testleri Windows ve macOS'ta çalıştırır. **Python checks** yalnız elle başlatılır (`POST /repos/k0rigi/peyrev-studio/actions/workflows/tests.yml/dispatches`, `{"ref":"main"}` Windows / 3.12; `"inputs":{"tam":true}` tam matris, yaklaşık 1.000 kota dakikası: yalnız Python sürümü ya da bağımlılıklar değiştiyse ve kullanıcıya sorarak).
+- Studio deposu gizlidir (2026-10-28): Actions dakikaları aylık 2.000 dakikalık kotadan düşer (macOS 10×, Windows 2×; bir derleme yaklaşık 150 kota dakikası). Derlemeden önce kotayı kontrol et (`GET /users/k0rigi/settings/billing/usage`); yetmeyecekse kullanıcıya sor. `peyrev` deposu açıktır; peyrev.com yayını ücretsizdir.
 
 ## 2. Paketleri derle
 

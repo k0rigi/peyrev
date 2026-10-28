@@ -35,9 +35,10 @@ ana sayfa, eğitim sayfası, güncelleme dosyaları (`/indir/`) ve kişiye özel
    `README.md` güncellenir.
 7. **Sayfalar:** panel ve site telefon, tablet ve bilgisayarda düzgün görünür; sahte veri gösterilmez; satır içi betik
    ve stil yoktur (sıkı CSP); kullanıcı verisi DOM'a yalnız metin olarak yazılır.
-8. **GitHub Actions maliyeti:** bu depo ve Studio deposu açık olduğu sürece Actions ücretsizdir. Gizli depoların aylık
-   2.000 dakikalık kotası vardır (harcama limiti 0 $). Depo gizli yapılacaksa ya da ücret doğuracak bir adım çıkarsa önce
-   kullanıcıya bildir.
+8. **GitHub Actions maliyeti:** bu depo açıktır ve Actions'ı ücretsizdir. Studio deposu 2026-10-28'den beri gizlidir
+   (kaynak kodu kopyalanmasın diye): onun dakikaları aylık 2.000 dakikalık kotadan düşer (macOS 10×, Windows 2×; harcama
+   limiti 0 $), push'ta CI çalışmaz, derleme yaklaşık 150 kota dakikasıdır. Bu depo gizli yapılacaksa ya da ücret
+   doğuracak bir adım çıkarsa önce kullanıcıya bildir.
 9. **Kural önerileri:** tekrar edecek, faydalı bir kural fark edersen önce kullanıcıya sor; onaylarsa bu listeye kısa
    ve gerekçeli ekle.
 
