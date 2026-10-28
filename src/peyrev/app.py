@@ -39,7 +39,7 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     common.register(app)
     logging.getLogger("peyrev").setLevel(logging.INFO)
 
-    from . import egitim, health, indirme
+    from . import egitim, health, iletisim, indirme, uye, ziyaret
     from .accounts import create_blueprint as accounts
     from .admin import create_blueprint as admin
     from .agents import create_blueprint as agents
@@ -48,7 +48,9 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     from .topluluk import create_blueprint as community
 
     for blueprint in (health.create_blueprint(core), egitim.create_blueprint(core), indirme.create_blueprint(core),
-                      accounts(core), support(core), community(core), agents(core), llm(core), admin(core)):
+                      accounts(core), support(core), iletisim.create_blueprint(core), ziyaret.create_blueprint(core),
+                      uye.create_blueprint(core), community(core), agents(core),
+                      llm(core), admin(core)):
         app.register_blueprint(blueprint)
     app.config["PEYREV_VERSION"] = __version__
     return app

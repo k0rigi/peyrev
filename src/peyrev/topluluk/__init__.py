@@ -1,5 +1,6 @@
 """Topluluk API'si (/api/topluluk/*): yalnız aboneliği devam eden Peyrev hesaplarına açık konular, yorumlar ve akış
-paylaşımı. Giriş ve oturum kuralları auth.py'de, içerik kuralları service.py'dedir; moderasyon yönetim panelindedir.
+paylaşımı. Giriş ve oturum ortaktır (peyrev.uye, /api/uye/giris); her topluluk isteğinde abonelik ayrıca denetlenir.
+İçerik kuralları service.py'dedir; moderasyon yönetim panelindedir.
 """
 
 from __future__ import annotations
@@ -9,9 +10,10 @@ from typing import Any
 
 from flask import Blueprint, Response, g, request
 
-from ..common import LOG, ApiError, client_ip, json_body, ok
+from .. import uye as auth
+from ..common import LOG, ApiError, json_body, ok
 from ..support import notify
-from . import auth, service
+from . import service
 
 POLICY = "default-src 'none'; frame-ancestors 'none'"
 PAGE = re.compile(r"[0-9]{1,5}")
@@ -27,14 +29,12 @@ def _committed(core, work):
 
 
 def create_blueprint(core) -> Blueprint:
-    blueprint = Blueprint("topluluk", __name__, url_prefix=auth.PATH)
+    blueprint = Blueprint("topluluk", __name__, url_prefix="/api/topluluk")
 
     @blueprint.before_request
     def guard():
         auth.check_request()
-        g.member = None
-        if request.endpoint not in ("topluluk.sign_in", "topluluk.sign_out"):
-            g.member = _committed(core, lambda cur: auth.verify(core, cur, request.cookies.get(auth.COOKIE)))
+        g.member = _committed(core, lambda cur: auth.verify(core, cur, request.cookies.get(auth.COOKIE), subscription=True))
 
     @blueprint.after_request
     def headers(response: Response) -> Response:
@@ -43,28 +43,6 @@ def create_blueprint(core) -> Blueprint:
         if response.status_code == 401 and auth.COOKIE in request.cookies:
             auth.forget_cookie(response)
         return response
-
-    @blueprint.post("/giris")
-    def sign_in():
-        data = json_body({"kullanici", "sifre"}, {"kullanici", "sifre"})
-        login, password = data["kullanici"], data["sifre"]
-        if (not isinstance(login, str) or not login.strip() or len(login) > 150 or not isinstance(password, str)
-                or not password or len(password) > 256):
-            raise ApiError("Kullanıcı adınızı ve şifrenizi yazın.", 400, "EKSIK")
-        token, user = _committed(core, lambda cur: auth.sign_in(core, cur, login.strip(), password, client_ip(),
-                                                                request.headers.get("User-Agent")))
-        response, status = ok(uye=auth.profile(user))
-        auth.set_cookie(response, token)
-        return response, status
-
-    @blueprint.post("/cikis")
-    def sign_out():
-        json_body(set())
-        with core.db.transaction() as cur:
-            auth.sign_out(cur, request.cookies.get(auth.COOKIE))
-        response, status = ok()
-        auth.forget_cookie(response)
-        return response, status
 
     @blueprint.get("/ben")
     def me():

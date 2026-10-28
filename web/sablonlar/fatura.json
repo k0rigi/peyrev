@@ -1,0 +1,143 @@
+{
+  "name": "Fatura girişi: Excel'den ERP'ye",
+  "description": "Excel'deki faturaları ERP'nin fatura ekranına satır satır girer, sonucu raporlar ve e-postayla bildirir.",
+  "department": "Muhasebe",
+  "steps": [
+    {
+      "id": "oku",
+      "title": "Fatura listesini oku",
+      "action": "file.read_table",
+      "params": {
+        "path": "C:/Muhasebe/faturalar.xlsx",
+        "output": "faturalar"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "pencere",
+      "title": "ERP fatura ekranını tanı",
+      "action": "desktop.find_window",
+      "params": {
+        "application": "ERP",
+        "title": "Fatura Girişi",
+        "match": "contains",
+        "output": "erp"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "dongu",
+      "title": "Her fatura için",
+      "action": "control.for_each",
+      "params": {
+        "items": "${faturalar}",
+        "item_name": "fatura"
+      },
+      "children": [
+        {
+          "id": "dene",
+          "title": "Hata olursa",
+          "action": "control.try",
+          "params": {},
+          "children": [
+            {
+              "id": "no",
+              "title": "Fatura numarasını yaz",
+              "action": "desktop.window_fill",
+              "params": {
+                "window": "${erp}",
+                "text": "${fatura.no}",
+                "clear": true
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            },
+            {
+              "id": "cari",
+              "title": "Cari kodunu yaz",
+              "action": "desktop.window_fill",
+              "params": {
+                "window": "${erp}",
+                "text": "${fatura.cari}",
+                "clear": true
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            },
+            {
+              "id": "tutar",
+              "title": "Tutarı yaz",
+              "action": "desktop.window_fill",
+              "params": {
+                "window": "${erp}",
+                "text": "${fatura.tutar}",
+                "clear": true
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            },
+            {
+              "id": "kaydet",
+              "title": "Kaydet'e tıkla",
+              "action": "desktop.window_click",
+              "params": {
+                "window": "${erp}"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "otherwise": [
+            {
+              "id": "not",
+              "title": "Hatalı faturayı not et",
+              "action": "core.log",
+              "params": {
+                "message": "${fatura.no} girilemedi"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "offset": null
+        }
+      ],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "rapor",
+      "title": "İşlenen faturalar raporu",
+      "action": "data.export_csv",
+      "params": {
+        "rows": "${faturalar}",
+        "filename": "islenen-faturalar.csv"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "posta",
+      "title": "Muhasebeye e-posta gönder",
+      "action": "mail.send",
+      "params": {
+        "to": "muhasebe@ornek.com",
+        "subject": "Faturalar ERP'ye girildi",
+        "body": "Rapor ektedir."
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

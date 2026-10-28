@@ -8,7 +8,7 @@
  * Şifre kodu ve şifre değiştirme Studio'yla ortak hesap uçlarını (/api/rpa/hesap/*) kullanır; kurallar oradadır.
  *
  * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #yeni-kullanici, #kullanici-<id>, #basvurular, #destek,
- * #destek-<no>, #topluluk, #topluluk-<id>, #egitim, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
+ * #destek-<no>, #topluluk, #topluluk-<id>, #egitim, #iletisim, #ziyaretler, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
  */
 (function () {
   'use strict';
@@ -51,7 +51,7 @@
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
     sira: 'Sıra', eposta: 'E-posta', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
-    gizli: 'Gizli', yorum: 'Yorum',
+    gizli: 'Gizli', yorum: 'Yorum', konu: 'Konu', tarih: 'Tarih',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -59,6 +59,7 @@
     acik: 'Açık', inceleniyor: 'İnceleniyor', yanitlandi: 'Yanıtlandı', planlandi: 'Planlandı', yayinlandi: 'Yayınlandı',
     kapandi: 'Kapatıldı',
   };
+  const VISIT_SPANS = [['7', '7 gün'], ['30', '30 gün'], ['90', '90 gün']];
   const MOMENT = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit',
     day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -77,6 +78,7 @@
     applications: 'bekliyor',
     tickets: { durum: '', tur: '' },
     events: { tur: '', sayfa: 1 },
+    visits: '30',
   };
   let uid = 0;
 
@@ -447,6 +449,8 @@
     [/^topluluk$/, 'topluluk', () => renderCommunity()],
     [/^topluluk-(\d{1,18})$/, 'topluluk', (match) => renderCommunityTopic(match[1])],
     [/^egitim$/, 'egitim', () => renderTraining()],
+    [/^iletisim$/, 'iletisim', () => renderMessages()],
+    [/^ziyaretler$/, 'ziyaretler', () => renderVisits()],
     [/^olaylar$/, 'olaylar', () => renderEvents()],
     [/^hesabim$/, 'hesabim', () => renderAccount()],
   ];
@@ -478,6 +482,7 @@
   function setBadges(summary) {
     badge($('rozet-basvuru'), summary.bekleyen_basvuru, 'ödeme bekleyen');
     badge($('rozet-destek'), summary.okunmamis_destek, 'okunmamış');
+    badge($('rozet-iletisim'), summary.okunmamis_iletisim, 'okunmamış');
   }
 
   async function refreshBadges() {
@@ -528,6 +533,7 @@
           stat(data.yakinda_bitecek, '30 gün içinde hakkı bitecek hesap', null, data.yakinda_bitecek ? 'warn' : ''),
           stat(data.bekleyen_basvuru, 'Ödeme bekleyen başvuru', '#basvurular', data.bekleyen_basvuru ? 'warn' : ''),
           stat(data.okunmamis_destek, 'Okunmamış destek talebi', '#destek', data.okunmamis_destek ? 'info' : ''),
+          stat(data.okunmamis_iletisim, 'Okunmamış iletişim mesajı', '#iletisim', data.okunmamis_iletisim ? 'info' : ''),
         ]),
         section('bolum-hizli', 'Hızlı işlemler', [h('div', { class: 'quick' }, [
           quickLink('#yeni-kullanici', '+', 'Yeni kullanıcı', 'Hesap aç, şifre ve lisans ver'),
@@ -1521,6 +1527,133 @@
     load();
   }
 
+  // ----- İletişim ----------------------------------------------------------------------------
+  function messageCard(item, reload) {
+    const toggle = button(item.okundu ? 'Okunmadı yap' : 'Okundu', async () => {
+      const result = await api('iletisim/' + item.id, { okundu: !item.okundu });
+      badge($('rozet-iletisim'), result.okunmamis, 'okunmamış');
+      return reload();
+    }, { small: true });
+    const remove = button('Sil', async () => {
+      const result = await api('iletisim/' + item.id + '/sil', {});
+      badge($('rozet-iletisim'), result.okunmamis, 'okunmamış');
+      say('Mesaj silindi.', 'ok');
+      return reload();
+    }, { small: true, kind: 'danger', confirm: item.ad + ' adlı kişinin mesajı kalıcı olarak silinsin mi?' });
+    return h('article', { class: 'card' + (item.okundu ? '' : ' is-new') }, [
+      h('div', { class: 'card-head' }, [
+        h('h2', { class: 'card-title', text: item.ad }),
+        h('div', { class: 'pills' }, [pill(item.konu_adi, 'accent'), item.okundu ? null : pill('Yeni', 'warn'),
+          pill(day(item.zaman))]),
+      ]),
+      facts([['E-posta', mail(item.eposta)], ['IP adresi', item.ip]]),
+      h('p', { class: 'message', text: item.mesaj }),
+      h('div', { class: 'actions' }, [h('a', { class: 'btn btn-small btn-primary',
+        href: 'mailto:' + item.eposta + '?subject=' + encodeURIComponent('Peyrev: ' + item.konu_adi), text: 'E-postayla yanıtla' }),
+        toggle, remove]),
+    ]);
+  }
+
+  function renderMessages() {
+    const url = '/iletisim/';
+    const view = page('İletişim mesajları', {
+      actions: [h('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener', text: 'Formu gör' })],
+      lead: 'peyrev.com/iletisim formundan gelen mesajlar, en yenisi üstte. Yanıtı kişinin e-posta adresine '
+        + 'yazarsınız. Mesajlar bir yıl sonra kendiliğinden silinir.',
+    });
+    const list = h('div', { class: 'panel-section' });
+    const load = () => fill(list, async (target) => {
+      const data = await api('iletisim');
+      badge($('rozet-iletisim'), data.okunmamis, 'okunmamış');
+      if (!data.mesajlar.length) {
+        target.replaceChildren(empty('Henüz mesaj yok.'));
+        return;
+      }
+      target.replaceChildren(
+        h('p', { class: 'muted', role: 'status', text: data.mesajlar.length + ' mesaj · ' + data.okunmamis + ' okunmamış' }),
+        h('div', { class: 'cards' }, data.mesajlar.map((item) => messageCard(item, load))));
+    });
+    view.body.replaceChildren(list);
+    load();
+  }
+
+  // ----- Ziyaretler ---------------------------------------------------------------------------
+  const SVG = 'http://www.w3.org/2000/svg';
+
+  function svg(tag, attrs, children) {
+    const node = document.createElementNS(SVG, tag);
+    for (const [key, value] of Object.entries(attrs || {})) node.setAttribute(key, String(value));
+    for (const child of [].concat(children || [])) node.append(child);
+    return node;
+  }
+
+  /** Günlük ziyaret çubukları: SVG öznitelikleriyle çizilir (satır içi stil yok); her çubuğun başlığı gün ve sayıdır. */
+  function visitChart(daily, total) {
+    const width = 720;
+    const height = 180;
+    const top = Math.max(1, ...daily.map((item) => item.sayi));
+    const slot = width / daily.length;
+    const bar = Math.max(2, slot - (daily.length > 40 ? 1 : 3));
+    const chart = svg('svg', { class: 'visit-chart', viewBox: '0 0 ' + width + ' ' + (height + 1), role: 'img',
+      'aria-label': 'Son ' + daily.length + ' günde günlük ziyaretler; toplam ' + total + ', en yüksek gün ' + top });
+    chart.append(svg('line', { class: 'visit-axis', x1: 0, x2: width, y1: height + 0.5, y2: height + 0.5 }));
+    daily.forEach((item, index) => {
+      const size = item.sayi ? Math.max(2, Math.round((item.sayi / top) * (height - 8))) : 0;
+      chart.append(svg('rect', { class: 'visit-bar', x: (index * slot + (slot - bar) / 2).toFixed(1), y: height - size,
+        width: bar.toFixed(1), height: size, rx: Math.min(3, bar / 2) }, [svg('title', {}, day(item.gun) + ': ' + item.sayi)]));
+    });
+    return h('div', { class: 'visit-graph' }, [chart, h('div', { class: 'visit-labels', 'aria-hidden': 'true' }, [
+      h('span', { text: day(daily[0].gun) }), h('span', { text: 'Bugün' })])]);
+  }
+
+  function visitRows(items, key, none) {
+    if (!items.length) return empty(none);
+    const top = Math.max(1, ...items.map((item) => item.sayi));
+    return h('ul', { class: 'rows' }, items.map((item) => h('li', { class: 'row visit-row' }, [
+      h('div', null, [h('span', { class: 'visit-name', text: item[key] }),
+        h('progress', { max: top, value: item.sayi, 'aria-hidden': 'true' })]),
+      h('strong', { class: 'visit-count', text: item.sayi }),
+    ])));
+  }
+
+  function renderVisits() {
+    const view = page('Ziyaretler', {
+      lead: 'Sitenin çerezsiz ziyaret sayımı: hangi sayfanın kaç kez açıldığı ve ziyaretçilerin hangi siteden geldiği. '
+        + 'IP adresi ve tarayıcı kimliği tutulmaz, botlar sayılmaz; aynı kişinin her sayfa açılışı ayrı sayılır.',
+    });
+    const tabs = h('div', { class: 'segmented', role: 'group', 'aria-label': 'Dönem' });
+    const list = h('div', { class: 'panel-section' });
+    const load = () => fill(list, async (target) => {
+      const data = await api(query('ziyaretler', { gun: state.visits }));
+      target.replaceChildren(
+        h('div', { class: 'stats' }, [stat(data.toplam, 'Son ' + data.gun_sayisi + ' günde sayfa açılışı', null, 'accent'),
+          stat(data.bugun, 'Bugün', null, ''),
+          stat(Math.round(data.toplam / data.gun_sayisi), 'Günlük ortalama', null, '')]),
+        section('bolum-gunluk', 'Günlük', [visitChart(data.gunluk, data.toplam)]),
+        h('div', { class: 'overview' }, [
+          section('bolum-sayfalar', 'En çok açılan sayfalar', [visitRows(data.sayfalar, 'yol', 'Bu dönemde ziyaret yok.')]),
+          section('bolum-kaynaklar', 'Gelinen siteler', [visitRows(data.kaynaklar, 'kaynak',
+            'Başka bir siteden gelen ziyaret yok (doğrudan gelenler burada sayılmaz).')]),
+        ]),
+      );
+    });
+    const paint = () => {
+      for (const node of tabs.children) node.setAttribute('aria-pressed', String(node.dataset.gun === state.visits));
+    };
+    for (const [key, label] of VISIT_SPANS) {
+      const tab = button(label, () => {
+        state.visits = key;
+        paint();
+        return load();
+      });
+      tab.dataset.gun = key;
+      tabs.append(tab);
+    }
+    paint();
+    view.body.replaceChildren(tabs, list);
+    load();
+  }
+
   // ----- Olaylar ------------------------------------------------------------------------------
   function targetLink(target) {
     if (!target) return null;
@@ -1532,6 +1665,8 @@
     if (match) return h('a', { href: '#topluluk-' + match[1], text: 'Topluluk konusu #' + match[1] });
     match = /^egitim:(\d+)$/.exec(target);
     if (match) return h('a', { href: '#egitim', text: 'Eğitim videosu #' + match[1] });
+    match = /^iletisim:(\d+)$/.exec(target);
+    if (match) return 'İletişim mesajı #' + match[1];
     match = /^(ajan_ofisi|basvuru):([0-9a-f]{8})[0-9a-f]{24}$/.exec(target);
     if (match) return (match[1] === 'basvuru' ? 'Başvuru ' : 'Ajan ofisi ') + match[2] + '…';
     return target === 'llm_isler' ? 'Ortak model kuyruğu' : target;

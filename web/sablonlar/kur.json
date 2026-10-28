@@ -1,0 +1,53 @@
+{
+  "name": "Günlük döviz kurları",
+  "description": "Kur sayfasındaki tabloyu okur, Excel'e yazar ve Telegram'dan bildirir.",
+  "department": "Finans",
+  "steps": [
+    {
+      "id": "ac",
+      "title": "Kur sayfasını aç",
+      "action": "web.open",
+      "params": {
+        "url": "https://www.tcmb.gov.tr/kurlar/today.xml"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "tablo",
+      "title": "Kur tablosunu oku",
+      "action": "web.read_table",
+      "params": {
+        "output": "kurlar"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "yaz",
+      "title": "Excel'e yaz",
+      "action": "file.write_table",
+      "params": {
+        "path": "C:/Finans/kurlar.xlsx",
+        "rows": "${kurlar}"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "bildir",
+      "title": "Telegram'dan bildir",
+      "action": "notify.send",
+      "params": {
+        "title": "Döviz kurları",
+        "text": "Günün kurları Excel'e yazıldı."
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

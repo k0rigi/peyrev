@@ -124,9 +124,12 @@ class World:
                          (self.ayse["id"],))[0]["id"]
         self.comment = sql(core, "INSERT INTO topluluk_yorumlari (konu_id, yazar_id, metin, olusturma) VALUES "
                                  "(%s, %s, 'Yorum', now()) RETURNING id", (self.topic, self.ayse["id"]))[0]["id"]
+        self.message = sql(core, "INSERT INTO iletisim_mesajlari (ad, eposta, konu, mesaj) VALUES ('Ali Veli', "
+                                 "'ali@ornek.test', 'satis', 'Fiyat hakkında bir sorum var.') RETURNING id")[0]["id"]
         self.ids = {"user": self.ayse["id"], "office": self.office, "ticket": self.ticket["no"],
                     "attachment": self.ticket["ekler"][0]["id"], "application": self.application,
-                    "module": users.AGENTS, "video": self.video, "topic": self.topic, "comment": self.comment}
+                    "module": users.AGENTS, "video": self.video, "topic": self.topic, "comment": self.comment,
+                    "message": self.message}
 
     def path(self, template):
         return template.format(**self.ids)
@@ -187,6 +190,10 @@ ENDPOINTS = [
     ("POST", "topluluk/{topic}/sil", {}),
     ("POST", "topluluk/yorum/{comment}", {"gizli": True}),
     ("POST", "topluluk/yorum/{comment}/sil", {}),
+    ("GET", "iletisim", None),
+    ("POST", "iletisim/{message}", {"okundu": True}),
+    ("POST", "iletisim/{message}/sil", {}),
+    ("GET", "ziyaretler", None),
 ]
 POSTS = [endpoint for endpoint in ENDPOINTS if endpoint[0] == "POST"]
 
@@ -401,7 +408,7 @@ def test_the_summary_counts_accounts_rights_applications_and_unread_tickets(app,
              "bitis": "2026-11-05", "kalan_gun": 10},
             {"kullanici_id": burak["id"], "giris": "burak@ornek.test", "ad_soyad": "Burak Can", "modul": users.RPA,
              "bitis": "2026-11-25", "kalan_gun": 30}],
-        "bekleyen_basvuru": 1, "okunmamis_destek": 1}
+        "bekleyen_basvuru": 1, "okunmamis_destek": 1, "okunmamis_iletisim": 1}
     # Opening the ticket takes it off the badge; reading changes nothing else and records nothing.
     before = last_event_id(core)
     assert get(browser, f"destek/{world.ticket['no']}").status_code == 200

@@ -1,14 +1,14 @@
 /* peyrev.com/topluluk/: aboneliği devam eden üyelerin konuları, yorumları ve paylaştığı akışlar (/api/topluluk/*).
  *
  * Derleme adımı ve harici betik yok. Sunucudan gelen her metin DOM'a yalnız textContent ya da metin düğümü olarak
- * yazılır; HTML olarak yorumlanan hiçbir yazım yoktur. Oturum HttpOnly çerezdedir (Path=/api/topluluk), betik
- * belirteci görmez. Durum değiştiren istekler X-Peyrev-Topluluk başlığını taşır (sunucu Origin'i de denetler).
+ * yazılır; HTML olarak yorumlanan hiçbir yazım yoktur. Oturum HttpOnly çerezdedir (Path=/api), betik belirteci
+ * görmez. Durum değiştiren istekler X-Peyrev-Uye başlığını taşır (sunucu Origin'i de denetler).
  * Bölümler adres çubuğundaki çapadır: (boş) liste, #konu-<id>, #yeni.
  */
 (function () {
   'use strict';
 
-  const API = '/api/topluluk/';
+  const API = '/api/';
   const ROOT = document.getElementById('topluluk');
   if (!ROOT) return;
   const UNREACHABLE = 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
@@ -44,7 +44,7 @@
       headers: { Accept: 'application/json' } };
     if (body !== undefined) {
       init.headers['Content-Type'] = 'application/json';
-      init.headers['X-Peyrev-Topluluk'] = '1';
+      init.headers['X-Peyrev-Uye'] = '1';
       init.body = JSON.stringify(body);
     }
     let response;
@@ -62,7 +62,8 @@
     if (response.ok && data.success === true) return data;
     if (response.status === 401 || data.kod === 'ABONELIK_YOK') {
       state.member = null;
-      showLogin(data.kod === 'ABONELIK_YOK' || data.kod === 'OTURUM_GECERSIZ' ? data.message : '');
+      if (data.kod === 'ABONELIK_YOK') showClosed(data.message);
+      else showLogin(data.kod === 'OTURUM_GECERSIZ' ? data.message : '');
       throw new Refused(data.message || '');
     }
     throw new Error(data.message || 'İşlem tamamlanamadı. Daha sonra tekrar deneyin.');
@@ -107,7 +108,7 @@
       event.preventDefault();
       guarded(submit, async () => {
         if (!login.value.trim() || !password.value) throw new Error('Kullanıcı adınızı ve şifrenizi yazın.');
-        const data = await api('giris', { kullanici: login.value.trim(), sifre: password.value });
+        const data = await api('uye/giris', { kullanici: login.value.trim(), sifre: password.value });
         state.member = data.uye;
         await boot();
       });
@@ -127,11 +128,19 @@
     login.focus();
   }
 
+  function showClosed(message) {
+    ROOT.replaceChildren(el('div', { class: 'card community-closed' }, [
+      el('h2', { text: 'Aboneliğiniz devam etmiyor' }),
+      el('p', { text: message }),
+      el('a', { class: 'button button-gold', href: '/hesabim/', text: 'Hesabım: lisansımı uzat' }),
+    ]));
+  }
+
   // ----- liste ----------------------------------------------------------------------------------
   function topbar() {
     const out = el('button', { class: 'button button-outline button-small', type: 'button', text: 'Çıkış' });
     out.addEventListener('click', () => guarded(out, async () => {
-      await api('cikis', {});
+      await api('uye/cikis', {});
       state.member = null;
       showLogin('');
     }));
@@ -197,7 +206,7 @@
       if (state.filter) params.set('kategori', state.filter);
       if (state.search) params.set('ara', state.search);
       if (state.page > 1) params.set('sayfa', String(state.page));
-      data = await api('konular' + (params.toString() ? '?' + params : ''));
+      data = await api('topluluk/konular' + (params.toString() ? '?' + params : ''));
     } catch (error) {
       if (!(error instanceof Refused)) list.replaceChildren(notice(error.message, 'error'));
       return;
@@ -228,7 +237,7 @@
   // ----- konu ----------------------------------------------------------------------------------
   function flowCard(topicId, flow) {
     const risky = flow.adimlar.filter((step) => step.dikkat);
-    const url = API + 'konular/' + topicId + '/akis';
+    const url = API + 'topluluk/konular/' + topicId + '/akis';
     return el('section', { class: 'community-flow', 'aria-label': 'Ekli akış' }, [
       el('div', { class: 'community-flow-head' }, [
         el('div', null, [el('p', { class: 'kicker', text: 'Ekli akış' }), el('h2', { text: flow.ad }),
@@ -260,7 +269,7 @@
     ROOT.replaceChildren(topbar(), notice('Konu yükleniyor…'));
     let data;
     try {
-      data = await api('konular/' + topicId);
+      data = await api('topluluk/konular/' + topicId);
     } catch (error) {
       if (!(error instanceof Refused)) {
         ROOT.replaceChildren(topbar(), el('a', { class: 'community-back', href: '#', text: '← Konular' }),
@@ -276,7 +285,7 @@
       el('p', { class: 'community-meta' }, [author(item.yazar), ' · ' + day(item.olusturma)]),
       el('p', { class: 'community-text', text: item.metin }),
       item.benim ? deleteButton('Sil', 'Yorumunuz silinsin mi?', async () => {
-        await api('yorumlar/' + item.id + '/sil', {});
+        await api('topluluk/yorumlar/' + item.id + '/sil', {});
         showTopic(topicId);
       }) : null,
     ])) : [el('p', { class: 'aside', text: 'Henüz yanıt yok. İlk yanıtı siz yazın.' })]));
@@ -293,7 +302,7 @@
         event.preventDefault();
         guarded(submit, async () => {
           if (!text.value.trim()) throw new Error('Yanıtınızı yazın.');
-          const result = await api('konular/' + topicId + '/yorumlar', { metin: text.value });
+          const result = await api('topluluk/konular/' + topicId + '/yorumlar', { metin: text.value });
           text.value = '';
           paint(result.yorumlar);
         });
@@ -310,7 +319,7 @@
         el('p', { class: 'community-text', text: topic.metin }),
         topic.akis ? flowCard(topic.id, topic.akis) : null,
         topic.benim ? deleteButton('Konuyu sil', 'Konunuz yanıtları ve akışıyla birlikte silinsin mi?', async () => {
-          await api('konular/' + topicId + '/sil', {});
+          await api('topluluk/konular/' + topicId + '/sil', {});
           location.hash = '';
         }) : null,
       ]),
@@ -365,7 +374,7 @@
         if (!body.value.trim()) throw new Error('Metni yazın.');
         const payload = { kategori: kind.value, baslik: title.value.trim(), metin: body.value };
         if (flow) payload.akis = flow;
-        const result = await api('konular', payload);
+        const result = await api('topluluk/konular', payload);
         location.hash = '#konu-' + result.konu.id;
       });
     });
@@ -385,7 +394,7 @@
 
   async function boot() {
     try {
-      const data = await api('ben');
+      const data = await api('topluluk/ben');
       state.member = data.uye;
       state.categories = data.kategoriler;
       route();

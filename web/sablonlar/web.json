@@ -1,0 +1,97 @@
+{
+  "name": "Web formuna toplu kayıt",
+  "description": "Google Sheets'teki müşteri listesini web paneline tek tek girer ve sonucu tabloya geri yazar.",
+  "department": "Satış",
+  "steps": [
+    {
+      "id": "oku",
+      "title": "Müşteri listesini oku",
+      "action": "sheets.read_rows",
+      "params": {
+        "spreadsheet_id": "musteriler",
+        "worksheet": "Liste",
+        "start_row": 2,
+        "output": "musteriler"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "ac",
+      "title": "Müşteri panelini aç",
+      "action": "web.open",
+      "params": {
+        "url": "https://panel.ornek.com/musteri/yeni"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "dongu",
+      "title": "Her müşteri için",
+      "action": "control.for_each",
+      "params": {
+        "items": "${musteriler}",
+        "item_name": "musteri"
+      },
+      "children": [
+        {
+          "id": "ad",
+          "title": "Firma adını yaz",
+          "action": "web.fill",
+          "params": {
+            "by": "label",
+            "target": "Firma adı",
+            "text": "${musteri.firma}"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "vergi",
+          "title": "Vergi numarasını yaz",
+          "action": "web.fill",
+          "params": {
+            "by": "label",
+            "target": "Vergi no",
+            "text": "${musteri.vergi}"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "kaydet",
+          "title": "Kaydet'e tıkla",
+          "action": "web.click",
+          "params": {
+            "by": "button",
+            "target": "Kaydet"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "sonuc",
+          "title": "Sonucu tabloya yaz",
+          "action": "sheets.write_cell",
+          "params": {
+            "spreadsheet_id": "musteriler",
+            "worksheet": "Liste",
+            "cell": "D${loop_index}",
+            "value": "Girildi"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        }
+      ],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

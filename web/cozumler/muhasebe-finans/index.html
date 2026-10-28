@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev ile muhasebe ve finans ekiplerinin tekrar eden işlerini otomatikleştirin: fatura girişi, PDF fatura arşivi, döviz kurları ve ERP veri girişi.">
+<title>Muhasebe ve finans · Peyrev</title>
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=6019d259bc">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/" aria-current="page">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Çözümler · Muhasebe ve finans</p>
+      <h1 id="sayfa-baslik">Muhasebede tekrar eden işleri Peyrev'e bırakın.</h1>
+      <p class="lead">Excel'den ERP'ye fatura girişi, gelen kutusundaki faturaların arşivi, günlük kur tablosu: her gün aynı adımlarla yapılan işler bir kez akış olarak kurulur, sonra kendiliğinden çalışır.</p>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="is-baslik">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Neler yapılır?</p>
+        <h2 id="is-baslik">Peyrev'in üstlendiği işler</h2>
+      </div>
+      <ul class="trust-list">
+        <li><strong>ERP ekranına veri girişi</strong><span>Pencere adımları ERP&#x27;nin kendi ekranını tanır, alanları doldurur ve Kaydet&#x27;e basar. API&#x27;si olmayan masaüstü programlarında da çalışır.</span></li>
+        <li><strong>Fatura ve belge arşivi</strong><span>Gelen e-postalardaki PDF&#x27;leri okur, içinden tutarı ya da numarayı ayırır, dosyayı doğru klasöre taşır; okuyamadığını kontrole bırakır.</span></li>
+        <li><strong>Kur ve tablo işleri</strong><span>Web sayfasındaki ya da servisteki tabloyu okur, Excel&#x27;e yazar, ekibe bildirir. Zamanlayıcıyla her sabah kendiliğinden.</span></li>
+        <li><strong>Mutabakat ve raporlar</strong><span>Veritabanı sorgusu, Excel ve CSV adımlarıyla listeleri karşılaştırır, farkları raporlar ve e-postayla gönderir.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band band-alt" aria-labelledby="sablon-baslik">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Hazır şablonlar</p>
+        <h2 id="sablon-baslik">İndirip hemen deneyin</h2>
+        <p class="section-lead">Şablonu Peyrev'de <strong>Akışlar → İçe aktar</strong> ile açın, dosya yollarını ve
+          bağlantıları kendi işinize göre değiştirin. Tümü <a href="/sablonlar/">Şablonlar</a> sayfasında.</p>
+      </div>
+      <ul class="examples templates">
+        <li class="example template" id="fatura">
+          <div class="example-text">
+            <p class="example-dept">Muhasebe</p>
+            <h3>Fatura girişi: Excel&#x27;den ERP&#x27;ye</h3>
+            <p>Excel&#x27;deki faturaları ERP&#x27;nin fatura ekranına satır satır girer; giremediğini not eder, işlenenleri raporlar ve muhasebeye e-postayla bildirir.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/fatura.webp" target="_blank" rel="noopener"
+            aria-label="Fatura girişi: Excel&#x27;den ERP&#x27;ye diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/fatura-koyu.webp">
+              <img src="/assets/ekran/akis/fatura.webp" width="2400" height="249" loading="lazy" decoding="async"
+                alt="Fatura girişi: Excel&#x27;den ERP&#x27;ye akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>11 adım.</strong> Gerekenler: Fatura listesi (Excel), ERP&#x27;nin fatura ekranı, e-posta bağlantısı.</p>
+            <a class="button button-small button-dark" href="/sablonlar/fatura.json" download="peyrev-fatura.json">Şablonu indir</a>
+          </div>
+        </li>
+        <li class="example template" id="pdf">
+          <div class="example-text">
+            <p class="example-dept">Muhasebe</p>
+            <h3>PDF faturaları arşivle</h3>
+            <p>Gelen kutusundaki faturaların PDF&#x27;ini okur; tutar bulunursa ay klasörüne taşır, bulunamazsa kontrole bırakır.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/pdf.webp" target="_blank" rel="noopener"
+            aria-label="PDF faturaları arşivle diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/pdf-koyu.webp">
+              <img src="/assets/ekran/akis/pdf.webp" width="2400" height="393" loading="lazy" decoding="async"
+                alt="PDF faturaları arşivle akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>6 adım.</strong> Gerekenler: E-posta okuma (IMAP) bağlantısı, arşiv klasörü.</p>
+            <a class="button button-small button-dark" href="/sablonlar/pdf.json" download="peyrev-pdf.json">Şablonu indir</a>
+          </div>
+        </li>
+        <li class="example template" id="kur">
+          <div class="example-text">
+            <p class="example-dept">Finans</p>
+            <h3>Günlük döviz kurları</h3>
+            <p>Kur sayfasındaki tabloyu okur, Excel&#x27;e yazar ve ekibe bildirir. Zamanlayıcıyla hafta içi her sabah kendiliğinden çalıştırılabilir.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/kur.webp" target="_blank" rel="noopener"
+            aria-label="Günlük döviz kurları diyagramını büyük aç">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/kur-koyu.webp">
+              <img src="/assets/ekran/akis/kur.webp" width="2400" height="262" loading="lazy" decoding="async"
+                alt="Günlük döviz kurları akışının Peyrev'deki diyagramı.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>4 adım.</strong> Gerekenler: Kurların yazılacağı Excel dosyası, Ayarlar&#x27;da tanımlı bildirim kanalı (ör. Telegram).</p>
+            <a class="button button-small button-dark" href="/sablonlar/kur.json" download="peyrev-kur.json">Şablonu indir</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="baglanti-baslik">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Hazır bağlantılar</p>
+        <h2 id="baglanti-baslik">Kullandığınız servislere bağlanır</h2>
+        <p class="section-lead">Peyrev'de <strong>Bağlantılar</strong> bölümünde 43 servisin bağlantısı hazır gelir; siz
+          yalnız kendi bilgilerinizi girersiniz. Şifreler bilgisayarınızın kasasında durur. Bu alanda sık kullanılanlar:</p>
+      </div>
+      <ul class="integrations">
+        <li>Logo (Tiger, Go)</li>
+        <li>Netsis</li>
+        <li>Mikro</li>
+        <li>Nebim V3</li>
+        <li>SAP Business One (SQL Server)</li>
+        <li>Microsoft Dynamics NAV / BC (şirket içi)</li>
+        <li>Paraşüt</li>
+        <li>Nilvera e-Fatura / e-Arşiv</li>
+        <li>e-Fatura entegratörü (genel)</li>
+        <li>TCMB döviz kurları</li>
+        <li>Google Sheets</li>
+        <li>Microsoft 365 (Graph)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band band-dark">
+    <div class="wrap cta">
+      <div>
+        <h2>Ayda 10 $'dan başlayan fiyatlarla.</h2>
+        <p>Standart paket 10 $/ay, ajanlı paket 20 $/ay (KDV hariç). Başvurunuzu alalım, ödeme bilgisini size iletelim;
+          ödemeniz onaylanınca hesabınız açılır ve indirme bağlantınız e-postanıza gelir.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="button button-gold" href="/#basvuru">Başvuru yap</a>
+        <a class="button button-ghost" href="/iletisim/">Soru sorun</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

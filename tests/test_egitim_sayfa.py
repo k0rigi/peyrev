@@ -50,7 +50,8 @@ def test_the_page_opens_only_youtube_thumbnails_and_the_nocookie_player():
 def test_the_page_has_no_inline_code_and_its_files_exist():
     assert PAGE.inline == [] and not [tag for tag, _ in PAGE.tags if tag == "style"]
     assert [{**attrs, "src": attrs["src"].split("?")[0]} for tag, attrs in PAGE.tags if tag == "script"] == [
-        {"src": "/assets/egitim.js", "defer": None}]
+        {"src": "/assets/egitim.js", "defer": None},
+        {"src": "/assets/ziyaret.js", "defer": None}]
     for tag, attrs in PAGE.tags:
         assert not [name for name in attrs if name.startswith("on") or name == "style"], tag
         for name in ("src", "href"):

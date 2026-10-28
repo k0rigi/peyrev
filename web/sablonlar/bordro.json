@@ -1,0 +1,99 @@
+{
+  "name": "Bordro dosyalarını dağıt",
+  "description": "Klasördeki bordro PDF'lerini listeler, dosya adındaki sicile göre çalışana e-postayla gönderir.",
+  "department": "İnsan kaynakları",
+  "steps": [
+    {
+      "id": "liste",
+      "title": "Bordro klasörünü listele",
+      "action": "file.list",
+      "params": {
+        "folder": "C:/IK/Bordrolar",
+        "pattern": "*.pdf",
+        "output": "dosyalar"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "dongu",
+      "title": "Her dosya için",
+      "action": "control.for_each",
+      "params": {
+        "items": "${dosyalar}",
+        "item_name": "dosya"
+      },
+      "children": [
+        {
+          "id": "sicil",
+          "title": "Sicil numarasını ayır",
+          "action": "text.transform",
+          "params": {
+            "text": "${dosya.name}",
+            "operation": "replace",
+            "find": ".pdf",
+            "replace_with": "",
+            "output": "sicil"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "kisi",
+          "title": "Çalışanın e-postasını bul",
+          "action": "database.query",
+          "params": {
+            "query": "SELECT eposta FROM calisanlar WHERE sicil = '${sicil}'",
+            "output": "kisi"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "kosul",
+          "title": "E-posta bulundu mu?",
+          "action": "control.if",
+          "params": {
+            "left": "${kisi}",
+            "operator": "not_empty"
+          },
+          "children": [
+            {
+              "id": "gonder",
+              "title": "Bordroyu gönder",
+              "action": "mail.send",
+              "params": {
+                "to": "${kisi.0.eposta}",
+                "subject": "Bordronuz",
+                "body": "Bordronuz ektedir.",
+                "attachments": "${dosya.path}"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "otherwise": [
+            {
+              "id": "not",
+              "title": "Eşleşmeyeni not et",
+              "action": "core.log",
+              "params": {
+                "message": "${dosya.name} için çalışan bulunamadı"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "offset": null
+        }
+      ],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

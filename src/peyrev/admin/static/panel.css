@@ -467,6 +467,19 @@ a.stat { transition: transform 0.15s ease, border-color 0.15s ease; }
   .row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
 }
 
+/* ----- iletişim ve ziyaretler ------------------------------------------------------------------ */
+.card.is-new { border-color: var(--accent); }
+.visit-chart { display: block; width: 100%; height: auto; }
+.visit-bar { fill: var(--accent); }
+.visit-bar:hover { fill: var(--accent-bg); }
+.visit-axis { stroke: var(--border); }
+.visit-labels { display: flex; justify-content: space-between; margin-top: 6px; color: var(--muted); font-size: 0.75rem; }
+.row.visit-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.visit-row > div { display: grid; gap: 6px; min-width: 0; }
+.visit-name { overflow-wrap: anywhere; }
+.visit-row progress { width: 100%; height: 6px; accent-color: var(--accent); }
+.visit-count { font-variant-numeric: tabular-nums; }
+
 /* ----- destek ----------------------------------------------------------------------------------- */
 .thread { display: grid; gap: 10px; }
 .message {

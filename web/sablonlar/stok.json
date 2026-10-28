@@ -1,0 +1,82 @@
+{
+  "name": "Kritik stok uyarısı",
+  "description": "Veritabanındaki stokları denetler; eşiğin altındaki ürünleri satın almaya bildirir.",
+  "department": "Depo",
+  "steps": [
+    {
+      "id": "sorgu",
+      "title": "Stokları sorgula",
+      "action": "database.query",
+      "params": {
+        "query": "SELECT urun, miktar FROM stok",
+        "output": "stok"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "dongu",
+      "title": "Her ürün için",
+      "action": "control.for_each",
+      "params": {
+        "items": "${stok}",
+        "item_name": "urun"
+      },
+      "children": [
+        {
+          "id": "kosul",
+          "title": "Miktar 10'un altında mı?",
+          "action": "control.if",
+          "params": {
+            "left": "${urun.miktar}",
+            "operator": "lt",
+            "right": 10
+          },
+          "children": [
+            {
+              "id": "ekle",
+              "title": "Uyarı listesine ekle",
+              "action": "data.append",
+              "params": {
+                "name": "eksikler",
+                "value": "${urun}"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "otherwise": [
+            {
+              "id": "yeterli",
+              "title": "Stok yeterli, geç",
+              "action": "core.log",
+              "params": {
+                "message": "${urun.urun} yeterli"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "offset": null
+        }
+      ],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "bildir",
+      "title": "Satın almaya mesaj gönder",
+      "action": "notify.send",
+      "params": {
+        "title": "Kritik stok",
+        "text": "${eksikler}"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

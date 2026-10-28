@@ -13,7 +13,7 @@ from test_admin_auth import events, post, signed_in
 from peyrev.topluluk import service
 
 ORIGIN = "https://peyrev.com"
-HEADERS = {"Origin": ORIGIN, "X-Peyrev-Topluluk": "1"}
+HEADERS = {"Origin": ORIGIN, "X-Peyrev-Uye": "1"}
 FLOW = {"name": "Fatura girişi", "steps": [
     {"id": "a", "action": "file.read_table", "title": "Faturaları oku", "params": {}},
     {"id": "b", "action": "control.for_each", "title": "Her fatura için", "params": {}, "children": [
@@ -24,9 +24,13 @@ def send(client, path, body=None, headers=None):
     return client.post("/api/topluluk/" + path, json={} if body is None else body, headers={**HEADERS, **(headers or {})})
 
 
+def sign_in(client, login, password="Gizli12345"):
+    return client.post("/api/uye/giris", json={"kullanici": login, "sifre": password}, headers=HEADERS)
+
+
 def member(app, login, password="Gizli12345"):
     client = app.test_client()
-    response = send(client, "giris", {"kullanici": login, "sifre": password})
+    response = sign_in(client, login, password)
     assert response.status_code == 200, response.get_json()
     return client
 
@@ -42,16 +46,18 @@ def people(core):
 
 def test_only_subscribed_accounts_get_in(app, client, core, people):
     assert client.get("/api/topluluk/konular").status_code == 401
-    wrong = send(client, "giris", {"kullanici": "ali@ornek.test", "sifre": "Yanlis12345"})
+    wrong = sign_in(client, "ali@ornek.test", "Yanlis12345")
     assert (wrong.status_code, wrong.get_json()["kod"]) == (401, "HATALI_GIRIS")
-    expired = send(client, "giris", {"kullanici": "eski@ornek.test", "sifre": "Gizli12345"})
-    assert (expired.status_code, expired.get_json()["kod"]) == (403, "ABONELIK_YOK")
-    passive = send(client, "giris", {"kullanici": "pasif@ornek.test", "sifre": "Gizli12345"})
+    passive = sign_in(client, "pasif@ornek.test")
     assert (passive.status_code, passive.get_json()["kod"]) == (401, "HATALI_GIRIS")
+    # An account whose license ended signs in (Hesabım) but the community stays closed.
+    expired = member(app, "eski@ornek.test")
+    refused = expired.get("/api/topluluk/konular")
+    assert (refused.status_code, refused.get_json()["kod"]) == (403, "ABONELIK_YOK")
     ali = member(app, "ali@ornek.test")
     me = ali.get("/api/topluluk/ben").get_json()
     assert me["uye"] == {"ad": "Ali Veli", "yonetici": False} and "duyuru" in me["kategoriler"]
-    cookie = ali.get_cookie("peyrev_uye", path="/api/topluluk")
+    cookie = ali.get_cookie("peyrev_hesap", path="/api")
     assert cookie.secure and cookie.http_only and cookie.same_site == "Strict"
     assert member(app, "yonetici@peyrev.test").get("/api/topluluk/ben").get_json()["uye"]["yonetici"] is True
     # The license ends while signed in: refused, and back once it is extended.
@@ -65,12 +71,11 @@ def test_only_subscribed_accounts_get_in(app, client, core, people):
     with core.db.transaction() as cur:
         cur.execute("UPDATE kullanicilar SET sifre_hash = 'pbkdf2:sha256:1$x$y' WHERE id = %s", (people["ali"]["id"],))
     assert ali.get("/api/topluluk/konular").get_json()["kod"] == "OTURUM_GECERSIZ"
-    assert send(ali, "cikis").status_code == 200
 
 
 def test_state_changes_need_the_header_and_the_origin(app, people):
     ali = member(app, "ali@ornek.test")
-    for headers in ({"X-Peyrev-Topluluk": None}, {"Origin": "https://evil.test"}, {"Sec-Fetch-Site": "cross-site"}):
+    for headers in ({"X-Peyrev-Uye": None}, {"Origin": "https://evil.test"}, {"Sec-Fetch-Site": "cross-site"}):
         sent = {key: value for key, value in {**HEADERS, **headers}.items() if value is not None}
         response = ali.post("/api/topluluk/konular", json={"kategori": "soru", "baslik": "Başlık", "metin": "x"},
                             headers=sent)

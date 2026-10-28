@@ -17,6 +17,7 @@ from ..llm import admin as llm_admin
 from ..support import answer_ticket, file_response, list_tickets, open_ticket, ticket_attachment
 from . import auth, service
 from . import egitim as training
+from . import iletisim as contact
 from . import indirme as downloads
 from . import topluluk as community
 
@@ -357,6 +358,25 @@ def api_blueprint(core) -> Blueprint:
     def community_comment_delete(comment_id: int):
         json_body(set())
         return ok(**community.delete_comment(core, me(), comment_id))
+
+    # ----- iletişim mesajları ve ziyaretler ---------------------------------------------------------
+    @blueprint.get("/iletisim")
+    def contact_list():
+        return ok(**contact.listing(core, me()))
+
+    @blueprint.post("/iletisim/<int:message_id>")
+    def contact_mark(message_id: int):
+        data = json_body({"okundu"}, {"okundu"})
+        return ok(**contact.mark(core, me(), message_id, data["okundu"]))
+
+    @blueprint.post("/iletisim/<int:message_id>/sil")
+    def contact_delete(message_id: int):
+        json_body(set())
+        return ok(**contact.delete(core, me(), message_id))
+
+    @blueprint.get("/ziyaretler")
+    def visit_summary():
+        return ok(**contact.visits(core, me(), request.args.get("gun")))
 
     @blueprint.get("/olaylar")
     def event_list():

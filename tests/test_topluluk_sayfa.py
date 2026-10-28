@@ -1,5 +1,5 @@
 """peyrev.com/topluluk/ sayfası: sıkı CSP (yalnız aynı köken), satır içi kod yok, betik sunucu verisini yalnız metin
-olarak yazar ve yalnız /api/topluluk/ uçlarına gider; arama motorlarına kapalıdır (üyelere özel)."""
+olarak yazar ve yalnız /api/topluluk/ ile /api/uye/ uçlarına gider; arama motorlarına kapalıdır (üyelere özel)."""
 
 from __future__ import annotations
 
@@ -23,7 +23,8 @@ def test_the_page_loads_only_its_own_origin_and_is_not_indexed():
     assert ("meta", {"name": "robots", "content": "noindex, nofollow"}) in PAGE.tags
     assert PAGE.inline == [] and not [tag for tag, _ in PAGE.tags if tag == "style"]
     assert [{**attrs, "src": attrs["src"].split("?")[0]} for tag, attrs in PAGE.tags if tag == "script"] == [
-        {"src": "/assets/topluluk.js", "defer": None}]
+        {"src": "/assets/topluluk.js", "defer": None},
+        {"src": "/assets/ziyaret.js", "defer": None}]
     for tag, attrs in PAGE.tags:
         assert not [name for name in attrs if name.startswith("on") or name == "style"], tag
         if tag in ("link", "img", "script"):
@@ -36,8 +37,9 @@ def test_the_script_writes_member_content_only_as_text():
     for forbidden in ("innerHTML", "outerHTML", "insertAdjacentHTML", "document.write", "eval(", "new Function",
                       ".style.", "setAttribute('style'", "srcdoc", "localStorage", "https://", "http://"):
         assert forbidden not in code, forbidden
-    assert "const API = '/api/topluluk/';" in code and re.findall(r"fetch\(([^,]+),", code) == ["API + path"]
-    assert "credentials: 'same-origin'" in code and "init.headers['X-Peyrev-Topluluk'] = '1';" in code
+    assert "const API = '/api/';" in code and re.findall(r"fetch\(([^,]+),", code) == ["API + path"]
+    assert set(re.findall(r"api\('([a-z]+)/", code)) == {"uye", "topluluk"}  # only the member and community endpoints
+    assert "credentials: 'same-origin'" in code and "init.headers['X-Peyrev-Uye'] = '1';" in code
     helper = re.search(r"function el\(tag, props, children\) \{(.*?)\n  \}\n", code, re.DOTALL).group(1)
     assert "node.textContent = String(value)" in helper and "node.append(child instanceof Node ? child : String(child))" in helper
     # Links built from server data stay inside the site: an anchor, the API or a fixed page.

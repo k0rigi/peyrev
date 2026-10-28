@@ -35,7 +35,7 @@ PLATFORMS = {"windows": ("windows-x64", "Windows", "Windows 10 ve 11 (64 bit)"),
              "mac": ("macos-arm64", "macOS", "Apple işlemcili Mac (M1 ve sonrası)")}
 CACHE_SECONDS = 300
 MANIFEST_LIMIT = 128 * 1024
-# The site's style sheet with the same content stamp as the static pages (tools/surum-damgasi.py).
+# The site's style sheet with the same content stamp as the static pages (tools/site.py).
 _SITE_CSS = Path(__file__).resolve().parents[2] / "web" / "assets" / "site.css"
 STYLE = "/assets/site.css" + (f"?v={hashlib.sha256(_SITE_CSS.read_bytes()).hexdigest()[:10]}" if _SITE_CSS.is_file() else "")
 PAGE_POLICY = ("default-src 'none'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; base-uri 'none'; "

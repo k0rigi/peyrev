@@ -57,7 +57,7 @@ def _iso(value) -> str | None:
 
 def summary(core, cur: Cursor, admin_id: int) -> dict[str, Any]:
     """Özet sayıları: aktif hesap, Peyrev'i kullanabilen hesap, 30 gün içinde bitecek hak, bekleyen başvuru, okunmamış
-    destek talebi; bitecek hakların ilk 50'si bitiş sırasıyla."""
+    destek talebi ve iletişim mesajı; bitecek hakların ilk 50'si bitiş sırasıyla."""
     require_admin(cur, admin_id)
     moment, today = core.clock.now(), core.clock.today_tr()
     until = today + ENDING_WITHIN
@@ -79,9 +79,11 @@ def summary(core, cur: Cursor, admin_id: int) -> dict[str, Any]:
     cur.execute("SELECT count(*) AS n FROM basvurular WHERE durum = %s AND olusturma >= %s",
                 (applications.PENDING, moment - applications.KEEP_APPLICATIONS))
     pending = cur.fetchone()["n"]
+    cur.execute("SELECT count(*) AS n FROM iletisim_mesajlari WHERE NOT okundu")
+    messages = cur.fetchone()["n"]
     return {"aktif_kullanici": accounts["aktif"], "lisansli_kullanici": accounts["lisansli"],
             "yakinda_bitecek": ending_count, "bitecekler": soon, "bekleyen_basvuru": pending,
-            "okunmamis_destek": unread_count(core, cur, admin_id)}
+            "okunmamis_destek": unread_count(core, cur, admin_id), "okunmamis_iletisim": messages}
 
 
 def user_detail(core, admin_id: int, user_id: int) -> dict[str, Any]:

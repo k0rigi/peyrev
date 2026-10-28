@@ -1,0 +1,83 @@
+{
+  "name": "PDF faturaları arşivle",
+  "description": "Gelen kutusundaki PDF faturaları okur, tutarı ayrıştırır ve ay klasörüne taşır.",
+  "department": "Muhasebe",
+  "steps": [
+    {
+      "id": "posta",
+      "title": "Gelen faturaları oku",
+      "action": "mail.read",
+      "params": {
+        "folder": "INBOX",
+        "subject_contains": "Fatura",
+        "output": "postalar"
+      },
+      "children": [],
+      "otherwise": [],
+      "offset": null
+    },
+    {
+      "id": "dongu",
+      "title": "Her e-posta için",
+      "action": "control.for_each",
+      "params": {
+        "items": "${postalar}",
+        "item_name": "posta"
+      },
+      "children": [
+        {
+          "id": "pdf",
+          "title": "PDF'ten tutarı oku",
+          "action": "file.read_pdf",
+          "params": {
+            "path": "${posta.ek}",
+            "output": "metin"
+          },
+          "children": [],
+          "otherwise": [],
+          "offset": null
+        },
+        {
+          "id": "kosul",
+          "title": "Tutar bulundu mu?",
+          "action": "control.if",
+          "params": {
+            "left": "${metin}",
+            "operator": "not_empty"
+          },
+          "children": [
+            {
+              "id": "tasi",
+              "title": "Ay klasörüne taşı",
+              "action": "file.operation",
+              "params": {
+                "operation": "move",
+                "source": "${posta.ek}",
+                "destination": "C:/Arsiv/"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "otherwise": [
+            {
+              "id": "not",
+              "title": "Kontrole bırak",
+              "action": "core.log",
+              "params": {
+                "message": "Tutar okunamadı"
+              },
+              "children": [],
+              "otherwise": [],
+              "offset": null
+            }
+          ],
+          "offset": null
+        }
+      ],
+      "otherwise": [],
+      "offset": null
+    }
+  ]
+}

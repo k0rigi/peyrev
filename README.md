@@ -8,12 +8,41 @@ peyrev.com'un merkezi sunucusu. Peyrev Studio (masaüstü akış stüdyosu) şu 
 - ajan ofisleri, görevler, onaylar ve ortak model erişimi,
 - imzalı güncelleme dosyaları (`/indir/`) ve kişiye özel indirme bağlantıları (`/api/indir/<anahtar>`),
 - ücretsiz eğitim videoları (`/egitim/`),
-- üyelere özel topluluk (`/topluluk/`, `/api/topluluk/*`).
+- üyelere özel topluluk (`/topluluk/`, `/api/topluluk/*`),
+- Hesabım (`/hesabim/`, `/api/uye/*`), iletişim formu (`/iletisim/`, `POST /api/iletisim`) ve çerezsiz ziyaret sayımı
+  (`POST /api/ziyaret`).
+
+**Site sayfaları** (`web/`): ana sayfa (özellikler, örnek akışlar, fiyatlar, başvuru, SSS), Çözümler (`/cozumler/` ve
+muhasebe-finans, e-ticaret, insan-kaynaklari), Şablonlar (`/sablonlar/`; altı örnek akış Studio'nun dışa aktarma
+biçiminde, `Akışlar → İçe aktar` ile açılır), Eğitim, Topluluk, Yenilikler (`/yenilikler/`, Studio'nun sürüm notlarından),
+İletişim, Hesabım ve yasal sayfalar (`/yasal/kvkk/`, `/yasal/gizlilik/`, `/yasal/mesafeli-satis/`, `/yasal/iade/`).
+Fiyatlar aylık ve KDV hariçtir: Peyrev 10 $, Peyrev + Ajanlar 20 $. Cayma hakkı Mesafeli Sözleşmeler Yönetmeliği 15/ğ
+uyarınca hesap açılıp indirme bağlantısı gönderilince sona erer; hesap açılmadan vazgeçen tam iade alır. Yasal metinler
+şablondur; gerçek satıştan önce satıcının tam kimliği (unvan, adres, vergi no, MERSİS/KEP) eklenmeli ve hukukçuya
+okutulmalıdır.
+
+**Hesabım ve üye oturumu:** Peyrev kullanıcı adı ve şifresiyle girilir (Studio girişiyle aynı deneme sınırı); oturum
+`peyrev_hesap` çerezindedir (HttpOnly, Secure, SameSite=Strict, Path=/api; 14 gün, 3 gün işlemsizlikte biter, hesap
+başına 5 oturum). Durum değiştiren istekler `X-Peyrev-Uye: 1` başlığını ve peyrev.com kökenini taşır. Süresi geçmiş hesap
+da girer: lisansını ve haklarını görür, uzatma ister (`POST /api/uye/uzatma`, günde bir; hesabın olaylarına
+`uzatma_istegi` olarak yazılır ve bildirilir), şifresini değiştirir. Aboneliği devam eden hesap kendine 30 gün geçerli
+indirme bağlantısı oluşturur (günde en çok 5; yenisi eskisini iptal eder). Topluluk aynı oturumu kullanır.
+
+**İletişim formu:** mesaj `iletisim_mesajlari`'na yazılır ve Telegram ile e-postayla bildirilir (bildirimde ad, e-posta
+ve konu vardır, mesajın kendisi yoktur). Gönderene otomatik e-posta gitmez. Adres başına saatte 3, günde 10, hizmette
+günde 200 mesaj; bal küpü alanı; mesajlar bir yıl sonra silinir. Panelde İletişim bölümünde okunur, okundu işaretlenir,
+silinir (silme olay kaydına yazılır).
+
+**Ziyaret sayımı:** her sayfa `assets/ziyaret.js`'i yükler (tools/site.py ekler); sayfa açılınca yalnız yol ve başka
+siteden gelindiyse o sitenin alan adı gönderilir. Sunucu gün, yol ve kaynak başına bir sayı tutar (`ziyaret_sayilari`);
+IP adresi, tarayıcı kimliği ve çerez yoktur. Yalnız aynı kökenden gelen tarayıcı istekleri sayılır (botlar ve tarayıcısız
+araçlar sayılmaz), yol sitenin sayfa biçiminde olmalıdır, günde en çok 2000 satır açılır, 400 günden eski günler
+silinir. Panelde Ziyaretler bölümü 7, 30 ya da 90 günün günlük toplamını, sayfaları ve gelinen siteleri gösterir.
 
 **Topluluk:** yalnız aboneliği devam eden hesaplar girer (Studio'nun lisans kuralı: `MOD_RPA` ve geçmemiş bitiş;
-yönetici satırsız); hem okuma hem yazma üyelere özeldir, sayfa arama motorlarına kapalıdır. Giriş Peyrev kullanıcı
-adı ve şifresiyle, Studio girişiyle aynı deneme sınırıyla yapılır; oturum `peyrev_uye` çerezindedir (HttpOnly, Secure,
-SameSite=Strict, Path=/api/topluluk; 14 gün, 3 gün işlemsizlikte biter); abonelik her istekte yeniden denetlenir.
+yönetici satırsız); hem okuma hem yazma üyelere özeldir, sayfa arama motorlarına kapalıdır. Giriş Hesabım'la ortaktır
+(`POST /api/uye/giris`, `peyrev_hesap` çerezi); abonelik her topluluk isteğinde yeniden denetlenir, süresi geçmiş hesap
+Hesabım'a yönlendirilir.
 Kategoriler: Duyurular ve belgeler (yalnız yönetici yazar), Soru ve yardım, Akış paylaşımı, Öneri ve fikir. Konu ve
 yorumlar hemen yayınlanır; yeni konu Telegram ve e-postayla bildirilir. Konuya Studio'nun "Dışa aktar" dosyası
 (en çok 1 MB) eklenebilir; adımları özetlenir, komut çalıştırma, web betiği, veritabanına yazma, dosya işlemi ve
@@ -31,7 +60,9 @@ uygulamalar güncellemeyi oradan indirir; Peyrev'i açmak için yine lisanslı h
 gider (`destek.env`); dış adreslere ulaşması için peyrev.com DNS'inde SPF ve DKIM kayıtları gerekir.
 
 Stil ve betik dosyaları tarayıcıda 7 gün saklanır; adresleri içerik özeti taşır (`?v=`). `web/assets/*.css` ya da
-`*.js` değişince `python tools/surum-damgasi.py` çalıştırılır (testler denetler).
+`*.js` değişince ya da sayfa eklenince `python tools/site.py` çalıştırılır: damgaları, bütün sayfaların ortak üst
+menü ve alt bilgisini ve ziyaret sayımı betiğini günceller (testler denetler; iç bağlantıların ve çapaların var olan
+sayfalara gittiğini de).
 
 İmzalı lisanstaki ürün adı `peyrev`dir. Lisans alabilen en eski Studio sürümü 1.1.0'dır (`MINIMUM_VERSION`); daha eski
 sürümler giriş yapamaz, güncelleyicileri 1.1.0'ı kendiliğinden kurar.
@@ -50,7 +81,7 @@ Yönetim paneli `/yonetim/` adresindedir (aşağıda).
 
 `https://peyrev.com/yonetim/`; uçları `/api/yonetim/*` (`src/peyrev/admin/`). Bölümler: Özet (sayılar, hızlı işlemler,
 yakında biten haklar), Kullanıcılar (tablo, hesap açma, modül hakları, şifre, Studio oturumları, ajan ofisleri),
-Başvurular, Destek, Eğitim, Olaylar ve Hesabım. Geniş ekranda solda menü, telefonda üstte kayan menü vardır. Sayfa da API'den,
+Başvurular, Destek, Topluluk, Eğitim, İletişim (form mesajları), Ziyaretler (çerezsiz sayım), Olaylar ve Hesabım. Geniş ekranda solda menü, telefonda üstte kayan menü vardır. Sayfa da API'den,
 satır içi betik ve stil olmadan, sıkı güvenlik başlıklarıyla gelir.
 
 - **Eğitim:** peyrev.com/egitim/ sayfasındaki ücretsiz videolar. Video YouTube'a (herkese açık ya da liste dışı)

@@ -21,7 +21,7 @@ from psycopg import Cursor
 
 from ..accounts import rules
 from ..common import ApiError
-from .auth import display_name
+from ..uye import display_name
 
 CATEGORIES = {"duyuru": "Duyurular ve belgeler", "soru": "Soru ve yardım", "akis": "Akış paylaşımı",
               "oneri": "Öneri ve fikir"}
