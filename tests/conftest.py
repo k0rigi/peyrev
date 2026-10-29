@@ -115,10 +115,11 @@ def make_user(core: Core, giris: str, password: str = "Gizli12345", *, rol: str 
     return user
 
 
-def open_session(core: Core, user: dict[str, Any], device: str = DEVICE, session_id: str | None = None) -> str:
+def open_session(core: Core, user: dict[str, Any], device: str = DEVICE, session_id: str | None = None,
+                 version: str = "1.3.0") -> str:
     """Lisans girişinin açtığı Studio oturumunun yerine geçer (belirteç testleri için)."""
     session_id = session_id or ("%032x" % (user["id"] * 7919))
     with core.db.transaction() as cur:
-        cur.execute("INSERT INTO oturumlar (id, kullanici_id, cihaz, surum, ip) VALUES (%s, %s, %s, '1.0.0', '127.0.0.1')",
-                    (session_id, user["id"], device))
+        cur.execute("INSERT INTO oturumlar (id, kullanici_id, cihaz, surum, ip) VALUES (%s, %s, %s, %s, '127.0.0.1')",
+                    (session_id, user["id"], device, version))
     return session_id

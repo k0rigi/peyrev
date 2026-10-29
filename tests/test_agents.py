@@ -81,7 +81,9 @@ def agents(core):
     return Agents(core)
 
 
-def extension_of(core, user, session="0" * 32, office=None, lock=False):
+def extension_of(core, user, session=None, office=None, lock=False):
+    # The user's Studio session as open_session wrote it (its version decides whether several offices may open).
+    session = session or "%032x" % (user["id"] * 7919)
     with core.db.transaction() as cur:
         return license_extension(core, cur, users.get(cur, user["id"]), session, office=office, lock=lock)
 

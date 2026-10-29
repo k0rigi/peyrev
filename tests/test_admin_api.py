@@ -579,7 +579,7 @@ def test_the_user_detail_brings_rights_sessions_offices_tickets_and_the_applicat
                            users.AGENTS: {"baslangic": None, "bitis": None, "durum": "aktif"},
                            users.RPA: {"baslangic": None, "bitis": None, "durum": "aktif"}}}
     [session] = data["oturumlar"]
-    assert (session["id"], session["cihaz"], session["surum"], session["ip"]) == (world.session, DEVICE[:8], "1.0.0",
+    assert (session["id"], session["cihaz"], session["surum"], session["ip"]) == (world.session, DEVICE[:8], "1.3.0",
                                                                                   "127.0.0.1")
     [office] = data["ofisler"]["liste"]
     assert data["ofisler"]["sinir"] == 50

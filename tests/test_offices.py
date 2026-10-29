@@ -159,3 +159,23 @@ def test_the_migration_keeps_every_existing_office(agents, core):
     agents.sql(update)
     limits = {row["giris"]: row["ofis_siniri"] for row in agents.sql("SELECT giris, ofis_siniri FROM kullanicilar")}
     assert (limits["cok@ornek.test"], limits["tek@ornek.test"], limits["yok@ornek.test"]) == (3, 1, 1)
+
+
+def test_an_account_with_several_offices_opens_agents_only_from_studio_1_3_0(agents, core):
+    """Studio 1.3.0 isolates offices; an earlier Studio would let one office reach another."""
+    user = customer(agents, ofis_siniri=5)
+    for name in ("A Firması", "B Firması"):
+        agents.office(user, name)
+    for version, active in (("1.2.1", False), ("1.0.0", False), ("", False), ("1.3.0", True), ("1.10.2", True)):
+        agents.sql("UPDATE oturumlar SET surum = %s WHERE kullanici_id = %s", (version, user["id"]))
+        extension, _limit = extension_of(core, user, session=agents.sessions[user["id"]])
+        assert extension["aktif"] is active, version
+        assert extension.get("guncelleme_gerekli", False) is not active
+    agents.sql("UPDATE oturumlar SET surum = '1.2.1' WHERE kullanici_id = %s", (user["id"],))
+    error = refused(lambda: agents.identity(user), "SURUM_ESKI", 403)
+    assert "1.3.0" in str(error)
+    # A single office keeps working with every earlier Studio.
+    single = customer(agents, "tek@ornek.test")
+    agents.office(single, "Tek Ofis")
+    agents.sql("UPDATE oturumlar SET surum = '1.2.1' WHERE kullanici_id = %s", (single["id"],))
+    assert extension_of(core, single, session=agents.sessions[single["id"]])[0]["aktif"] is True

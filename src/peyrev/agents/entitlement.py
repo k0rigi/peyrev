@@ -21,6 +21,8 @@ Kurallar (firma yoktur; ofis tek bir hesaba aittir):
   Sahip her ofisinin yetkilisi ve onaycısıdır: ofisi olan hesap üç yetkiyi, ofissiz hesap yalnız agents.use'u alır.
   `onayci_id` her zaman hesabın kendisidir; `ofis_kurabilir` hesabın (pasif dahil) ofis sayısı hesabın ofis sınırının
   (kullanicilar.ofis_siniri, varsayılan 1; panel değiştirir) altındayken yazılır.
+- Birden çok etkin ofisi olan hesapta oturumun Studio sürümü ISOLATED_OFFICES'tan (1.3.0) eskiyse ajan erişimi kapalıdır
+  ("guncelleme_gerekli"; uçlar 403 SURUM_ESKI); RPA lisansı etkilenmez. Tek ofisli hesaplar her sürümle açar.
 - lock=True: ilk kilit kullanıcı satırıdır; hesabın bütün ajan değişiklikleri burada sıraya girer. Ardından Studio
   oturumu, modül satırları ve ofisler kilitlenir. Kilit beklerken kapanan oturum, değişen şifre, dolan belirteç ve
   geçen gece yarısı kilit altında yeniden denetlenir.
@@ -46,10 +48,24 @@ OFFICE_HEADER = "X-Rpa-Ofis"
 # has its own limit (kullanicilar.ofis_siniri, 1 by default) up to this: every office is an independent customer.
 MAX_OFFICES = 50
 OFFICE_LIMIT_REACHED = "Hesabınızın ofis sınırına ulaşıldı."
+# Offices became independent customers in Studio 1.3.0 (no work or messages between offices). An account with several
+# offices opens Ajanlar only from that version on: an earlier Studio would still let one office reach another.
+ISOLATED_OFFICES = (1, 3, 0)
+UPDATE_FOR_OFFICES = ("Birden çok ofisli hesap Ajanlar'ı Peyrev 1.3.0 ve sonrasıyla açar; uygulamayı güncelleyin "
+                      "(güncelleme kendiliğinden iner, Peyrev'i kapatıp açın).")
+STUDIO_VERSION = re.compile(r"(\d{1,4})\.(\d{1,4})\.(\d{1,4})")
 NO_OFFICE_ACCESS = "Seçili ofise erişiminiz kalmadı. Ajanlar sayfasını yenileyip ofisinizi yeniden seçin."
 NO_LICENSE = "Hesabınız için geçerli Peyrev ve ajan lisansı gerekli."
 SESSION_LOCK = ("SELECT id FROM oturumlar WHERE id = %s AND kullanici_id = %s AND cihaz = %s AND durum = 'aktif' "
                 "FOR UPDATE")
+
+
+def _studio_version(cur, session_id: str) -> tuple[int, ...]:
+    """The Studio version the session last reported (sign-in and every renewal); unknown counts as the oldest."""
+    cur.execute("SELECT surum FROM oturumlar WHERE id = %s", (session_id,))
+    row = cur.fetchone()
+    match = STUDIO_VERSION.match(str((row or {}).get("surum") or ""))
+    return tuple(int(part) for part in match.groups()) if match else (0, 0, 0)
 
 
 def office_limit(user: dict[str, Any]) -> int:
@@ -101,6 +117,9 @@ def license_extension(core, cur, user: dict[str, Any], session_id: str, *, offic
                 + (" FOR UPDATE" if lock else ""), (user_id,))
     owned = cur.fetchall()
     offices = [row for row in owned if row["durum"] == "aktif"][:MAX_OFFICES]
+    if len(offices) > 1 and _studio_version(cur, session_id) < ISOLATED_OFFICES:
+        result["guncelleme_gerekli"] = True
+        return result, None
     if office is None:
         chosen = offices[0] if offices else None
     else:
@@ -167,6 +186,8 @@ def _identity(core, user: dict[str, Any], claims: dict[str, Any], extension: dic
               locked: bool = False) -> AgentIdentity:
     if extension.get("ofis_erisimi_yok"):
         raise ApiError(NO_OFFICE_ACCESS, 403, "OFIS_ERISIMI_YOK")
+    if extension.get("guncelleme_gerekli"):
+        raise ApiError(UPDATE_FOR_OFFICES, 403, "SURUM_ESKI")
     # A request may have waited for the locks past its token's lifetime; a password change ends it as well.
     if locked and (core.clock.now().timestamp() >= claims["exp"]
                    or not hmac.compare_digest(users.fingerprint(user["sifre_hash"]), claims["sifre_izi"])):
