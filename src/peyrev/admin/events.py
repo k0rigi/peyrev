@@ -41,6 +41,8 @@ TYPES = {
     "destek_yanit": "Destek talebi yanıtlandı",
     "destek_durum": "Destek talebinin durumu değişti",
     "ajan_ofisi_durumu": "Ajan ofisinin durumu değişti",
+    "ajan_ofisi_acildi": "Müşteri ofisi panelden açıldı",
+    "ofis_siniri": "Ofis sınırı değişti",
     "llm_kuyruk_bosaltma": "Ortak model kuyruğu boşaltıldı",
     "egitim_eklendi": "Eğitim videosu eklendi",
     "egitim_degisti": "Eğitim videosu değişti",
@@ -51,6 +53,7 @@ TYPES = {
     "topluluk_konu_silindi": "Topluluk konusu silindi",
     "topluluk_yorum": "Topluluk yorumu gizlendi veya açıldı",
     "topluluk_yorum_silindi": "Topluluk yorumu silindi",
+    "iletisim_silindi": "İletişim mesajı silindi",
 }
 
 

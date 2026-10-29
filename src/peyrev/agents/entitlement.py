@@ -19,8 +19,8 @@ Kurallar (firma yoktur; ofis tek bir hesaba aittir):
   `bitis` iki satırın erken biteni (dahil, Europe/Istanbul); belirteç sınırı ertesi günün 00:00'ı (TR).
 - Ofisler hesabın aktif ofisleridir (oluşturma, kimlik sırasıyla). Seçili ofis X-Rpa-Ofis'teki ya da ilk ofistir.
   Sahip her ofisinin yetkilisi ve onaycısıdır: ofisi olan hesap üç yetkiyi, ofissiz hesap yalnız agents.use'u alır.
-  `onayci_id` her zaman hesabın kendisidir; `ofis_kurabilir` hesabın (pasif dahil) ofis sayısı sınırın altındayken
-  yazılır.
+  `onayci_id` her zaman hesabın kendisidir; `ofis_kurabilir` hesabın (pasif dahil) ofis sayısı hesabın ofis sınırının
+  (kullanicilar.ofis_siniri, varsayılan 1; panel değiştirir) altındayken yazılır.
 - lock=True: ilk kilit kullanıcı satırıdır; hesabın bütün ajan değişiklikleri burada sıraya girer. Ardından Studio
   oturumu, modül satırları ve ofisler kilitlenir. Kilit beklerken kapanan oturum, değişen şifre, dolan belirteç ve
   geçen gece yarısı kilit altında yeniden denetlenir.
@@ -42,12 +42,19 @@ CAPABILITIES = ("agents.use", "agents.manage", "agents.approve")
 OFFICE_ID = re.compile(r"^[0-9a-f]{32}$")
 # Studio names the office it acts for; the server checks on every request that the account still owns it.
 OFFICE_HEADER = "X-Rpa-Ofis"
-# An account owns at most this many offices; Studio drops the whole agent extension for a longer list.
+# An account owns at most this many offices; Studio drops the whole agent extension for a longer list. Each account
+# has its own limit (kullanicilar.ofis_siniri, 1 by default) up to this: every office is an independent customer.
 MAX_OFFICES = 50
+OFFICE_LIMIT_REACHED = "Hesabınızın ofis sınırına ulaşıldı."
 NO_OFFICE_ACCESS = "Seçili ofise erişiminiz kalmadı. Ajanlar sayfasını yenileyip ofisinizi yeniden seçin."
 NO_LICENSE = "Hesabınız için geçerli Peyrev ve ajan lisansı gerekli."
 SESSION_LOCK = ("SELECT id FROM oturumlar WHERE id = %s AND kullanici_id = %s AND cihaz = %s AND durum = 'aktif' "
                 "FOR UPDATE")
+
+
+def office_limit(user: dict[str, Any]) -> int:
+    """Hesabın kurabileceği en çok ofis (pasifler dahil sayılır)."""
+    return max(1, min(MAX_OFFICES, int(user.get("ofis_siniri") or 1)))
 
 
 @dataclass
@@ -110,7 +117,7 @@ def license_extension(core, cur, user: dict[str, Any], session_id: str, *, offic
                       ofisler=[{"id": row["id"], "ad": row["ad"], "yetkili": True} for row in offices])
         result["yetkiler"].extend(["agents.manage", "agents.approve"])
     # Closed offices still count: the limit is what creating another office checks.
-    if len(owned) < MAX_OFFICES:
+    if len(owned) < office_limit(user):
         result["ofis_kurabilir"] = True
     limit = datetime.combine(end + timedelta(days=1), time(), TR) if end else None
     return result, limit

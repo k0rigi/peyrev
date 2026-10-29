@@ -48,7 +48,7 @@ def test_the_panel_lists_an_accounts_offices_with_task_and_approval_counts(agent
     assert result["ofisler"][1]["olusturma"] == (START + timedelta(hours=1)).isoformat()
     assert "GİZLİ" not in json.dumps(result) and "Kontrol görevi" not in json.dumps(result)
     empty = agents.account("bos@peyrev.test")
-    assert admin.user_offices(core, empty["id"]) == {"kullanici_id": empty["id"], "ofis_siniri": 50, "ofisler": []}
+    assert admin.user_offices(core, empty["id"]) == {"kullanici_id": empty["id"], "ofis_siniri": 50, "ust_sinir": 50, "ofisler": []}
     refused(lambda: admin.user_offices(core, 999999), "BULUNAMADI", 404)
 
 

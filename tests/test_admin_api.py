@@ -172,6 +172,8 @@ ENDPOINTS = [
     ("POST", "kullanicilar/{user}/oturumlari-kapat", {}),
     ("POST", "kullanicilar/{user}/iki-adim-sifirla", {}),
     ("POST", "ofisler/{office}/durum", {"durum": "pasif"}),
+    ("POST", "kullanicilar/{user}/ofis-siniri", {"sinir": 3}),
+    ("POST", "kullanicilar/{user}/ofisler", {"ad": "Yeni Müşteri"}),
     ("GET", "basvurular", None),
     ("POST", "basvurular/{application}/onayla", {"bitis": "2027-10-26"}),
     ("POST", "basvurular/{application}/reddet", {}),
@@ -456,7 +458,7 @@ def test_the_user_list_searches_filters_and_pages(core, world, browser):
     ayse.pop("acilis")
     assert ayse == {"kullanici_id": world.ayse["id"], "giris": "ayse@ornek.test", "ad_soyad": "Ayşe Yılmaz",
                     "telefon": None, "rol": "kullanici", "durum": "aktif", "kaynak": "yonetim", "oturum_acik": True,
-                    "rpa": "aktif", "moduller": {users.AGENTS: {"baslangic": None, "bitis": None},
+                    "rpa": "aktif", "ofis_siniri": 50, "moduller": {users.AGENTS: {"baslangic": None, "bitis": None},
                                                  users.RPA: {"baslangic": None, "bitis": None}}}
     assert second["kullanicilar"][1]["rpa"] == "aktif" and second["kullanicilar"][1]["moduller"] == {}
     found = get(browser, "kullanicilar?ara=KISI0").get_json()

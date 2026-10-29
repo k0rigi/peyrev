@@ -220,6 +220,7 @@ def list_users(core, admin_id: int, *, ara: Any = None, durum: Any = None, limit
                 "kullanici_id": row["id"], "giris": row["giris"], "ad_soyad": row["ad_soyad"], "telefon": row["telefon"],
                 "rol": row["rol"], "durum": row["durum"], "kaynak": row["kaynak"], "acilis": rules.stamp(row["olusturma"]),
                 "oturum_acik": row["oturum_acik"], "rpa": users.module_state(cur, row, users.RPA, today)[0],
+                "ofis_siniri": row["ofis_siniri"],
                 "moduller": {module: {"baslangic": _iso(value["baslangic"]), "bitis": _iso(value["bitis"])}
                              for module, value in sorted(rights.items())},
             })

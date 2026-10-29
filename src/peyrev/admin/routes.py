@@ -22,6 +22,7 @@ from . import indirme as downloads
 from . import topluluk as community
 
 PREFIX = "/api/yonetim"
+SERVER_OFFICES = 20  # ofis sınırı: "Sunucu hesabı" seçilerek açılan hesap
 USERS_PAGE = 50
 REPLY_LIMIT = 32 * 1024  # 5000 karakterlik yanıt, çok baytlı harflerle
 API_POLICY = "default-src 'none'; frame-ancestors 'none'"
@@ -164,16 +165,22 @@ def api_blueprint(core) -> Blueprint:
 
     @blueprint.post("/kullanicilar")
     def user_create():
-        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan", "sifre"},
+        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan", "sifre", "sunucu"},
                          {"giris", "ad_soyad", "baslangic", "bitis"})
         role = data.get("rol", "kullanici")
         if not isinstance(role, str) or role not in service.ROLES:
             raise ApiError("Rol geçersiz.")
+        server = data.get("sunucu", False)
+        if type(server) is not bool or (server and role != "kullanici"):
+            raise ApiError("Sunucu hesabı yönetici rolü olmadan, kullanıcı olarak açılır.")
         created = accounts_admin.create_user(core, me(), giris=data["giris"], ad_soyad=data["ad_soyad"],
                                              baslangic=data["baslangic"], bitis=data["bitis"],
                                              ajan=data.get("ajan", False), telefon=data.get("telefon"),
                                              sifre=data.get("sifre") or None)
         warning = None
+        if server:
+            # A server account runs several customers' offices on one computer; the limit is changed later in the panel.
+            agents_admin.set_office_limit(core, me(), created["kullanici_id"], SERVER_OFFICES)
         if role != "kullanici":
             # Accounts are opened as users; the role follows in its own recorded step. The account and its one-time
             # code already exist, so a failure here never hides the code: the panel says to set the role by hand.
@@ -251,6 +258,16 @@ def api_blueprint(core) -> Blueprint:
     def user_two_factor_reset(user_id: int):
         json_body(set())
         return ok(kullanici=service.reset_two_factor(core, me(), user_id))
+
+    @blueprint.post("/kullanicilar/<int:user_id>/ofis-siniri")
+    def user_office_limit(user_id: int):
+        data = json_body({"sinir"}, {"sinir"})
+        return ok(ofis=agents_admin.set_office_limit(core, me(), user_id, data["sinir"]))
+
+    @blueprint.post("/kullanicilar/<int:user_id>/ofisler")
+    def user_office_open(user_id: int):
+        data = json_body({"ad"}, {"ad"})
+        return ok(201, ofis=agents_admin.open_office(core, me(), user_id, data["ad"]))
 
     @blueprint.post("/ofisler/<office_id>/durum")
     def office_status(office_id: str):

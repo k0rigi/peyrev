@@ -20,7 +20,7 @@ from psycopg.errors import UniqueViolation
 
 from ..common import ApiError
 from . import metrics
-from .entitlement import MAX_OFFICES, relock, require
+from .entitlement import OFFICE_LIMIT_REACHED, office_limit, relock, require
 
 ID = re.compile(r"^[0-9a-f]{32}$")
 DIGEST = re.compile(r"^[0-9a-f]{64}$")
@@ -490,15 +490,16 @@ def my_offices(core, authenticated):
 
 
 def create_office(core, authenticated, name):
-    """Any licensed account opens offices up to the limit and is the owner, authority and approver of each."""
+    """A licensed account opens offices up to its own limit (one unless the panel gives more) and is the owner,
+    authority and approver of each."""
     name = _office_name(name)
     with _transaction(core, authenticated) as (cur, identity):
         me, now = identity.user["id"], core.clock.now()
         # Closed offices count as well; the account row lock keeps the count and the name check race-free.
         cur.execute("SELECT id, ad FROM ajan_ofisleri WHERE sahip_id = %s FOR UPDATE", (me,))
         offices = cur.fetchall()
-        if len(offices) >= MAX_OFFICES:
-            raise _error("Hesabınızın ofis sınırına ulaşıldı.", 409, "OFIS_SINIRI")
+        if len(offices) >= office_limit(identity.user):
+            raise _error(OFFICE_LIMIT_REACHED, 409, "OFIS_SINIRI")
         if any(row["ad"].casefold() == name.casefold() for row in offices):
             raise _error(SAME_NAME, 409, "OFIS_ADI")
         office_id = uuid.uuid4().hex

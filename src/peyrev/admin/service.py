@@ -115,7 +115,7 @@ def user_detail(core, admin_id: int, user_id: int) -> dict[str, Any]:
         for key in ("olusturma", "guncelleme"):
             office[key] = rules.stamp(datetime.fromisoformat(office[key])) if office[key] else None
     return {"kullanici": account, "oturumlar": studio,
-            "ofisler": {"sinir": offices["ofis_siniri"], "liste": offices["ofisler"]},
+            "ofisler": {"sinir": offices["ofis_siniri"], "ust_sinir": offices["ust_sinir"], "liste": offices["ofisler"]},
             "destek": {"toplam": tickets["toplam"], "acik": tickets["acik"]}, "indirme": download,
             "basvuru": None if application is None else {
                 "id": application["id"], "paket": application["paket"], "olusturma": rules.stamp(application["olusturma"]),

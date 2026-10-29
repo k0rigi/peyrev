@@ -28,6 +28,7 @@
   const FAILED = 'İşlem tamamlanamadı. Daha sonra tekrar deneyin.';
   const SESSION_CODES = ['OTURUM_GEREKLI', 'OTURUM_GECERSIZ'];
   const MODULES = { MOD_RPA: 'Peyrev', MOD_AJAN: 'Ajanlar' };
+  const SERVER_OFFICES = 20;
   const PACKAGES = { rpa: 'Peyrev', rpa_ajan: 'Peyrev + Ajanlar' };
   const ROLES = { kullanici: 'Kullanıcı', yonetici: 'Yönetici' };
   const ACCOUNT_STATES = { aktif: 'Aktif', pasif: 'Pasif' };
@@ -50,7 +51,7 @@
     kullanici_id: 'Hesap', oturum_id: 'Oturum', adet: 'Adet', kapatilan_oturum: 'Kapatılan Studio oturumu',
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
-    sira: 'Sıra', eposta: 'E-posta', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
+    sira: 'Sıra', eposta: 'E-posta', yeni: 'Yeni', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
     gizli: 'Gizli', yorum: 'Yorum', konu: 'Konu', tarih: 'Tarih',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
@@ -622,6 +623,7 @@
       h('td', { 'data-label': 'Ajanlar' }, rightCell(user, 'MOD_AJAN')),
       h('td', { 'data-label': 'Durum' }, h('div', { class: 'pills' }, [
         user.rol === 'yonetici' ? pill('Yönetici', 'accent') : null,
+        user.ofis_siniri > 1 ? pill('Sunucu · ' + user.ofis_siniri + ' ofis', 'accent') : null,
         pill(user.durum === 'pasif' ? 'Pasif' : 'Aktif', user.durum === 'pasif' ? 'danger' : 'ok'),
         user.oturum_acik ? pill('Studio açık') : null,
       ])),
@@ -699,6 +701,7 @@
     const start = input('baslangic', { type: 'date', value: today(), required: true });
     const end = input('bitis', { type: 'date', value: yearLater(), required: true });
     const agents = checkbox('ajan', 'Ajanlar hakkı da verilsin');
+    const server = checkbox('sunucu', 'Sunucu hesabı (birden çok müşteri ofisi)');
     const repeat = input('tekrar', { type: 'password', autocomplete: 'new-password', maxlength: 128 });
     const secret = passwordInput('sifre', repeat);
     const byCode = h('input', { type: 'radio', name: 'sifre_yolu', value: 'kod' });
@@ -731,12 +734,19 @@
       field('Lisans başlangıcı', start),
       field('Lisans bitişi', end, { hint: 'Bitiş günü dahildir. Süresiz hak hesap açıldıktan sonra ayrıntıdan verilir.' }),
       h('div', { class: 'field wide' }, agents.node),
+      h('div', { class: 'field wide' }, [server.node, h('span', { class: 'hint', text: 'Müşterilerin işlerini kendi '
+        + 'bilgisayarınızda çalıştırdığınız hesap: ' + SERVER_OFFICES + ' ofise kadar açabilir, her ofis bağımsız bir '
+        + 'müşteridir. Yönetici rolüyle birlikte seçilemez. Diğer hesaplar tek ofis açar.' })]),
       choice,
     ].concat(passwordFields), 'Hesabı aç', async () => {
       const body = {
         giris: login.value.trim(), ad_soyad: name.value.trim(), telefon: tel.value.trim(), rol: role.value,
         baslangic: start.value, bitis: end.value, ajan: agents.control.checked,
       };
+      if (server.control.checked) {
+        if (role.value !== 'kullanici') throw new Error('Sunucu hesabı yönetici rolü olmadan, kullanıcı olarak açılır.');
+        body.sunucu = true;
+      }
       if (byPassword.checked) {
         const problem = passwordProblem(secret.control.value, repeat.value);
         if (problem) throw new Error(problem.replace('Yeni şifre', 'Şifre').replace('Yeni şifrede', 'Şifrede'));
@@ -806,7 +816,7 @@
           ]),
           h('div', { class: 'detail-col' }, [
             studioSection(data.oturumlar, path, refresh),
-            officeSection(data.ofisler, refresh),
+            officeSection(user, data.ofisler, refresh),
             otherSection(data),
             section('bolum-olay', 'Son olaylar', [events]),
           ]),
@@ -1035,11 +1045,38 @@
     return section(id, 'Studio oturumları', [intro, rows]);
   }
 
-  function officeSection(offices, refresh) {
+  function officeSection(user, offices, refresh) {
     const id = 'bolum-ofis';
-    const intro = h('p', { class: 'muted', text: 'Kişinin Peyrev\'de kurduğu ajan ofisleri (en çok ' + offices.sinir
-      + '). Pasif ofise sahibi ve Studio erişemez; kayıtları korunur.' });
-    if (!offices.liste.length) return section(id, 'Ajan ofisleri', [intro, empty('Ajan ofisi yok.')]);
+    const intro = h('p', { class: 'muted', text: 'Her ofis bağımsız bir müşteridir: ajanları, akışları, bağlantıları ve '
+      + 'Telegram sohbeti birbirine kapalıdır. Hesap Peyrev\'de en çok ' + offices.sinir + ' ofis açabilir (pasifler '
+      + 'de sayılır). Pasif ofise sahibi ve Studio erişemez; kayıtları korunur.' });
+    const limit = input('ofis_siniri', { type: 'number', min: 1, max: offices.ust_sinir, value: offices.sinir, required: true });
+    const limitForm = form([
+      field('Ofis sınırı', limit, { hint: 'Normal müşteri 1. Sunucu hesabında satılan müşteri sayısı kadar (en çok '
+        + offices.ust_sinir + '). Var olan ofisler sınırdan etkilenmez; yalnız yenisi açılamaz.' }),
+    ], 'Sınırı kaydet', async () => {
+      const value = Number(limit.value);
+      if (!Number.isInteger(value) || value < 1 || value > offices.ust_sinir) {
+        throw new Error('Ofis sınırı 1-' + offices.ust_sinir + ' arasında bir sayı olmalı.');
+      }
+      await api('kullanicilar/' + user.kullanici_id + '/ofis-siniri', { sinir: value });
+      say('Ofis sınırı ' + value + ' oldu.', 'ok');
+      refresh(id);
+    }, { kind: '' });
+    const name = input('ad', { maxlength: 120, autocomplete: 'off', placeholder: 'ör. A Firması', required: true });
+    const full = offices.liste.length >= offices.sinir;
+    const openForm = form([
+      field('Yeni müşteri ofisi', name, { hint: full ? 'Ofis sınırı dolu; önce sınırı artırın.'
+        : 'Ofis hemen açılır; hesap Peyrev\'de Ajanlar → Ofisim\'den bu ofise geçer.' }),
+    ], 'Müşteri ofisi aç', async () => {
+      const text = name.value.trim().replace(/\s+/g, ' ');
+      if (text.length < 2) throw new Error('Ofise en az 2 karakterlik bir ad verin.');
+      const created = await api('kullanicilar/' + user.kullanici_id + '/ofisler', { ad: text });
+      say(created.ofis.ad + ' ofisi açıldı.', 'ok');
+      refresh(id);
+    });
+    const tools = h('div', { class: 'overview' }, [limitForm, openForm]);
+    if (!offices.liste.length) return section(id, 'Ajan ofisleri (müşteriler)', [intro, tools, empty('Ajan ofisi yok.')]);
     const rows = h('ul', { class: 'rows' }, offices.liste.map((office) => {
       const active = office.durum === 'aktif';
       return h('li', { class: 'row' }, [
@@ -1060,7 +1097,7 @@
         })]),
       ]);
     }));
-    return section(id, 'Ajan ofisleri', [intro, rows]);
+    return section(id, 'Ajan ofisleri (müşteriler) · ' + offices.liste.length + '/' + offices.sinir, [intro, tools, rows]);
   }
 
   function otherSection(data) {

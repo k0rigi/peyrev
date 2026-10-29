@@ -2,6 +2,11 @@
 
 user_offices(core, user_id) -> dict
   Hesabın bütün ofisleri (pasif dahil, Studio'daki sırayla) ve her ofisteki görev ve onay sayıları; iş metni yoktur.
+set_office_limit(core, admin_id, user_id, sinir) -> dict
+  Hesabın kurabileceği ofis sayısı (1-50; her ofis bağımsız bir müşteridir). Var olan ofisler sınırdan etkilenmez,
+  yalnız yenisi açılamaz. Değişiklik yonetim_olaylari'na yazılır.
+open_office(core, admin_id, user_id, ad) -> dict
+  Panelden hesaba müşteri ofisi açar (Studio'daki ofis kurma kurallarıyla: ad, aynı ad yok, hesabın ofis sınırı).
 set_office_status(core, admin_id, office_id, durum) -> dict
   Ofisi 'pasif' yapar (sahibi ve Studio o ofise artık erişemez; kayıtları kalır, sınırda sayılmaya devam eder) ya da
   yeniden 'aktif' yapar. Her değişiklik yonetim_olaylari'na yazılır; aynı duruma getirmek bir şey yazmaz.
@@ -10,11 +15,15 @@ set_office_status(core, admin_id, office_id, durum) -> dict
 from __future__ import annotations
 
 import json
+import uuid
 from datetime import UTC
+
+from psycopg.errors import UniqueViolation
 
 from .. import users
 from ..common import ApiError
-from .entitlement import MAX_OFFICES, OFFICE_ID
+from .entitlement import MAX_OFFICES, OFFICE_ID, OFFICE_LIMIT_REACHED, office_limit
+from .records import SAME_NAME, _office_name
 
 
 def _timestamp(value):
@@ -23,7 +32,8 @@ def _timestamp(value):
 
 def user_offices(core, user_id: int) -> dict:
     with core.db.transaction() as cur:
-        if users.get(cur, user_id) is None:
+        user = users.get(cur, user_id)
+        if user is None:
             raise ApiError("Kullanıcı bulunamadı.", 404, "BULUNAMADI")
         cur.execute("SELECT id, ad, durum, olusturma, guncelleme FROM ajan_ofisleri WHERE sahip_id = %s "
                     "ORDER BY olusturma, id", (user_id,))
@@ -37,7 +47,7 @@ def user_offices(core, user_id: int) -> dict:
                     (core.clock.now(), user_id))
         approvals = {row.pop("ofis_id"): row for row in cur.fetchall()}
     empty = {"gorev": 0, "acik_gorev": 0, "onay": 0, "bekleyen_onay": 0}
-    return {"kullanici_id": user_id, "ofis_siniri": MAX_OFFICES,
+    return {"kullanici_id": user_id, "ofis_siniri": office_limit(user), "ust_sinir": MAX_OFFICES,
             "ofisler": [{"id": office["id"], "ad": office["ad"], "durum": office["durum"],
                          "olusturma": _timestamp(office["olusturma"]), "guncelleme": _timestamp(office["guncelleme"]),
                          **empty, **tasks.get(office["id"], {}), **approvals.get(office["id"], {})}
@@ -71,3 +81,48 @@ def set_office_status(core, admin_id: int, office_id: str, durum: str) -> dict:
                          now))
     return {"id": office["id"], "kullanici_id": office["sahip_id"], "ad": office["ad"], "durum": durum,
             "degisti": changed}
+
+
+def _record(cur, core, admin_id: int, kind: str, target: str, details: dict) -> None:
+    cur.execute("INSERT INTO yonetim_olaylari (yonetici_id, tur, hedef, ayrinti, zaman) VALUES (%s, %s, %s, %s::jsonb, %s)",
+                (admin_id, kind, target, json.dumps(details), core.clock.now()))
+
+
+def set_office_limit(core, admin_id: int, user_id: int, sinir) -> dict:
+    if type(sinir) is not int or not 1 <= sinir <= MAX_OFFICES:
+        raise ApiError(f"Ofis sınırı 1-{MAX_OFFICES} arasında bir sayı olmalı.", 400, "GECERSIZ_GIRDI")
+    with core.db.transaction() as cur:
+        # The account row is the first lock, as for every office change the owner makes in Studio.
+        user = users.get(cur, user_id, lock=True)
+        if user is None:
+            raise ApiError("Kullanıcı bulunamadı.", 404, "BULUNAMADI")
+        cur.execute("SELECT count(*) AS n FROM ajan_ofisleri WHERE sahip_id = %s", (user_id,))
+        owned = cur.fetchone()["n"]
+        if user["ofis_siniri"] != sinir:
+            cur.execute("UPDATE kullanicilar SET ofis_siniri = %s, guncelleme = %s WHERE id = %s",
+                        (sinir, core.clock.now(), user_id))
+            _record(cur, core, admin_id, "ofis_siniri", f"kullanici:{user_id}",
+                    {"onceki": user["ofis_siniri"], "yeni": sinir})
+    return {"kullanici_id": user_id, "ofis_siniri": sinir, "ofis_sayisi": owned}
+
+
+def open_office(core, admin_id: int, user_id: int, ad) -> dict:
+    name = _office_name(" ".join(ad.split()) if isinstance(ad, str) else ad)
+    with core.db.transaction() as cur:
+        user = users.get(cur, user_id, lock=True)
+        if user is None:
+            raise ApiError("Kullanıcı bulunamadı.", 404, "BULUNAMADI")
+        cur.execute("SELECT ad FROM ajan_ofisleri WHERE sahip_id = %s FOR UPDATE", (user_id,))
+        offices = cur.fetchall()
+        if len(offices) >= office_limit(user):
+            raise ApiError(OFFICE_LIMIT_REACHED + " Önce hesabın ofis sınırını artırın.", 409, "OFIS_SINIRI")
+        if any(row["ad"].casefold() == name.casefold() for row in offices):
+            raise ApiError(SAME_NAME, 409, "OFIS_ADI")
+        office_id, now = uuid.uuid4().hex, core.clock.now()
+        try:
+            cur.execute("INSERT INTO ajan_ofisleri (id, sahip_id, ad, olusturma, guncelleme) VALUES (%s, %s, %s, %s, %s)",
+                        (office_id, user_id, name, now, now))
+        except UniqueViolation:
+            raise ApiError(SAME_NAME, 409, "OFIS_ADI") from None
+        _record(cur, core, admin_id, "ajan_ofisi_acildi", "ajan_ofisi:" + office_id, {"kullanici_id": user_id, "ad": name})
+    return {"id": office_id, "kullanici_id": user_id, "ad": name, "durum": "aktif"}

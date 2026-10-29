@@ -94,14 +94,16 @@ def client(app):
 
 def make_user(core: Core, giris: str, password: str = "Gizli12345", *, rol: str = "kullanici", durum: str = "aktif",
               modules: dict[str, date | None] | None = None, alan_id: int | None = None, ad_soyad: str = "Deneme Kişi",
-              user_id: int | None = None) -> dict[str, Any]:
-    """Kullanıcı ve modül hakları; `modules={"MOD_RPA": None}` süresiz hak verir."""
+              user_id: int | None = None, ofis_siniri: int | None = None) -> dict[str, Any]:
+    """Kullanıcı ve modül hakları; `modules={"MOD_RPA": None}` süresiz hak verir. `ofis_siniri` verilmezse 1'dir."""
     columns = {"giris": giris, "ad_soyad": ad_soyad, "sifre_hash": generate_password_hash(password), "rol": rol,
                "durum": durum}
     if alan_id is not None:
         columns["alan_id"] = alan_id
     if user_id is not None:
         columns["id"] = user_id
+    if ofis_siniri is not None:
+        columns["ofis_siniri"] = ofis_siniri
     names = list(columns)
     with core.db.transaction() as cur:
         cur.execute(f"INSERT INTO kullanicilar ({', '.join(names)}) VALUES ({', '.join(['%s'] * len(names))}) RETURNING *",

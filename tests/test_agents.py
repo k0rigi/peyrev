@@ -31,6 +31,8 @@ class Agents:
         self.sessions = {}
 
     def account(self, giris, modules=LICENSED, **columns):
+        # Most agent tests use several offices; the default limit of one office has its own tests (test_offices.py).
+        columns.setdefault("ofis_siniri", entitlement.MAX_OFFICES)
         user = make_user(self.core, giris, modules=dict(modules), **columns)
         self.sessions[user["id"]] = open_session(self.core, user)
         return user
