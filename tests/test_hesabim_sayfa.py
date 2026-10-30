@@ -18,7 +18,7 @@ def test_the_account_script_writes_text_only_and_calls_only_account_endpoints():
         assert forbidden not in code, forbidden
     assert "const API = '/api/';" in code and re.findall(r"fetch\(([^,]+),", code) == ["API + path"]
     assert set(re.findall(r"api\('([a-z]+/[a-z]+)", code)) == {"uye/giris", "uye/hesap", "uye/indirme", "uye/uzatma",
-                                                                 "uye/cikis", "rpa/hesap"}
+                                                                 "uye/cikis", "uye/robotlar", "rpa/hesap"}
     # The shared password endpoint is called without the session cookie.
     assert "{ anonymous: true }" in code and "credentials: settings.anonymous ? 'omit' : 'same-origin'" in code
     assert '<meta name="robots" content="noindex, nofollow">' in HTML

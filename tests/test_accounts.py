@@ -60,7 +60,7 @@ def studio_license(client, response, device=DEVICE, nonce=None, product=licensin
     body = response.get_json()
     assert response.status_code == 200 and body["success"] is True, body
     assert re.fullmatch(r"[A-Za-z0-9_\-.]{20,4096}", body["yenileme"])
-    for name in ("ajan_erisim", "destek_erisim"):
+    for name in ("ajan_erisim", "destek_erisim", "robot_erisim"):
         assert name not in body or re.fullmatch(r"[A-Za-z0-9_.-]{20,8192}", body[name])
     envelope = body["lisans"]
     assert isinstance(envelope, dict) and set(envelope) == {"payload", "signature"}

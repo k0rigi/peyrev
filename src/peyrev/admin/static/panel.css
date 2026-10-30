@@ -467,6 +467,11 @@ a.stat { transition: transform 0.15s ease, border-color 0.15s ease; }
   .row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
 }
 
+/* ----- robotlar --------------------------------------------------------------------------------- */
+.robot h3 { font-size: 0.9375rem; overflow-wrap: anywhere; }
+.robot h4 { font-size: 0.8125rem; color: var(--muted); }
+.robot .row strong { overflow-wrap: anywhere; }
+
 /* ----- iletişim ve ziyaretler ------------------------------------------------------------------ */
 .card.is-new { border-color: var(--accent); }
 .visit-chart { display: block; width: 100%; height: auto; }

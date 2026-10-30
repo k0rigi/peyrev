@@ -54,10 +54,12 @@ TYPES = {
     "topluluk_yorum": "Topluluk yorumu gizlendi veya açıldı",
     "topluluk_yorum_silindi": "Topluluk yorumu silindi",
     "iletisim_silindi": "İletişim mesajı silindi",
+    "robot_komutu": "Robot Paneli komutu",
+    "robot_komutu_uye": "Robot Paneli komutu (Hesabım)",
 }
 
 
-def record(core, cur: Cursor, admin_id: int, kind: str, target: str, **details: Any) -> None:
+def record(core, cur: Cursor, admin_id: int | None, kind: str, target: str, **details: Any) -> None:
     cur.execute("INSERT INTO yonetim_olaylari (yonetici_id, tur, hedef, ayrinti, zaman) VALUES (%s, %s, %s, %s, %s)",
                 (admin_id, kind, target, Jsonb(details), core.clock.now()))
 

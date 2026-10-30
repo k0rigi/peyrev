@@ -514,6 +514,14 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin:
 .account-rights span { color: var(--muted); }
 .account-right.is-ok span { color: var(--ok); font-weight: 600; }
 .account-renew { display: grid; gap: 12px; }
+.chip-hata { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+.account-robots { grid-column: 1 / -1; }
+.robot-list, .robot, .robot-office { display: grid; gap: 10px; min-width: 0; }
+.robot + .robot { padding-top: 14px; border-top: 1px solid var(--line); }
+.robot h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; overflow-wrap: anywhere; }
+.robot h4 { font-size: 0.9375rem; overflow-wrap: anywhere; }
+.robot .account-rights li { align-items: center; }
+.robot .account-rights strong { overflow-wrap: anywhere; }
 .account-download { display: grid; gap: 10px; }
 .community-closed { gap: 12px; max-width: 640px; }
 .community-closed .button { justify-self: start; }

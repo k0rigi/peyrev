@@ -5,6 +5,7 @@ Uç haritası (yollar kurulu Studio sürümleriyle uyumlu kalır):
   /api/rpa/lisans/*                lisans ve Studio oturumu          → peyrev.accounts
   /api/rpa/hesap/*, /api/rpa/basvuru  şifre işlemleri ve başvuru     → peyrev.accounts
   /api/rpa/destek/*                Studio destek talepleri            → peyrev.support
+  /api/rpa/robot/*                 Robot Paneli durum bildirimi       → peyrev.robotlar
   /api/studio/ekip/*               ajan ofisleri, görevler, onaylar   → peyrev.agents
   /api/studio/ekip/llm/*           ortak model (kapalıysa enabled:false) → peyrev.llm
   /api/yonetim/*                   yönetim paneli (yönetici oturumu)   → peyrev.admin
@@ -44,11 +45,12 @@ def create_app(settings: Settings | None = None, *, core: Core | None = None) ->
     from .admin import create_blueprint as admin
     from .agents import create_blueprint as agents
     from .llm import create_blueprint as llm
+    from .robotlar import create_blueprint as robots
     from .support import create_blueprint as support
     from .topluluk import create_blueprint as community
 
     for blueprint in (health.create_blueprint(core), egitim.create_blueprint(core), indirme.create_blueprint(core),
-                      accounts(core), support(core), iletisim.create_blueprint(core), ziyaret.create_blueprint(core),
+                      accounts(core), support(core), robots(core), iletisim.create_blueprint(core), ziyaret.create_blueprint(core),
                       uye.create_blueprint(core), community(core), agents(core),
                       llm(core), admin(core)):
         app.register_blueprint(blueprint)

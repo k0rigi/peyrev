@@ -8,7 +8,7 @@
  * Şifre kodu ve şifre değiştirme Studio'yla ortak hesap uçlarını (/api/rpa/hesap/*) kullanır; kurallar oradadır.
  *
  * Bölümler adres çubuğundaki çapadır: #ozet, #kullanicilar, #yeni-kullanici, #kullanici-<id>, #basvurular, #destek,
- * #destek-<no>, #topluluk, #topluluk-<id>, #egitim, #iletisim, #ziyaretler, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
+ * #destek-<no>, #robotlar, #topluluk, #topluluk-<id>, #egitim, #iletisim, #ziyaretler, #olaylar, #hesabim. Bildirimlerdeki https://peyrev.com/yonetim/#destek-<no> bağlantısı girişten sonra talebi açar.
  */
 (function () {
   'use strict';
@@ -52,7 +52,7 @@
     kapatilan_panel_oturumu: 'Kapatılan panel oturumu', ip: 'IP adresi', iki_adim: 'İki adımlı doğrulama',
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
     sira: 'Sıra', eposta: 'E-posta', yeni: 'Yeni', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
-    gizli: 'Gizli', yorum: 'Yorum', konu: 'Konu', tarih: 'Tarih',
+    gizli: 'Gizli', yorum: 'Yorum', konu: 'Konu', tarih: 'Tarih', komut: 'Komut', akis: 'Akış', kaynak: 'Kaynak',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -61,6 +61,8 @@
     kapandi: 'Kapatıldı',
   };
   const VISIT_SPANS = [['7', '7 gün'], ['30', '30 gün'], ['90', '90 gün']];
+  const ROBOT_TONES = { yesil: 'ok', sari: 'warn', kirmizi: 'danger' };
+  const ROBOT_COMMANDS = { durdur: 'Durdur', yeniden_calistir: 'Yeniden çalıştır', hesabim: 'Hesabım' };
   const MOMENT = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit',
     day: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -447,6 +449,7 @@
     [/^basvurular$/, 'basvurular', () => renderApplications()],
     [/^destek$/, 'destek', () => renderTickets()],
     [/^destek-(\d{1,10})$/, 'destek', (match) => renderTicket(match[1])],
+    [/^robotlar$/, 'robotlar', () => renderRobots()],
     [/^topluluk$/, 'topluluk', () => renderCommunity()],
     [/^topluluk-(\d{1,18})$/, 'topluluk', (match) => renderCommunityTopic(match[1])],
     [/^egitim$/, 'egitim', () => renderTraining()],
@@ -1564,6 +1567,109 @@
     load();
   }
 
+  // ----- Robotlar -----------------------------------------------------------------------------
+  /** "3 dk önce", "2 sa önce"; Studio 5 dakikada bir bildirir. */
+  function ago(minutes) {
+    if (minutes < 1) return 'az önce';
+    if (minutes < 120) return minutes + ' dk önce';
+    if (minutes < 2880) return Math.floor(minutes / 60) + ' sa önce';
+    return Math.floor(minutes / 1440) + ' gün önce';
+  }
+
+  function robotCommand(robot, kind, target, name, reload) {
+    const label = kind === 'durdur' ? 'Durdur' : 'Yeniden çalıştır';
+    const node = button(label, async () => {
+      await api('robotlar/' + robot.id + '/komut', { tur: kind, hedef: target });
+      say(label + ' komutu yazıldı; robot bir sonraki bildiriminde (en geç 5 dakika) alır.', 'ok');
+      return reload();
+    }, { small: true, kind: kind === 'durdur' ? 'danger' : 'primary',
+      confirm: '«' + name + '» için ' + label.toLocaleLowerCase('tr') + ' komutu robota gönderilsin mi?' });
+    node.disabled = !robot.komut_verilebilir;
+    return node;
+  }
+
+  function robotOffice(robot, office, reload) {
+    const counts = office.son_24_saat;
+    const offered = new Set();
+    const running = office.calisan.map((item) => h('li', { class: 'row' }, [
+      h('div', null, [h('strong', { text: item.akis }), h('div', { class: 'sub', text: 'Çalışıyor · başladı '
+        + day(item.baslangic) + (item.adim ? ' · adım no ' + item.adim : '') })]),
+      robotCommand(robot, 'durdur', item.run_id, item.akis, reload),
+    ]));
+    const failed = office.son_hatalar.map((item) => {
+      const first = !offered.has(item.workflow_id);
+      offered.add(item.workflow_id);
+      return h('li', { class: 'row' }, [
+        h('div', null, [h('strong', { text: item.akis }), h('div', { class: 'pills' }, [pill(item.kategori_adi, 'danger'),
+          pill(day(item.zaman))])]),
+        first ? robotCommand(robot, 'yeniden_calistir', item.workflow_id, item.akis, reload) : h('span'),
+      ]);
+    });
+    return h('div', { class: 'sub-block' }, [
+      h('div', { class: 'card-head' }, [h('h3', { text: office.ad || 'Hesabın ofisi' }), h('div', { class: 'pills' }, [
+        office.telegram ? pill('Telegram bağlı', 'ok') : pill('Telegram yok'),
+        office.ardisik_hata >= 3 ? pill('Art arda ' + office.ardisik_hata + ' hata', 'danger') : null])]),
+      h('p', { class: 'sub', text: 'Son 24 saat: ' + counts.basarili + ' başarılı · ' + counts.hatali + ' hatalı · '
+        + counts.iptal + ' iptal' }),
+      running.length ? h('ul', { class: 'rows', 'aria-label': 'Çalışan akışlar' }, running) : null,
+      failed.length ? h('h4', { text: 'Son hatalar' }) : null,
+      failed.length ? h('ul', { class: 'rows', 'aria-label': 'Son hatalar' }, failed) : null,
+    ]);
+  }
+
+  function robotCard(robot, reload) {
+    const user = robot.kullanici;
+    const commands = robot.komutlar.map((item) => h('li', { class: 'row' }, [
+      h('span', { text: item.tur_adi + ' · ' + (item.akis || '') + ' · ' + day(item.olusturuldu)
+        + (item.olusturan === 'uye' ? ' · Hesabım' : '') }),
+      pill(item.sonuc_adi, item.sonuc === 'tamam' ? 'ok' : item.sonuc ? 'warn' : ''),
+    ]));
+    return h('article', { class: 'card robot' }, [
+      h('div', { class: 'card-head' }, [
+        h('h2', { class: 'card-title', text: robot.etiket }),
+        h('div', { class: 'pills' }, [
+          pill('Son bildirim ' + ago(robot.dakika), ROBOT_TONES[robot.renk]),
+          robot.kapali ? pill('Studio kapalı') : null,
+          robot.ekran_kilitli ? pill('Ekran kilitli', 'warn') : null,
+          robot.bos_disk === null || robot.bos_disk === undefined ? null
+            : pill('Boş disk %' + robot.bos_disk, robot.disk_uyari ? 'danger' : ''),
+        ]),
+      ]),
+      h('p', { class: 'sub' }, [user ? h('a', { href: '#kullanici-' + user.id, text: user.ad_soyad || user.giris }) : null,
+        user ? ' · ' : null, robot.isletim_sistemi + ' · Peyrev ' + robot.surum + ' · son bildirim ' + day(robot.son_gorulme)
+        + (robot.sirada ? ' · sırada ' + robot.sirada : '')]),
+      robot.komut_verilebilir ? null : h('p', { class: 'notice notice-warn', text: 'Robot şu anda bildirim göndermiyor; '
+        + 'komutlar ona ulaşmaz.' }),
+    ].concat(robot.ofisler.map((office) => robotOffice(robot, office, reload)), commands.length ? [
+      h('div', { class: 'sub-block' }, [h('h3', { text: 'Son komutlar' }), h('ul', { class: 'rows' }, commands)]),
+    ] : []));
+  }
+
+  function renderRobots() {
+    const list = h('div', { class: 'panel-section' });
+    const load = () => fill(list, async (target) => {
+      const data = await api('robotlar');
+      if (!data.robotlar.length) {
+        target.replaceChildren(empty('Henüz durum bildiren robot yok. Studio 1.5.0 ve sonrası, Ayarlar\'da durum '
+          + 'bildirimi açıkken kendiliğinden bildirir.'));
+        return;
+      }
+      const late = data.robotlar.filter((item) => item.renk === 'kirmizi' && !item.kapali).length;
+      target.replaceChildren(
+        h('p', { class: 'muted', role: 'status', text: data.robotlar.length + ' robot' + (late ? ' · ' + late
+          + ' robot 1 saatten uzun süredir bildirmiyor' : '') }),
+        h('div', { class: 'cards' }, data.robotlar.map((item) => robotCard(item, load))));
+    });
+    const view = page('Robotlar', {
+      actions: [button('Yenile', () => load())],
+      lead: 'Peyrev kurulu bilgisayarların durumu: her Studio 5 dakikada bir, açılışta ve bir akış hatayla bitince '
+        + 'bildirir. Yalnız akış adları, durumlar, adım numaraları ve hata türleri gelir; hata metni, değişken, dosya '
+        + 've ekran görüntüsü gelmez. Yeşil 10 dakikadan, sarı 1 saatten yeni; kırmızı 1 saatten eski bildirimdir.',
+    });
+    view.body.replaceChildren(list);
+    load();
+  }
+
   // ----- İletişim ----------------------------------------------------------------------------
   function messageCard(item, reload) {
     const toggle = button(item.okundu ? 'Okunmadı yap' : 'Okundu', async () => {
@@ -1704,6 +1810,8 @@
     if (match) return h('a', { href: '#egitim', text: 'Eğitim videosu #' + match[1] });
     match = /^iletisim:(\d+)$/.exec(target);
     if (match) return 'İletişim mesajı #' + match[1];
+    match = /^robot:(\d+)$/.exec(target);
+    if (match) return h('a', { href: '#robotlar', text: 'Robot #' + match[1] });
     match = /^(ajan_ofisi|basvuru):([0-9a-f]{8})[0-9a-f]{24}$/.exec(target);
     if (match) return (match[1] === 'basvuru' ? 'Başvuru ' : 'Ajan ofisi ') + match[2] + '…';
     return target === 'llm_isler' ? 'Ortak model kuyruğu' : target;
@@ -1729,6 +1837,7 @@
     if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return day(text);
     let names = Object.assign({ yonetici_belirledi: 'yönetici belirledi', gonderildi: 'gönderildi',
       gonderilemedi: 'gönderilemedi', istenmedi: 'istenmedi', adres_yok: 'adres yok', ayar_yok: 'ayar yok' }, ROLES, ACCOUNT_STATES, TICKET_STATES,
+      ROBOT_COMMANDS,
       state.ticketStates || {});
     if (key === 'alanlar') names = DETAIL_LABELS;
     else if (key === 'modul' || key === 'moduller') names = MODULES;

@@ -125,7 +125,7 @@ def _agent_extension(core, cur: Cursor, user: dict[str, Any], session_id: str) -
 
 def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end: date | None, session_id: str,
            number: int) -> dict[str, Any]:
-    """Başarılı giriş ve yenilemenin yanıtı: imzalı lisans, yenileme belirteci, ajan ve destek erişimi."""
+    """Başarılı giriş ve yenilemenin yanıtı: imzalı lisans, yenileme belirteci, ajan, destek ve robot erişimi."""
     moment = core.clock.now_tr().replace(microsecond=0)
     valid_until = moment + timedelta(seconds=TOLERANCE_SECONDS)
     if end is not None:
@@ -150,6 +150,11 @@ def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end
         result["destek_erisim"] = tokens.issue(core, "destek", user, device, session_id)
     except Exception as error:  # noqa: BLE001
         LOG.warning("Destek erişim belirteci üretilemedi (%s).", type(error).__name__)
+    try:
+        # Robot Paneli (1.5.0): the status report of this computer; earlier Studios ignore the field.
+        result["robot_erisim"] = tokens.issue(core, "robot", user, device, session_id)
+    except Exception as error:  # noqa: BLE001
+        LOG.warning("Robot erişim belirteci üretilemedi (%s).", type(error).__name__)
     return result
 
 

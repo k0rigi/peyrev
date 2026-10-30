@@ -14,6 +14,7 @@ from ..accounts import admin as accounts_admin
 from ..agents import admin as agents_admin
 from ..common import LOG, ApiError, client_ip, json_body, ok
 from ..llm import admin as llm_admin
+from ..robotlar import service as robots
 from ..support import answer_ticket, file_response, list_tickets, open_ticket, ticket_attachment
 from . import auth, service
 from . import egitim as training
@@ -394,6 +395,21 @@ def api_blueprint(core) -> Blueprint:
     @blueprint.get("/ziyaretler")
     def visit_summary():
         return ok(**contact.visits(core, me(), request.args.get("gun")))
+
+    # ----- Robot Paneli ----------------------------------------------------------------------------
+    @blueprint.get("/robotlar")
+    def robot_list():
+        with core.db.transaction() as cur:
+            service.require_admin(cur, me())
+            return ok(robotlar=robots.listing(core, cur), kategoriler=robots.CATEGORIES)
+
+    @blueprint.post("/robotlar/<int:robot_id>/komut")
+    def robot_command(robot_id: int):
+        data = json_body({"tur", "hedef"}, {"tur", "hedef"})
+        with core.db.transaction() as cur:
+            admin = service.require_admin(cur, me())
+            return ok(robot=robots.create_command(core, cur, robot_id, data["tur"], data["hedef"], actor=admin,
+                                                  source="yonetici"))
 
     @blueprint.get("/olaylar")
     def event_list():

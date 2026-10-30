@@ -1,4 +1,4 @@
-"""Studio erişim belirteçleri (destek, ajan): lisans yanıtıyla verilir, 12 dakika geçerlidir.
+"""Studio erişim belirteçleri (destek, ajan, robot): lisans yanıtıyla verilir, 12 dakika geçerlidir.
 
 İçerik: aud, surum=1, kullanici_id, firma_id (= alan_id, Studio uyumu), cihaz, oturum, sifre_izi, iat, exp.
 Her istekte yeniden denetlenir: hesap aktif, şifre izi aynı, Studio oturumu (oturumlar) hâlâ aktif. Anahtar amaca özeldir
@@ -19,7 +19,7 @@ from .common import ApiError
 from .users import fingerprint
 
 TOKEN_SECONDS = 720
-AUDIENCES = {"destek": "peyrev-studio-destek", "ajan": "peyrev-studio-ajanlar"}
+AUDIENCES = {"destek": "peyrev-studio-destek", "ajan": "peyrev-studio-ajanlar", "robot": "peyrev-studio-robot"}
 IDENTIFIER = re.compile(r"^[0-9a-f]{32,64}$")
 REQUIRED = ["exp", "iat", "aud", "kullanici_id", "firma_id", "cihaz", "oturum", "sifre_izi"]
 

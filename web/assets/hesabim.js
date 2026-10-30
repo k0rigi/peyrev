@@ -1,5 +1,7 @@
 /* peyrev.com/hesabim/: Peyrev hesabıyla giriş; lisans durumu, kişisel indirme bağlantısı, lisans uzatma isteği, şifre
- * değiştirme ve açık Peyrev oturumları (/api/uye/*; şifre Studio'yla ortak /api/rpa/hesap/sifre ucuyla değişir).
+ * değiştirme, açık Peyrev oturumları ve Robotlarım (/api/uye/*; şifre Studio'yla ortak /api/rpa/hesap/sifre ucuyla
+ * değişir). Robotlarım yalnız hesabın kendi bilgisayarlarını gösterir; Durdur ve Yeniden çalıştır komut yazar, komut
+ * robotun bir sonraki durum bildirimiyle gider.
  *
  * Derleme adımı ve harici betik yok. Sunucudan gelen her metin DOM'a yalnız textContent ya da metin düğümü olarak
  * yazılır. Oturum HttpOnly çerezdedir (Path=/api); durum değiştiren istekler X-Peyrev-Uye başlığını taşır.
@@ -217,6 +219,94 @@
     ]);
   }
 
+  // ----- Robotlarım ----------------------------------------------------------------------------
+  const TONES = { yesil: 'chip-soru', sari: 'chip-duyuru', kirmizi: 'chip-hata' };
+
+  function ago(minutes) {
+    if (minutes < 1) return 'az önce';
+    if (minutes < 120) return minutes + ' dk önce';
+    if (minutes < 2880) return Math.floor(minutes / 60) + ' sa önce';
+    return Math.floor(minutes / 1440) + ' gün önce';
+  }
+
+  function chip(text, tone) {
+    return el('span', { class: 'chip' + (tone ? ' ' + tone : ''), text });
+  }
+
+  function commandButton(robot, kind, target, name, reload) {
+    const label = kind === 'durdur' ? 'Durdur' : 'Yeniden çalıştır';
+    const button = el('button', { class: 'button button-small ' + (kind === 'durdur' ? 'button-quiet-dark' : 'button-outline'),
+      type: 'button', text: label, disabled: !robot.komut_verilebilir });
+    button.addEventListener('click', () => {
+      if (!window.confirm('«' + name + '» için ' + label.toLocaleLowerCase('tr') + ' komutu bilgisayarınıza gönderilsin mi?')) return;
+      guarded(button, async (box) => {
+        await api('uye/robotlar/' + robot.id + '/komut', { tur: kind, hedef: target });
+        await reload();
+        box.append(notice(label + ' komutu yazıldı; Peyrev bir sonraki bildiriminde (en geç 5 dakika) uygular.', 'ok'));
+      });
+    });
+    return button;
+  }
+
+  function robotOffice(robot, office, reload) {
+    const counts = office.son_24_saat;
+    const offered = new Set();
+    const rows = office.calisan.map((item) => el('li', null, [
+      el('span', null, [el('strong', { text: item.akis }), ' · çalışıyor, başladı ' + day(item.baslangic)
+        + (item.adim ? ' · adım no ' + item.adim : '')]),
+      commandButton(robot, 'durdur', item.run_id, item.akis, reload),
+    ])).concat(office.son_hatalar.map((item) => {
+      const first = !offered.has(item.workflow_id);
+      offered.add(item.workflow_id);
+      return el('li', null, [
+        el('span', null, [el('strong', { text: item.akis }), ' · ', chip(item.kategori_adi, 'chip-hata'), ' ' + day(item.zaman)]),
+        first ? commandButton(robot, 'yeniden_calistir', item.workflow_id, item.akis, reload) : null,
+      ]);
+    }));
+    return el('div', { class: 'robot-office' }, [
+      el('h4', { text: (office.ad || 'Hesabınız') + (office.telegram ? ' · Telegram bağlı' : '') }),
+      el('p', { class: 'aside', text: 'Son 24 saat: ' + counts.basarili + ' başarılı · ' + counts.hatali + ' hatalı · '
+        + counts.iptal + ' iptal' + (office.ardisik_hata >= 3 ? ' · art arda ' + office.ardisik_hata + ' hata' : '') }),
+      rows.length ? el('ul', { class: 'account-rights' }, rows) : null,
+    ]);
+  }
+
+  function robotBlock(robot, reload) {
+    const commands = robot.komutlar.map((item) => el('li', null, [
+      el('span', { text: item.tur_adi + ' · ' + (item.akis || '') + ' · ' + day(item.olusturuldu) }),
+      el('span', { text: item.sonuc_adi }),
+    ]));
+    return el('div', { class: 'robot' }, [
+      el('h3', null, [robot.etiket + ' ', chip('Son bildirim ' + ago(robot.dakika), TONES[robot.renk]),
+        robot.kapali ? chip('Peyrev kapalı') : null, robot.ekran_kilitli ? chip('Ekran kilitli', 'chip-duyuru') : null,
+        robot.disk_uyari ? chip('Boş disk %' + robot.bos_disk, 'chip-hata') : null]),
+      el('p', { class: 'aside', text: robot.isletim_sistemi + ' · Peyrev ' + robot.surum + ' · son bildirim ' + day(robot.son_gorulme) }),
+    ].concat(robot.ofisler.map((office) => robotOffice(robot, office, reload)), commands.length ? [
+      el('h4', { text: 'Son komutlar' }), el('ul', { class: 'account-rights' }, commands)] : []));
+  }
+
+  function robotsCard() {
+    const body = el('div', { class: 'robot-list' }, [el('p', { class: 'aside', text: 'Robotlarınız yükleniyor…' })]);
+    const reload = async () => {
+      const data = await api('uye/robotlar');
+      body.replaceChildren(...(data.robotlar.length ? data.robotlar.map((robot) => robotBlock(robot, reload))
+        : [el('p', { class: 'aside', text: 'Henüz durum bildiren bilgisayarınız yok. Peyrev 1.5.0 ve sonrası, Ayarlar\'daki '
+          + '"Robot Paneline durum bildir" açıkken kendiliğinden bildirir.' })]));
+    };
+    const refresh = el('button', { class: 'button button-outline button-small', type: 'button', text: 'Yenile' });
+    refresh.addEventListener('click', () => guarded(refresh, reload));
+    const card = el('section', { class: 'card account-card account-robots', 'aria-labelledby': 'h-robot' }, [
+      el('h2', { id: 'h-robot', text: 'Robotlarım' }),
+      el('p', { class: 'aside', text: 'Peyrev kurulu bilgisayarlarınızın durumu. Yalnız akış adları, durumlar, adım '
+        + 'numaraları ve hata türleri gelir; hata metni, değişkenler, dosyalar ve ekran görüntüsü bilgisayarınızdan çıkmaz.' }),
+      body, refresh,
+    ]);
+    reload().catch((error) => {
+      if (!(error instanceof Refused)) body.replaceChildren(notice(error.message, 'error'));
+    });
+    return card;
+  }
+
   function show(account) {
     const out = el('button', { class: 'button button-outline button-small', type: 'button', text: 'Çıkış' });
     out.addEventListener('click', () => guarded(out, async () => {
@@ -231,7 +321,8 @@
           href: '/topluluk/', text: 'Topluluk' }) : null, out]),
       ]),
       el('p', { class: 'aside', text: 'Kullanıcı adınız: ' + account.giris }),
-      el('div', { class: 'account-grid' }, [renewCard(account), downloadCard(account), passwordCard(account), sessionsCard(account)]),
+      el('div', { class: 'account-grid' }, [renewCard(account), downloadCard(account), passwordCard(account), sessionsCard(account),
+        robotsCard()]),
     );
   }
 

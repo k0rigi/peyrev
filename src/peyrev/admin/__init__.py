@@ -1,7 +1,7 @@
 """Yönetim paneli: https://peyrev.com/yonetim/ sayfası ve /api/yonetim/* uçları (yalnız platform yöneticisi).
 
 Sayfa (page.py): GET /yonetim/ tek sayfa; /yonetim/panel.css ve /yonetim/panel.js. Bölümler Özet, Kullanıcılar,
-Başvurular, Destek (#destek, talep #destek-<no>), Olaylar ve Hesabım'dır. Giriş ekranındaki "Şifre kodum var" ve
+Başvurular, Destek (#destek, talep #destek-<no>), Robotlar, Olaylar ve Hesabım'dır. Giriş ekranındaki "Şifre kodum var" ve
 Hesabım'daki şifre değiştirme, Studio'yla ortak /api/rpa/hesap/* uçlarını (peyrev.accounts) kullanır.
 
 Kimlik (auth.py): POST /api/yonetim/giris yönetici oturumu açar; `peyrev_yonetim` çerezi (HttpOnly, Secure,
@@ -30,6 +30,8 @@ Uçlar (routes.py, hepsi /api/yonetim altında; giriş dışındakiler oturum is
   GET  /basvurular?durum= · POST /basvurular/<id>/onayla {baslangic?, bitis, paket?, not?} · /reddet {not?}
   GET  /destek?durum=&tur= · GET /destek/<no> · POST /destek/<no>/yanit {metin?, durum?, yayin_surumu?}
   GET  /destek/<no>/ek/<ek_id>                     (görseller satır içi, diğerleri indirme)
+  GET  /robotlar                                   → {robotlar, kategoriler} (Robot Paneli)
+  POST /robotlar/<id>/komut {tur, hedef}           → {robot}; tur durdur | yeniden_calistir
   GET  /olaylar?sayfa=&tur=&hedef=
 """
 

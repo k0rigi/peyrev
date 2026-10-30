@@ -31,6 +31,10 @@ SESSION_REQUIRED = {"success": False, "kod": "OTURUM_GEREKLI", "message": "Yöne
 SESSION_CLOSED = {"success": False, "kod": "OTURUM_GECERSIZ", "message": "Oturumunuz kapandı. Yeniden giriş yapın."}
 PNG = b"\x89PNG\r\n\x1a\n" + bytes(range(64))
 FLOW = {"adimlar": [{"tur": "window.click", "parametreler": {"hedef": "***"}}]}
+ROBOT = {"ofisler": [{"id": None, "ad": "", "telegram": False, "son_24_saat": {"basarili": 0, "hatali": 0, "iptal": 0},
+                      "ardisik_hata": 0, "son_hatalar": [],
+                      "calisan": [{"run_id": "a" * 32, "workflow_id": "b" * 32, "akis": "Akış",
+                                   "baslangic": "2026-10-26T09:00:00+00:00", "adim": 1}]}]}
 NEW_USER = {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-26", "bitis": "2027-10-26"}
 
 
@@ -126,10 +130,12 @@ class World:
                                  "(%s, %s, 'Yorum', now()) RETURNING id", (self.topic, self.ayse["id"]))[0]["id"]
         self.message = sql(core, "INSERT INTO iletisim_mesajlari (ad, eposta, konu, mesaj) VALUES ('Ali Veli', "
                                  "'ali@ornek.test', 'satis', 'Fiyat hakkında bir sorum var.') RETURNING id")[0]["id"]
+        self.robot = sql(core, "INSERT INTO robotlar (kullanici_id, kurulum_kimligi, son_gorulme, durum) VALUES "
+                               "(%s, %s, now(), %s) RETURNING id", (self.ayse["id"], DEVICE, json.dumps(ROBOT)))[0]["id"]
         self.ids = {"user": self.ayse["id"], "office": self.office, "ticket": self.ticket["no"],
                     "attachment": self.ticket["ekler"][0]["id"], "application": self.application,
                     "module": users.AGENTS, "video": self.video, "topic": self.topic, "comment": self.comment,
-                    "message": self.message}
+                    "message": self.message, "robot": self.robot}
 
     def path(self, template):
         return template.format(**self.ids)
@@ -196,6 +202,8 @@ ENDPOINTS = [
     ("POST", "iletisim/{message}", {"okundu": True}),
     ("POST", "iletisim/{message}/sil", {}),
     ("GET", "ziyaretler", None),
+    ("GET", "robotlar", None),
+    ("POST", "robotlar/{robot}/komut", {"tur": "durdur", "hedef": "a" * 32}),
 ]
 POSTS = [endpoint for endpoint in ENDPOINTS if endpoint[0] == "POST"]
 

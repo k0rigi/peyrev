@@ -14,8 +14,9 @@ CSRF: durum değiştiren her istek `X-Peyrev-Uye: 1` başlığını ve sitenin k
 (panelle aynı kural, admin.auth.same_origin); aksi 403 CSRF.
 
 Hesabım: hesap ve lisans durumu, açık Studio oturumları, kişisel indirme bağlantısı (abonelik sürerken; günde en çok
-LINKS_PER_DAY), lisans uzatma isteği (yöneticiye bildirilir, olay kaydına yazılır; günde en çok bir). Şifre, Studio'yla
-ortak /api/rpa/hesap/sifre ucuyla değişir.
+LINKS_PER_DAY), lisans uzatma isteği (yöneticiye bildirilir, olay kaydına yazılır; günde en çok bir) ve Robotlarım
+(yalnız hesabın kendi robotları; durdur ve yeniden çalıştır komutları olay kaydına yazılır). Şifre, Studio'yla ortak
+/api/rpa/hesap/sifre ucuyla değişir.
 """
 
 from __future__ import annotations
@@ -37,6 +38,7 @@ from .accounts import rules
 from .accounts.applications import PACKAGES
 from .accounts.licensing import license_refusal
 from .common import ApiError, client_ip, json_body, ok
+from .robotlar import service as robots
 from .support import notify
 
 COOKIE = "peyrev_hesap"
@@ -256,5 +258,17 @@ def create_blueprint(core) -> Blueprint:
         notify.deliver(core, "Lisans uzatma isteği", f"{display_name(user)} · {PACKAGES[package]} (Hesabım; giriş "
                        f"yapmış hesap)\nHesap: {core.settings.public_base}/yonetim/#kullanici-{user['id']}")
         return ok(message="Uzatma isteğiniz alındı. Ödeme bilgisini e-posta adresinize iletiyoruz.")
+
+    @blueprint.get("/robotlar")
+    def robots_route():
+        with core.db.transaction() as cur:
+            return ok(robotlar=robots.listing(core, cur, owner=g.member["id"]))
+
+    @blueprint.post("/robotlar/<int:robot_id>/komut")
+    def robot_command_route(robot_id: int):
+        data = json_body({"tur", "hedef"}, {"tur", "hedef"})
+        with core.db.transaction() as cur:
+            return ok(robot=robots.create_command(core, cur, robot_id, data["tur"], data["hedef"], actor=g.member,
+                                                  source="uye", owner=g.member["id"]))
 
     return blueprint
