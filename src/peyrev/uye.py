@@ -17,6 +17,10 @@ Hesabım: hesap ve lisans durumu, açık Studio oturumları, kişisel indirme ba
 LINKS_PER_DAY), lisans uzatma isteği (yöneticiye bildirilir, olay kaydına yazılır; günde en çok bir) ve Robotlarım
 (yalnız hesabın kendi robotları; durdur ve yeniden çalıştır komutları olay kaydına yazılır). Şifre, Studio'yla ortak
 /api/rpa/hesap/sifre ucuyla değişir.
+
+Dijital İkiz (GET /api/uye/ikiz, Hesabım'daki "Dijital İkiz'i aç" bağlantısı): MOD_IKIZ hakkı sürüyorsa (yönetici satırsız)
+303 ile /ikiz/giris?b=<720 sn geçerli imzalı belirteç> (accounts.ikiz); hak yoksa /hesabim/?ikiz=yok, oturum yoksa
+/hesabim/?ikiz=giris. Yanıt önbelleğe alınmaz.
 """
 
 from __future__ import annotations
@@ -29,12 +33,12 @@ import uuid
 from datetime import timedelta
 from typing import Any
 
-from flask import Blueprint, Response, g, request
+from flask import Blueprint, Response, g, redirect, request
 from psycopg import Cursor
 from psycopg.types.json import Jsonb
 
 from . import indirme, users
-from .accounts import rules
+from .accounts import ikiz, rules
 from .accounts.applications import PACKAGES
 from .accounts.licensing import license_refusal
 from .common import ApiError, client_ip, json_body, ok
@@ -56,6 +60,9 @@ NO_SUBSCRIPTION = ("Topluluk, aboneliği devam eden Peyrev hesaplarına açıkt�
                    "peyrev.com/#basvuru formunu kullanın.")
 SESSION_REQUIRED = "Peyrev hesabınızla giriş yapın."
 SESSION_CLOSED = "Oturumunuz kapandı. Yeniden giriş yapın."
+TWIN_SIGN_IN = "/ikiz/giris?b="
+TWIN_REFUSED = "/hesabim/?ikiz=yok"
+TWIN_NO_SESSION = "/hesabim/?ikiz=giris"
 
 
 def digest(token: str) -> str:
@@ -162,7 +169,7 @@ def account(core, cur: Cursor, user: dict[str, Any]) -> dict[str, Any]:
     """Hesabım: hesap, lisans hakları, açık Studio oturumları ve indirme bağlantısının durumu."""
     today = core.clock.today_tr()
     rights = {}
-    for module, key in ((users.RPA, "peyrev"), (users.AGENTS, "ajanlar")):
+    for module, key in ((users.RPA, "peyrev"), (users.AGENTS, "ajanlar"), (users.IKIZ, "ikiz")):
         state, end = users.module_state(cur, user, module, today)
         row = users.modules(cur, user["id"]).get(module)
         rights[key] = {"durum": state, "bitis": _day(end if end else (row or {}).get("bitis")),
@@ -176,6 +183,13 @@ def account(core, cur: Cursor, user: dict[str, Any]) -> dict[str, Any]:
             "studio": studio, "indirme": indirme.status(cur, user["id"], core.clock.now())}
 
 
+def _go(location: str) -> Response:
+    """Tarayıcının gittiği bağlantının yanıtı (303); belirteç taşıyabildiği için saklanmaz."""
+    response = redirect(location, 303)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 def create_blueprint(core) -> Blueprint:
     blueprint = Blueprint("uye", __name__, url_prefix="/api/uye")
 
@@ -184,7 +198,17 @@ def create_blueprint(core) -> Blueprint:
         check_request()
         g.member = None
         if request.endpoint not in ("uye.sign_in_route", "uye.sign_out_route"):
-            g.member = _committed(core, lambda cur: verify(core, cur, request.cookies.get(COOKIE)))
+            try:
+                g.member = _committed(core, lambda cur: verify(core, cur, request.cookies.get(COOKIE)))
+            except ApiError:
+                if request.endpoint != "uye.twin_route":
+                    raise
+                # A browser follows this link: without a session it lands on the sign-in of Hesabım, not on JSON.
+                response = _go(TWIN_NO_SESSION)
+                if COOKIE in request.cookies:
+                    forget_cookie(response)
+                return response
+        return None
 
     @blueprint.after_request
     def headers(response: Response) -> Response:
@@ -258,6 +282,12 @@ def create_blueprint(core) -> Blueprint:
         notify.deliver(core, "Lisans uzatma isteği", f"{display_name(user)} · {PACKAGES[package]} (Hesabım; giriş "
                        f"yapmış hesap)\nHesap: {core.settings.public_base}/yonetim/#kullanici-{user['id']}")
         return ok(message="Uzatma isteğiniz alındı. Ödeme bilgisini e-posta adresinize iletiyoruz.")
+
+    @blueprint.get("/ikiz")
+    def twin_route():
+        with core.db.transaction() as cur:
+            allowed = ikiz.allowed(cur, g.member, core.clock.today_tr())
+        return _go(TWIN_SIGN_IN + ikiz.issue(core, g.member) if allowed else TWIN_REFUSED)
 
     @blueprint.get("/robotlar")
     def robots_route():

@@ -163,3 +163,22 @@ def test_the_panel_script_writes_user_data_into_the_page_only_as_text():
 
 def test_the_panel_style_loads_nothing_from_elsewhere():
     assert "@import" not in STYLE and "url(" not in STYLE and "@font-face" not in STYLE
+
+
+def test_the_panel_knows_every_right_and_package_the_server_knows():
+    """Modül ve paket adları sunucunun listeleriyle aynıdır; yönetici rolünün satırsız açtığı modüller de."""
+    from peyrev import users
+    from peyrev.accounts import admin, applications
+
+    def table(name):
+        body = re.search(r"const " + name + r" = \{([^}]*)\};", SCRIPT).group(1)
+        return dict(re.findall(r"(\w+): '([^']*)'", body))
+
+    assert table("MODULES") == {"MOD_RPA": "Peyrev", "MOD_AJAN": "Ajanlar", "MOD_IKIZ": "Dijital İkiz"}
+    assert list(table("MODULES")) == list(admin.MODULES)
+    assert table("PACKAGES") == applications.PACKAGES
+    admin_open = re.search(r"const ADMIN_OPEN = \[([^\]]*)\];", SCRIPT).group(1)
+    assert set(re.findall(r"'(\w+)'", admin_open)) == users.ADMIN_OPEN == {users.RPA, users.IKIZ}
+    # The new-account form sends the twin choice and the user table has its column.
+    assert "ikiz: twin.control.checked" in SCRIPT and "rightCell(user, 'MOD_IKIZ')" in SCRIPT
+    assert "stat(data.ikiz_kullanici," in SCRIPT

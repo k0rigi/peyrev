@@ -1,7 +1,8 @@
 /* peyrev.com/hesabim/: Peyrev hesabıyla giriş; lisans durumu, kişisel indirme bağlantısı, lisans uzatma isteği, şifre
  * değiştirme, açık Peyrev oturumları ve Robotlarım (/api/uye/*; şifre Studio'yla ortak /api/rpa/hesap/sifre ucuyla
  * değişir). Robotlarım yalnız hesabın kendi bilgisayarlarını gösterir; Durdur ve Yeniden çalıştır komut yazar, komut
- * robotun bir sonraki durum bildirimiyle gider.
+ * robotun bir sonraki durum bildirimiyle gider. Dijital İkiz hakkı sürerken "Dijital İkiz'i aç" /api/uye/ikiz'e gider;
+ * sunucu oradan /ikiz/'e (hak yoksa ?ikiz=yok, oturum yoksa ?ikiz=giris ile buraya) yönlendirir.
  *
  * Derleme adımı ve harici betik yok. Sunucudan gelen her metin DOM'a yalnız textContent ya da metin düğümü olarak
  * yazılır. Oturum HttpOnly çerezdedir (Path=/api); durum değiştiren istekler X-Peyrev-Uye başlığını taşır.
@@ -13,7 +14,11 @@
   const ROOT = document.getElementById('hesabim');
   if (!ROOT) return;
   const UNREACHABLE = 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
-  const PACKAGES = [['rpa', 'Peyrev', '10 $ / ay + KDV'], ['rpa_ajan', 'Peyrev + Ajanlar', '20 $ / ay + KDV']];
+  const PACKAGES = [['rpa', 'Peyrev', '10 $ / ay + KDV'], ['rpa_ajan', 'Peyrev + Ajanlar', '20 $ / ay + KDV'],
+    ['ikiz', 'Peyrev Dijital İkiz', '100 $ / ay + KDV']];
+  const TWIN = '/api/uye/ikiz';
+  // Set by the server's redirect from /api/uye/ikiz: "yok" = no Dijital İkiz right, "giris" = sign in first.
+  const TWIN_STATE = new URLSearchParams(window.location.search).get('ikiz');
   const STATES = { aktif: 'Geçerli', sure_doldu: 'Süresi doldu', yetki_yok: 'Hakkı yok' };
 
   function el(tag, props, children) {
@@ -99,6 +104,8 @@
     const submit = el('button', { class: 'button button-gold', type: 'submit', text: 'Giriş yap' });
     const form = el('form', { class: 'card community-login', novalidate: true, 'aria-labelledby': 'h-giris-baslik' }, [
       el('h2', { id: 'h-giris-baslik', text: 'Giriş' }),
+      TWIN_STATE === 'giris' ? el('p', { class: 'form-status', role: 'status',
+        text: 'Dijital İkiz\'i açmak için Peyrev hesabınızla giriş yapın.' }) : null,
       el('p', { text: 'Peyrev uygulamasına girdiğiniz kullanıcı adı ve şifreyle girin. Lisansınızın süresi dolmuş olsa da girip uzatma isteyebilirsiniz.' }),
       field('Kullanıcı adı veya e-posta', login), field('Şifre', password),
       message ? notice(message, 'error') : null, submit,
@@ -107,7 +114,12 @@
       event.preventDefault();
       guarded(submit, async () => {
         if (!login.value.trim() || !password.value) throw new Error('Kullanıcı adınızı ve şifrenizi yazın.');
-        await api('uye/giris', { kullanici: login.value.trim(), sifre: password.value });
+        const signed = await api('uye/giris', { kullanici: login.value.trim(), sifre: password.value });
+        if (TWIN_STATE === 'giris' && signed.uye) {
+          // Came from the Dijital İkiz sign-in: go on to it; the server checks the right and sends back if there is none.
+          window.location.assign(TWIN);
+          return;
+        }
         await boot();
       });
     });
@@ -156,8 +168,9 @@
   }
 
   function renewCard(account) {
-    const choices = PACKAGES.map(([value, label, price], index) => {
-      const radio = el('input', { type: 'radio', name: 'paket', value, checked: index === (account.lisans.ajanlar.durum === 'aktif' ? 1 : 0) });
+    const current = account.lisans.ikiz.durum === 'aktif' ? 'ikiz' : account.lisans.ajanlar.durum === 'aktif' ? 'rpa_ajan' : 'rpa';
+    const choices = PACKAGES.map(([value, label, price]) => {
+      const radio = el('input', { type: 'radio', name: 'paket', value, checked: value === current });
       return { radio, node: el('label', { class: 'option' }, [radio, el('span', null, [el('strong', { text: label }), price])]) };
     });
     const submit = el('button', { class: 'button button-gold', type: 'submit', text: 'Uzatma iste' });
@@ -175,8 +188,12 @@
     });
     return el('section', { class: 'card account-card', 'aria-labelledby': 'h-lisans' }, [
       el('h2', { id: 'h-lisans', text: 'Lisans' }),
-      el('ul', { class: 'account-rights' }, [licenseRow('Peyrev', account.lisans.peyrev), licenseRow('Ajanlar', account.lisans.ajanlar)]),
-      account.yonetici ? el('p', { class: 'aside', text: 'Yönetici hesabı: Peyrev lisans satırı olmadan da açılır.' }) : null,
+      el('ul', { class: 'account-rights' }, [licenseRow('Peyrev', account.lisans.peyrev), licenseRow('Ajanlar', account.lisans.ajanlar),
+        licenseRow('Dijital İkiz', account.lisans.ikiz)]),
+      account.yonetici ? el('p', { class: 'aside', text: 'Yönetici hesabı: Peyrev ve Dijital İkiz lisans satırı olmadan da açılır.' }) : null,
+      account.lisans.ikiz.durum === 'aktif' ? el('div', { class: 'account-actions' }, [
+        el('a', { class: 'button button-gold', href: TWIN, text: 'Dijital İkiz\'i aç' }),
+        el('span', { class: 'aside', text: 'Deponuzun canlı modeli peyrev.com/ikiz/ adresinde açılır.' })]) : null,
       el('h3', { text: 'Lisansımı uzat' }),
       el('p', { class: 'aside', text: 'İsteğiniz bize ulaşır; ödeme bilgisini e-posta adresinize iletiriz. Ödeme onaylanınca süreniz uzar.' }),
       form,
@@ -321,6 +338,9 @@
           href: '/topluluk/', text: 'Topluluk' }) : null, out]),
       ]),
       el('p', { class: 'aside', text: 'Kullanıcı adınız: ' + account.giris }),
+      TWIN_STATE === 'yok' && account.lisans.ikiz.durum !== 'aktif' ? el('p', { class: 'form-status is-error', role: 'status',
+        text: 'Bu hesapta Dijital İkiz hakkı yok ya da süresi dolmuş. Peyrev Dijital İkiz paketine geçmek için aşağıdan '
+          + 'uzatma isteyin.' }) : null,
       el('div', { class: 'account-grid' }, [renewCard(account), downloadCard(account), passwordCard(account), sessionsCard(account),
         robotsCard()]),
     );

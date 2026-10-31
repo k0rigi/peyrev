@@ -1,0 +1,74 @@
+name: Dijital İkiz
+
+# Peyrev Dijital İkiz servisini sunucuya kurar / dağıtır. Kod ayrı ve gizli depodadır; yalnız okuma izni olan dağıtım
+# anahtarıyla çekilir. Testler o depoda, gönderilmeden önce çalışır; bu açık depoda gizli kodun testi çalıştırılmaz
+# (hata çıktısı herkese açık günlüğe düşmesin). Sunucu çıktısı günlüğe değil şifreli rapora yazılır (uzak.py).
+
+on:
+  workflow_dispatch:
+    inputs:
+      surum:
+        description: "peyrev-ikiz commit SHA'sı (boş: main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  dagit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: peyrev-sunucu
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: k0rigi/peyrev-ikiz
+          ref: ${{ inputs.surum || 'main' }}
+          path: ikiz-kaynak
+          ssh-key: ${{ secrets.IKIZ_DEPLOY_KEY }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Araçlar
+        run: python -m pip install --disable-pip-version-check -q "paramiko>=3.5,<5" "cryptography>=42"
+      - name: Arşiv
+        id: arsiv
+        run: |
+          sha=$(git -C ikiz-kaynak rev-parse HEAD)
+          git -C ikiz-kaynak archive --format=tar.gz -o "$PWD/ikiz.tar.gz" HEAD src deploy/requirements.lock pyproject.toml
+          cp ikiz-kaynak/deploy/dagit.sh deploy/ikiz-dagit.sh
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "arsiv=$(sha256sum ikiz.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+      - name: Sunucuya dağıt
+        env:
+          HOST: ${{ secrets.HOST }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          BETIK: deploy/ikiz-dagit.sh
+          DOSYALAR: '[{"yerel": "ikiz.tar.gz", "uzak": "/var/tmp/peyrev-aktarim/ikiz-${{ steps.arsiv.outputs.sha }}.tar.gz"}]'
+          BETIK_ORTAMI: '{"SURUM": "${{ steps.arsiv.outputs.sha }}", "ARSIV": "/var/tmp/peyrev-aktarim/ikiz-${{ steps.arsiv.outputs.sha }}.tar.gz", "ARSIV_SHA256": "${{ steps.arsiv.outputs.arsiv }}"}'
+          RAPOR: rapor.enc
+        run: python .github/scripts/uzak.py
+      - name: Şifreli raporu sakla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapor-ikiz
+          path: rapor.enc
+          retention-days: 3
+          if-no-files-found: ignore
+      - name: Dışarıdan denetim
+        run: |
+          fail=0
+          for u in https://peyrev.com/ikiz/api/saglik https://peyrev.com/ikiz/ https://peyrev.com/api/saglik https://peyrev.com/; do
+            c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || true)
+            echo "$u -> $c"; [ "$c" = 200 ] || fail=1
+          done
+          exit $fail

@@ -151,7 +151,7 @@ def test_the_form_controls_follow_the_server_rules():
         assert (field.attrs["type"], field.attrs["autocomplete"]) == ("password", "new-password")
     packages = control("paket")
     assert {node.attrs["type"] for node in packages} == {"radio"}
-    assert [node.attrs["value"] for node in packages] == list(applications.PACKAGES) == ["rpa", "rpa_ajan"]
+    assert [node.attrs["value"] for node in packages] == list(applications.PACKAGES) == ["rpa", "rpa_ajan", "ikiz"]
     assert [node.attrs["value"] for node in packages if "checked" in node.attrs] == ["rpa"]
     [consent] = control("onay")
     assert consent.attrs["type"] == "checkbox" and "required" in consent.attrs
@@ -276,3 +276,36 @@ def test_a_received_application_replaces_the_form_with_a_confirmation():
     panel = re.search(r'<div class="apply-done" id="basvuru-tamam" tabindex="-1" hidden>(.*?)\n        </div>', HTML, re.DOTALL)
     assert panel and 'id="basvuru-tamam-metni"></p>' in panel.group(1) and 'id="basvuru-tamam-eposta"></strong>' in panel.group(1)
     assert ".apply.is-done > :not(.apply-done) { display: none; }" in (WEB / "assets" / "site.css").read_text(encoding="utf-8")
+
+
+# ----- fiyatlar ve adım sayısı ----------------------------------------------------------------------------------
+def test_every_package_has_a_card_with_its_price_and_the_twin_card_links_the_live_demo():
+    [section] = PAGE.all("section", id="paketler")
+    cards = [node for node in section.walk() if node.tag == "li" and "package" in node.attrs.get("class", "").split()]
+    titles = [next(child.text() for child in card.walk() if child.tag == "h3") for card in cards]
+    assert titles == list(applications.PACKAGES.values()) == ["Peyrev", "Peyrev + Ajanlar", "Peyrev Dijital İkiz"]
+    prices = [next(child.text() for child in card.walk() if child.attrs.get("class") == "price") for card in cards]
+    assert prices == ["10 $ / ay + KDV", "20 $ / ay + KDV", "100 $ / ay + KDV"]
+    twin = cards[2]
+    links = {node.attrs["href"]: node.text() for node in twin.walk() if node.tag == "a"}
+    assert links == {"#basvuru": "Başvur", "/ikiz/": "Canlı demoyu gör"}
+    points = " ".join(node.text() for node in twin.walk() if node.tag == "li" and node is not twin)
+    for words in ("Peyrev + Ajanlar", "3B ve 2B", "rampa", "doluluk", "kabulden rafa", "toplama hızı", "eksik oranı",
+                  "ERP", "Tesis başına"):
+        assert words in points, words
+    # The form and the frequently asked question name the same price.
+    [option] = [node for node in control("paket") if node.attrs["value"] == "ikiz"]
+    assert "Peyrev Dijital İkiz · 100 $/ay + KDV" in option.parent.text()
+    assert "Peyrev Dijital İkiz tesis başına aylık 100 $" in " ".join(HTML.split())
+
+
+def test_the_step_counts_add_up():
+    [catalog] = PAGE.all("ul", class_="catalog")
+    counts = [int(re.fullmatch(r"(\d+) adım", node.text()).group(1)) for node in catalog.walk()
+              if node.tag == "span" and node.parent.parent is catalog]
+    total = sum(counts)
+    assert (total, len(counts)) == (107, 11)
+    text = " ".join(HTML.split())
+    assert f"<strong>{total}</strong><span>hazır adım</span>" in text and f"{total} adım, {len(counts)} kategori." in text
+    assert f"{total} adımlık kütüphane" in text and f"kategorilerindeki {total} adımdan" in text
+    assert not re.search(r"\b93 ad", text)

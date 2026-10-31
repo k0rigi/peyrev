@@ -293,6 +293,7 @@ def test_an_account_opened_by_the_administrator_sets_its_first_password_with_a_s
     ({"baslangic": "2027-01-02", "bitis": "2027-01-01"}, "Başlangıç bitişten sonra olamaz."),
     ({"bitis": "2027-13-01"}, "Bitiş geçersiz."),
     ({"ajan": "evet"}, "Ajanlar seçimi geçersiz."),
+    ({"ikiz": "evet"}, "Dijital İkiz seçimi geçersiz."),
 ])
 def test_an_invalid_new_account_is_refused_without_writing(core, manager, changes, message):
     options = {"giris": "ORNEK_7", "ad_soyad": "Örnek Yedi", "baslangic": "2026-10-18", "bitis": "2027-09-27",

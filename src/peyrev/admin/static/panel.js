@@ -27,9 +27,11 @@
   const UNREACHABLE = 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
   const FAILED = 'İşlem tamamlanamadı. Daha sonra tekrar deneyin.';
   const SESSION_CODES = ['OTURUM_GEREKLI', 'OTURUM_GECERSIZ'];
-  const MODULES = { MOD_RPA: 'Peyrev', MOD_AJAN: 'Ajanlar' };
+  const MODULES = { MOD_RPA: 'Peyrev', MOD_AJAN: 'Ajanlar', MOD_IKIZ: 'Dijital İkiz' };
+  // Yönetici rolü bu modülleri hak satırı olmadan da açar (sunucuda users.ADMIN_OPEN).
+  const ADMIN_OPEN = ['MOD_RPA', 'MOD_IKIZ'];
   const SERVER_OFFICES = 20;
-  const PACKAGES = { rpa: 'Peyrev', rpa_ajan: 'Peyrev + Ajanlar' };
+  const PACKAGES = { rpa: 'Peyrev', rpa_ajan: 'Peyrev + Ajanlar', ikiz: 'Peyrev Dijital İkiz' };
   const ROLES = { kullanici: 'Kullanıcı', yonetici: 'Yönetici' };
   const ACCOUNT_STATES = { aktif: 'Aktif', pasif: 'Pasif' };
   const RIGHT_STATES = { aktif: 'Kullanabilir', sure_doldu: 'Süresi doldu', yetki_yok: 'Hakkı yok' };
@@ -534,6 +536,7 @@
         h('div', { class: 'stats' }, [
           stat(data.aktif_kullanici, 'Aktif hesap', '#kullanicilar', 'accent'),
           stat(data.lisansli_kullanici, 'Peyrev\'i kullanabilen hesap', null, 'ok'),
+          stat(data.ikiz_kullanici, 'Dijital İkiz\'i kullanabilen hesap', null, data.ikiz_kullanici ? 'ok' : ''),
           stat(data.yakinda_bitecek, '30 gün içinde hakkı bitecek hesap', null, data.yakinda_bitecek ? 'warn' : ''),
           stat(data.bekleyen_basvuru, 'Ödeme bekleyen başvuru', '#basvurular', data.bekleyen_basvuru ? 'warn' : ''),
           stat(data.okunmamis_destek, 'Okunmamış destek talebi', '#destek', data.okunmamis_destek ? 'info' : ''),
@@ -599,9 +602,13 @@
   }
 
   // ----- Kullanıcılar -------------------------------------------------------------------------
+  function adminOpen(user, module) {
+    return user.rol === 'yonetici' && ADMIN_OPEN.includes(module);
+  }
+
   function rightText(user, module) {
     const row = (user.moduller || {})[module];
-    if (!row) return module === 'MOD_RPA' && user.rol === 'yonetici' ? 'Yönetici olarak açık' : 'Yok';
+    if (!row) return adminOpen(user, module) ? 'Yönetici olarak açık' : 'Yok';
     if (!row.bitis) return 'Süresiz';
     return (row.bitis < today() ? 'Süresi doldu: ' : 'Bitiş: ') + day(row.bitis);
   }
@@ -609,7 +616,7 @@
   function rightCell(user, module) {
     const row = (user.moduller || {})[module];
     const late = row && row.bitis && row.bitis < today();
-    const none = !row && !(module === 'MOD_RPA' && user.rol === 'yonetici');
+    const none = !row && !adminOpen(user, module);
     return h('span', { class: 'right-text' + (late ? ' is-late' : '') + (none ? ' is-none' : ''), text: rightText(user, module) });
   }
 
@@ -624,6 +631,7 @@
       ])),
       h('td', { 'data-label': 'Peyrev' }, rightCell(user, 'MOD_RPA')),
       h('td', { 'data-label': 'Ajanlar' }, rightCell(user, 'MOD_AJAN')),
+      h('td', { 'data-label': 'Dijital İkiz' }, rightCell(user, 'MOD_IKIZ')),
       h('td', { 'data-label': 'Durum' }, h('div', { class: 'pills' }, [
         user.rol === 'yonetici' ? pill('Yönetici', 'accent') : null,
         user.ofis_siniri > 1 ? pill('Sunucu · ' + user.ofis_siniri + ' ofis', 'accent') : null,
@@ -636,7 +644,7 @@
 
   function usersTable(rows) {
     return h('table', { class: 'table' }, [
-      h('thead', null, h('tr', null, ['Kullanıcı', 'Peyrev', 'Ajanlar', 'Durum', 'Açılış'].map((text) => h('th', { scope: 'col', text })))),
+      h('thead', null, h('tr', null, ['Kullanıcı', 'Peyrev', 'Ajanlar', 'Dijital İkiz', 'Durum', 'Açılış'].map((text) => h('th', { scope: 'col', text })))),
       h('tbody', null, rows.map(userRow)),
     ]);
   }
@@ -704,6 +712,14 @@
     const start = input('baslangic', { type: 'date', value: today(), required: true });
     const end = input('bitis', { type: 'date', value: yearLater(), required: true });
     const agents = checkbox('ajan', 'Ajanlar hakkı da verilsin');
+    const twin = checkbox('ikiz', 'Dijital İkiz hakkı da verilsin (Peyrev Dijital İkiz paketi: Ajanlar dahil)');
+    // The twin package includes agents: ticking the twin ticks agents, unticking agents unticks the twin.
+    twin.control.addEventListener('change', () => {
+      if (twin.control.checked) agents.control.checked = true;
+    });
+    agents.control.addEventListener('change', () => {
+      if (!agents.control.checked) twin.control.checked = false;
+    });
     const server = checkbox('sunucu', 'Sunucu hesabı (birden çok müşteri ofisi)');
     const repeat = input('tekrar', { type: 'password', autocomplete: 'new-password', maxlength: 128 });
     const secret = passwordInput('sifre', repeat);
@@ -737,6 +753,7 @@
       field('Lisans başlangıcı', start),
       field('Lisans bitişi', end, { hint: 'Bitiş günü dahildir. Süresiz hak hesap açıldıktan sonra ayrıntıdan verilir.' }),
       h('div', { class: 'field wide' }, agents.node),
+      h('div', { class: 'field wide' }, twin.node),
       h('div', { class: 'field wide' }, [server.node, h('span', { class: 'hint', text: 'Müşterilerin işlerini kendi '
         + 'bilgisayarınızda çalıştırdığınız hesap: ' + SERVER_OFFICES + ' ofise kadar açabilir, her ofis bağımsız bir '
         + 'müşteridir. Yönetici rolüyle birlikte seçilemez. Diğer hesaplar tek ofis açar.' })]),
@@ -744,7 +761,7 @@
     ].concat(passwordFields), 'Hesabı aç', async () => {
       const body = {
         giris: login.value.trim(), ad_soyad: name.value.trim(), telefon: tel.value.trim(), rol: role.value,
-        baslangic: start.value, bitis: end.value, ajan: agents.control.checked,
+        baslangic: start.value, bitis: end.value, ajan: agents.control.checked, ikiz: twin.control.checked,
       };
       if (server.control.checked) {
         if (role.value !== 'kullanici') throw new Error('Sunucu hesabı yönetici rolü olmadan, kullanıcı olarak açılır.');
@@ -780,7 +797,8 @@
     }, {
       confirm: () => (name.value.trim() || login.value.trim()) + ' için ' + ROLES[role.value].toLocaleLowerCase('tr')
         + ' hesabı ' + day(start.value) + ' – ' + day(end.value) + ' lisansıyla'
-        + (agents.control.checked ? ' (Ajanlar dahil)' : '') + ' açılsın mı?',
+        + (twin.control.checked ? ' (Ajanlar ve Dijital İkiz dahil)' : agents.control.checked ? ' (Ajanlar dahil)' : '')
+        + ' açılsın mı?',
     });
     return h('section', { class: 'card', 'aria-labelledby': 'yeni-baslik' },
       [h('h2', { id: 'yeni-baslik', text: 'Yeni kullanıcı' }), node, result]);
@@ -852,7 +870,7 @@
     const role = select('rol', Object.entries(ROLES), user.rol);
     const roleForm = form([field('Rol', role, {
       hint: self ? 'Kendi yönetici yetkinizi kaldıramazsınız.'
-        : 'Yönetici bu paneli kullanır ve Peyrev\'i hak satırı olmadan da açar; Ajanlar için hak gerekir.',
+        : 'Yönetici bu paneli kullanır; Peyrev\'i ve Dijital İkiz\'i hak satırı olmadan da açar, Ajanlar için hak gerekir.',
     })], 'Rolü kaydet', async () => {
       await api(path + '/rol', { rol: role.value });
       say('Rol kaydedildi.', 'ok');
@@ -912,7 +930,7 @@
       } else if (row) {
         status = 'Süresi doldu · ' + day(row.bitis);
         tone = 'danger';
-      } else if (module === 'MOD_RPA' && user.rol === 'yonetici') {
+      } else if (adminOpen(user, module)) {
         status = 'Satır yok · yönetici olarak açık';
       }
       const remove = row ? button('Hakkı kaldır', async () => {
@@ -937,7 +955,7 @@
       ]);
     });
     return section(id, 'Modül hakları', [
-      h('p', { class: 'muted', text: 'Peyrev için MOD_RPA, Ajanlar için MOD_AJAN hakkı gerekir; Ajanlar ikisini birlikte ister. Değişiklik kişinin açık Studio\'suna bir sonraki lisans yenilemesinde (en geç 10 dakika) yansır.' }),
+      h('p', { class: 'muted', text: 'Peyrev için MOD_RPA, Ajanlar için MOD_AJAN, Dijital İkiz (peyrev.com/ikiz/) için MOD_IKIZ hakkı gerekir; Ajanlar MOD_RPA ile birlikte çalışır, Peyrev Dijital İkiz paketi üçünü birlikte verir. Değişiklik kişinin açık Studio\'suna bir sonraki lisans yenilemesinde (en geç 10 dakika), Dijital İkiz\'e bir sonraki girişte yansır.' }),
     ].concat(blocks));
   }
 
@@ -1161,7 +1179,7 @@
     const node = form([
       field('Başlangıç', start),
       field('Bitiş', end, { hint: 'Bitiş günü dahildir.' }),
-      field('Paket', plan, { hint: 'Peyrev + Ajanlar seçilirse Ajanlar hakkı da açılır.' }),
+      field('Paket', plan, { hint: 'Peyrev + Ajanlar seçilirse Ajanlar hakkı da açılır; Peyrev Dijital İkiz Ajanlar ve Dijital İkiz haklarını birlikte açar.' }),
       field('Not', note, { hint: 'İsteğe bağlı: onayda ödeme açıklaması, retde gerekçe olarak saklanır.' }),
     ], 'Ödeme alındı, hesabı aç', async () => {
       const body = { baslangic: start.value, bitis: end.value, paket: plan.value };

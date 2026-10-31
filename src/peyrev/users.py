@@ -2,7 +2,7 @@
 
 - Giriş adı: "@" içeriyorsa tam `giris` eşleşmesi; içermiyorsa `giris` ya da "@" öncesi (hepsi büyük/küçük harf duyarsız).
 - Lisans: kullanıcının modül satırı olmalı ve `bitis` (dahil) bugünden (Europe/Istanbul) önce olmamalı; `bitis` NULL = süresiz.
-  Yönetici rolü MOD_RPA için satırsız da aktiftir; MOD_AJAN her zaman satır ister.
+  Yönetici rolü MOD_RPA ve MOD_IKIZ (Dijital İkiz) için satırsız da aktiftir; MOD_AJAN her zaman satır ister.
 - `alan_id`: lisans ve ajan yanıtlarında `firma_id` olarak gönderilir; Studio yerel ajan verisini bununla bölümler.
 """
 
@@ -14,7 +14,9 @@ from typing import Any
 
 from psycopg import Cursor
 
-RPA, AGENTS = "MOD_RPA", "MOD_AJAN"
+RPA, AGENTS, IKIZ = "MOD_RPA", "MOD_AJAN", "MOD_IKIZ"
+# Yönetici rolünün hak satırı olmadan açtığı modüller.
+ADMIN_OPEN = frozenset({RPA, IKIZ})
 ACTIVE, EXPIRED, MISSING = "aktif", "sure_doldu", "yetki_yok"
 MAX_MATCHES = 5
 
@@ -45,7 +47,7 @@ def get(cur: Cursor, user_id: int, *, lock: bool = False) -> dict[str, Any] | No
 
 def module_state(cur: Cursor, user: dict[str, Any], module: str, today: date) -> tuple[str, date | None]:
     """(aktif | sure_doldu | yetki_yok, bitiş günü ya da None)."""
-    if module == RPA and user.get("rol") == "yonetici":
+    if module in ADMIN_OPEN and user.get("rol") == "yonetici":
         return ACTIVE, None
     cur.execute("SELECT bitis FROM kullanici_modulleri WHERE kullanici_id = %s AND modul = %s", (user["id"], module))
     row = cur.fetchone()

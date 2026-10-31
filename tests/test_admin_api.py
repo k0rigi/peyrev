@@ -272,6 +272,7 @@ BAD_INPUT = [
     ("POST", "kullanicilar", {**NEW_USER, "rol": None}, "Rol geçersiz."),
     ("POST", "kullanicilar", {**NEW_USER, "ad_soyad": "B"}, "Ad soyad 2-120 karakter olmalıdır."),
     ("POST", "kullanicilar", {**NEW_USER, "ajan": "evet"}, "Ajanlar seçimi geçersiz."),
+    ("POST", "kullanicilar", {**NEW_USER, "ikiz": 1}, "Dijital İkiz seçimi geçersiz."),
     ("POST", "kullanicilar", {**NEW_USER, "telefon": "yok"}, PHONE),
     ("POST", "kullanicilar", {**NEW_USER, "bitis": "26.10.2027"}, "Bitiş YYYY-AA-GG biçiminde olmalıdır."),
     ("POST", "kullanicilar", {**NEW_USER, "baslangic": "2026-10-27"}, "Lisans dönemi bugünü kapsamalıdır."),
@@ -400,9 +401,11 @@ def test_the_summary_counts_accounts_rights_applications_and_unread_tickets(app,
     ali = make_user(core, "ali@ornek.test", modules={users.RPA: date(2026, 11, 5),
                                                      users.AGENTS: date(2026, 10, 26)}, ad_soyad="Ali Veli")
     make_user(core, "veli@ornek.test", modules={users.RPA: date(2026, 10, 25)})  # ended yesterday
-    burak = make_user(core, "burak@ornek.test", modules={users.RPA: date(2026, 11, 25)}, ad_soyad="Burak Can")
-    make_user(core, "ahmet@ornek.test", modules={users.RPA: date(2026, 11, 26)})  # 31 days: not yet
-    make_user(core, "eski@ornek.test", durum="pasif", modules={users.RPA: date(2026, 10, 30)})
+    burak = make_user(core, "burak@ornek.test", modules={users.RPA: date(2026, 11, 25), users.IKIZ: None},
+                      ad_soyad="Burak Can")
+    make_user(core, "ahmet@ornek.test", modules={users.RPA: date(2026, 11, 26),  # 31 days: not yet
+                                                 users.IKIZ: date(2026, 10, 25)})  # the twin ended yesterday
+    make_user(core, "eski@ornek.test", durum="pasif", modules={users.RPA: date(2026, 10, 30), users.IKIZ: None})
     # An application older than the keeping period is not waiting any more.
     assert apply(app.test_client(), eposta="unutulan@ornek.test").status_code == 201
     sql(core, "UPDATE basvurular SET olusturma = %s WHERE eposta = 'unutulan@ornek.test'",
@@ -410,7 +413,7 @@ def test_the_summary_counts_accounts_rights_applications_and_unread_tickets(app,
     response = get(browser, "ozet")
     assert response.status_code == 200
     assert response.get_json() == {
-        "success": True, "aktif_kullanici": 6, "lisansli_kullanici": 5, "yakinda_bitecek": 2,
+        "success": True, "aktif_kullanici": 6, "lisansli_kullanici": 5, "ikiz_kullanici": 2, "yakinda_bitecek": 2,
         "bitecekler": [
             {"kullanici_id": ali["id"], "giris": "ali@ornek.test", "ad_soyad": "Ali Veli", "modul": users.AGENTS,
              "bitis": "2026-10-26", "kalan_gun": 0},
@@ -503,6 +506,23 @@ def test_a_new_account_gets_a_first_code_that_is_shown_once(app, core, world, br
         assert (taken.status_code, taken.get_json()) == (409, {
             "success": False, "kod": "HESAP_VAR",
             "message": "Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin."})
+
+
+def test_the_panel_opens_a_twin_account_and_grants_the_twin_right(app, core, world, browser):
+    response = post(browser, "kullanicilar", {**NEW_USER, "ikiz": True, "sifre": "Ornek2026x"})
+    assert response.status_code == 201, response.get_json()
+    user_id = response.get_json()["kullanici"]["kullanici_id"]
+    rows = sql(core, f"SELECT modul FROM kullanici_modulleri WHERE kullanici_id = {user_id} ORDER BY modul")
+    assert [row["modul"] for row in rows] == [users.AGENTS, users.IKIZ, users.RPA]
+    assert "ikiz_erisim" in studio_login(app.test_client(), kullanici="ORNEK_7", sifre="Ornek2026x").get_json()
+    other = post(browser, "kullanicilar", {**NEW_USER, "giris": "ikinci", "sifre": "Ornek2026x"}).get_json()
+    other_id = other["kullanici"]["kullanici_id"]
+    given = post(browser, f"kullanicilar/{other_id}/moduller/{users.IKIZ}", {"baslangic": "", "bitis": "2027-01-31"})
+    assert given.get_json()["modul"] == {"kullanici_id": other_id, "modul": users.IKIZ, "baslangic": "2026-10-26",
+                                         "bitis": "2027-01-31"}
+    detail = get(browser, f"kullanicilar/{other_id}").get_json()["kullanici"]["moduller"]
+    assert detail[users.IKIZ] == {"baslangic": "2026-10-26", "bitis": "2027-01-31", "durum": "aktif"}
+    assert post(browser, f"kullanicilar/{other_id}/moduller/{users.IKIZ}/kaldir").get_json()["modul"]["kaldirildi"]
 
 
 def test_a_new_account_can_be_opened_with_a_password_the_administrator_chooses(app, core, world, browser):

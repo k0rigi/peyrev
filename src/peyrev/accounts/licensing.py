@@ -9,6 +9,9 @@ Peyrev'e yalnız 1.0.0 ve sonrası bağlanır; eski Studio bildiği YETKI_YOK + 
 Studio yalnız SURE_DOLDU, YETKI_YOK ve OTURUM_GECERSIZ ile kilitlenir; yenilemede başka bir kod "bağlantı yok" sayılır.
 Firma yoktur: lisanstaki firma_id = kullanıcının alan_id'si (Studio yerel ajan verisini bununla bölümler), firma_adi
 boş, hesap_turu "bireysel".
+
+Dijital İkiz (MOD_IKIZ) aktifse imzalı lisansta "ikiz": true iddiası ve yanıtta `ikiz_erisim` (ikiz.issue, 720 sn) bulunur;
+hak yoksa ikisi de yoktur. Studio bilmediği alanları ve iddiaları yok sayar; ajan uzantısının yetkiler listesine girmez.
 """
 
 from __future__ import annotations
@@ -29,7 +32,7 @@ from ..agents import entitlement
 from ..clock import TR
 from ..common import BODY_LIMIT, LOG, ApiError, client_ip, ok, parse_json
 from ..db import advisory_lock
-from . import applications, rules, sessions
+from . import applications, ikiz, rules, sessions
 
 # İmzalı iddialardaki ürün kodu Studio'nun cihaz özetine de girer; değişmez.
 PRODUCT = "peyrev"
@@ -125,7 +128,7 @@ def _agent_extension(core, cur: Cursor, user: dict[str, Any], session_id: str) -
 
 def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end: date | None, session_id: str,
            number: int) -> dict[str, Any]:
-    """Başarılı giriş ve yenilemenin yanıtı: imzalı lisans, yenileme belirteci, ajan, destek ve robot erişimi."""
+    """Başarılı giriş ve yenilemenin yanıtı: imzalı lisans, yenileme belirteci, ajan, destek, robot ve ikiz erişimi."""
     moment = core.clock.now_tr().replace(microsecond=0)
     valid_until = moment + timedelta(seconds=TOLERANCE_SECONDS)
     if end is not None:
@@ -140,6 +143,9 @@ def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end
         "nonce": valid_nonce(data.get("nonce")),
     }
     payload["ajan"], agent_limit = _agent_extension(core, cur, user, session_id)
+    twin = ikiz.allowed(cur, user, core.clock.today_tr())
+    if twin:
+        payload["ikiz"] = True
     result = {"lisans": sign(core, payload), "yenileme": refresh_token(core, user, device, session_id, number)}
     if payload["ajan"].get("aktif") is True:
         try:
@@ -155,6 +161,12 @@ def answer(core, cur: Cursor, user: dict[str, Any], device: str, data: dict, end
         result["robot_erisim"] = tokens.issue(core, "robot", user, device, session_id)
     except Exception as error:  # noqa: BLE001
         LOG.warning("Robot erişim belirteci üretilemedi (%s).", type(error).__name__)
+    if twin:
+        try:
+            # Dijital İkiz (peyrev.com/ikiz/): Studio opens the twin with it; earlier Studios ignore the field.
+            result["ikiz_erisim"] = ikiz.issue(core, user)
+        except Exception as error:  # noqa: BLE001
+            LOG.warning("Dijital İkiz belirteci üretilemedi (%s).", type(error).__name__)
     return result
 
 

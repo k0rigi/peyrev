@@ -56,15 +56,16 @@ def _iso(value) -> str | None:
 
 
 def summary(core, cur: Cursor, admin_id: int) -> dict[str, Any]:
-    """Özet sayıları: aktif hesap, Peyrev'i kullanabilen hesap, 30 gün içinde bitecek hak, bekleyen başvuru, okunmamış
-    destek talebi ve iletişim mesajı; bitecek hakların ilk 50'si bitiş sırasıyla."""
+    """Özet sayıları: aktif hesap, Peyrev'i ve Dijital İkiz'i kullanabilen hesap, 30 gün içinde bitecek hak, bekleyen
+    başvuru, okunmamış destek talebi ve iletişim mesajı; bitecek hakların ilk 50'si bitiş sırasıyla."""
     require_admin(cur, admin_id)
     moment, today = core.clock.now(), core.clock.today_tr()
     until = today + ENDING_WITHIN
-    cur.execute("SELECT count(*) FILTER (WHERE durum = 'aktif') AS aktif, count(*) FILTER (WHERE durum = 'aktif' AND "
-                "(rol = 'yonetici' OR EXISTS (SELECT 1 FROM kullanici_modulleri m WHERE m.kullanici_id = k.id AND "
-                "m.modul = %s AND (m.bitis IS NULL OR m.bitis >= %s)))) AS lisansli FROM kullanicilar k",
-                (users.RPA, today))
+    # The administrator role opens Peyrev and the twin without a row (users.module_state).
+    right = ("count(*) FILTER (WHERE durum = 'aktif' AND (rol = 'yonetici' OR EXISTS (SELECT 1 FROM kullanici_modulleri m "
+             "WHERE m.kullanici_id = k.id AND m.modul = %s AND (m.bitis IS NULL OR m.bitis >= %s))))")
+    cur.execute("SELECT count(*) FILTER (WHERE durum = 'aktif') AS aktif, " + right + " AS lisansli, " + right
+                + " AS ikiz FROM kullanicilar k", (users.RPA, today, users.IKIZ, today))
     accounts = cur.fetchone()
     ending = ("FROM kullanici_modulleri m JOIN kullanicilar k ON k.id = m.kullanici_id "
               "WHERE k.durum = 'aktif' AND m.bitis BETWEEN %s AND %s")
@@ -82,7 +83,7 @@ def summary(core, cur: Cursor, admin_id: int) -> dict[str, Any]:
     cur.execute("SELECT count(*) AS n FROM iletisim_mesajlari WHERE NOT okundu")
     messages = cur.fetchone()["n"]
     return {"aktif_kullanici": accounts["aktif"], "lisansli_kullanici": accounts["lisansli"],
-            "yakinda_bitecek": ending_count, "bitecekler": soon, "bekleyen_basvuru": pending,
+            "ikiz_kullanici": accounts["ikiz"], "yakinda_bitecek": ending_count, "bitecekler": soon, "bekleyen_basvuru": pending,
             "okunmamis_destek": unread_count(core, cur, admin_id), "okunmamis_iletisim": messages}
 
 

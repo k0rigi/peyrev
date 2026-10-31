@@ -274,12 +274,14 @@ main:focus { outline: none; }
 .steps p { color: var(--muted); }
 
 .packages { list-style: none; margin: 0 auto; padding: 0; display: grid; gap: 18px;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); max-width: 920px; }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); max-width: 1120px; }
 .package { position: relative; display: grid; gap: 14px; align-content: start; padding: 32px; border-radius: 22px;
   background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
 .package h3 { font-size: 1.5rem; }
 .package > p { color: var(--muted); }
 .package .button { justify-self: start; margin-top: 8px; }
+.package-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.package-actions .button { margin-top: 0; }
 .package-featured { background: linear-gradient(165deg, #1b1e26, #0c0e13); color: var(--on-night); border-color: #2c303b; }
 .package-featured > p { color: var(--on-night-muted); }
 .package-featured .checks li::before { color: var(--gold-on-night); }
@@ -514,6 +516,7 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; margin:
 .account-rights span { color: var(--muted); }
 .account-right.is-ok span { color: var(--ok); font-weight: 600; }
 .account-renew { display: grid; gap: 12px; }
+.account-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
 .chip-hata { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
 .account-robots { grid-column: 1 / -1; }
 .robot-list, .robot, .robot-office { display: grid; gap: 10px; min-width: 0; }

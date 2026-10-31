@@ -23,7 +23,7 @@ from ..common import ApiError, client_ip, json_body, ok
 from ..support import notify
 from . import rules
 
-PACKAGES = {"rpa": "Peyrev", "rpa_ajan": "Peyrev + Ajanlar"}
+PACKAGES = {"rpa": "Peyrev", "rpa_ajan": "Peyrev + Ajanlar", "ikiz": "Peyrev Dijital İkiz"}
 # Formdaki bilgilendirme metninin sürümü; metin değişince yeni tarih yazılır.
 CONSENT_VERSION = "2026-10-26"
 PENDING, APPROVED, REJECTED = "bekliyor", "onaylandi", "reddedildi"

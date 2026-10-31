@@ -30,7 +30,10 @@ from . import applications, rules, sessions
 
 CODE_HOURS = 24            # yönetimden üretilen şifre yenileme kodu
 INITIAL_CODE_DAYS = 7      # yönetimden açılan hesabın ilk şifre kodu
-MODULES = (users.RPA, users.AGENTS)
+MODULES = (users.RPA, users.AGENTS, users.IKIZ)
+# Başvuru paketlerinin verdiği haklar: Dijital İkiz paketi üçünü birlikte verir.
+PACKAGE_MODULES = {"rpa": (users.RPA,), "rpa_ajan": (users.RPA, users.AGENTS),
+                   "ikiz": (users.RPA, users.AGENTS, users.IKIZ)}
 APPLICATION_ID = re.compile(r"[0-9a-f]{32}")
 SESSION_ID = re.compile(r"[0-9a-f]{32}")
 
@@ -121,8 +124,9 @@ def list_applications(core, admin_id: int, *, durum: str | None = None, limit: i
 
 def approve_application(core, admin_id: int, application_id: Any, *, bitis: Any, baslangic: Any = None,
                         paket: Any = None, note: Any = None) -> dict[str, Any]:
-    """Ödemesi görülen başvurudan hesap açar (kaynak 'basvuru', rol 'kullanici'): MOD_RPA ve paket 'rpa_ajan' ise
-    MOD_AJAN satırı [baslangic, bitis] ile yazılır, başvurudaki şifre özeti hesaba taşınır (yönetici şifreyi görmez).
+    """Ödemesi görülen başvurudan hesap açar (kaynak 'basvuru', rol 'kullanici'): MOD_RPA, paket 'rpa_ajan' ise MOD_AJAN,
+    paket 'ikiz' ise MOD_AJAN ve MOD_IKIZ satırları [baslangic, bitis] ile yazılır (PACKAGE_MODULES), başvurudaki şifre
+    özeti hesaba taşınır (yönetici şifreyi görmez).
     `baslangic` yoksa bugün; `paket` yoksa başvurunun paketi. Ajan ofisi açılmaz: kişi Studio'da kendisi kurar."""
     if not isinstance(application_id, str) or not APPLICATION_ID.fullmatch(application_id):
         raise ApiError("Başvuru bulunamadı.", 404, "BULUNAMADI")
@@ -155,7 +159,7 @@ def approve_application(core, admin_id: int, application_id: Any, *, bitis: Any,
         except psycopg.errors.UniqueViolation:
             raise taken from None  # opened meanwhile by another request
         user_id = cur.fetchone()["id"]
-        modules = [users.RPA] + ([users.AGENTS] if package == "rpa_ajan" else [])
+        modules = list(PACKAGE_MODULES[package])
         for module in modules:
             _write_module(cur, user_id, module, starts_on, ends_on, moment, today)
         # The password now lives only on the account; the application keeps the audit trail.
@@ -228,8 +232,9 @@ def list_users(core, admin_id: int, *, ara: Any = None, durum: Any = None, limit
 
 
 def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: Any, bitis: Any, ajan: Any = False,
-                telefon: Any = None, sifre: Any = None, onizleme: bool = False) -> dict[str, Any]:
-    """Yönetimden hesap açar: kaynak 'yonetim', MOD_RPA (ajan ise MOD_AJAN) [baslangic, bitis]. `sifre` verilirse hesap
+                ikiz: Any = False, telefon: Any = None, sifre: Any = None, onizleme: bool = False) -> dict[str, Any]:
+    """Yönetimden hesap açar: kaynak 'yonetim', MOD_RPA (ajan ise MOD_AJAN; ikiz ise Dijital İkiz paketi gibi MOD_AJAN
+    ve MOD_IKIZ) [baslangic, bitis]. `sifre` verilirse hesap
     o şifreyle açılır ve kod üretilmez; verilmezse şifre kimsenin bilmediği rastgele bir değerdir ve 7 gün geçerli ilk
     şifre kodu döner (kişi Studio'da "Şifre kodum var" ile kendi şifresini belirler; kod None değilse gösterilir).
     `onizleme` doğruysa hiçbir şey yazılmaz, yalnız denetim sonucu döner."""
@@ -243,7 +248,9 @@ def create_user(core, admin_id: int, *, giris: Any, ad_soyad: Any, baslangic: An
         raise ApiError("Başlangıç bitişten sonra olamaz.")
     if type(ajan) is not bool:
         raise ApiError("Ajanlar seçimi geçersiz.")
-    modules = [users.RPA] + ([users.AGENTS] if ajan else [])
+    if type(ikiz) is not bool:
+        raise ApiError("Dijital İkiz seçimi geçersiz.")
+    modules = [users.RPA] + ([users.AGENTS] if ajan or ikiz else []) + ([users.IKIZ] if ikiz else [])
     password_hash = None if onizleme else generate_password_hash(password or secrets.token_urlsafe(48))
     taken = ApiError("Bu kullanıcı adıyla bir hesap zaten var; başka bir ad seçin.", 409, "HESAP_VAR")
     with core.db.transaction() as cur:

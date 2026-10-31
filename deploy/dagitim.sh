@@ -5,8 +5,8 @@
 # Her sürüm kendi klasörüne (/opt/peyrev/releases/<sha>) ve kendi sanal ortamına kurulur; bağımlılıklar
 # deploy/requirements.lock'tan özetleri denetlenerek gelir. Eksik sunucu sırları bir kez üretilir (asla üzerine yazılmaz),
 # geçişler peyrev veritabanına uygulanır, current bağlantısı atomik değişir ve servis yeniden başlar.
-# /api/saglik 200 dönmezse önceki sürüme geri dönülür. Statik site (web/) public_html'e eşitlenir; indir/ (Studio paketleri)
-# ve .well-known/ korunur. Sonunda peyrev.com denetlenir.
+# /api/saglik 200 dönmezse önceki sürüme geri dönülür. Statik site (web/) public_html'e eşitlenir; indir/ (Studio paketleri),
+# .well-known/ ve ikiz/ (Dijital İkiz ayrı serviste) korunur. Sonunda peyrev.com denetlenir.
 
 set -Eeuo pipefail
 umask 022
@@ -53,11 +53,16 @@ fi
 "$REL/venv/bin/python" -c 'import sys, flask, psycopg, jwt, cryptography; print("  python", sys.version.split()[0], "flask", flask.__version__, "psycopg", psycopg.__version__)'
 
 adim "Sırlar"
-if [ ! -f "$SECRETS/jwt_secret" ] || [ ! -f "$SECRETS/lisans_ed25519" ]; then
+# Dijital İkiz giriş anahtarı (ikiz_ed25519) da bir kez üretilir; açık anahtarı (ikiz_ed25519.pub, ham 32 baytın
+# base64'ü) herkese açıktır ve ikiz servisinin kurulumu onu kopyalar. peyrev.keys eksik ya da tutmayan .pub'ı yeniden yazar.
+if [ ! -f "$SECRETS/jwt_secret" ] || [ ! -f "$SECRETS/lisans_ed25519" ] || [ ! -f "$SECRETS/ikiz_ed25519" ] \
+    || [ ! -f "$SECRETS/ikiz_ed25519.pub" ]; then
   PYTHONPATH=$REL/src "$REL/venv/bin/python" -m peyrev.keys "$SECRETS"
 fi
-chown root:peyrev "$SECRETS/jwt_secret" "$SECRETS/lisans_ed25519"
-chmod 0640 "$SECRETS/jwt_secret" "$SECRETS/lisans_ed25519"
+chown root:peyrev "$SECRETS/jwt_secret" "$SECRETS/lisans_ed25519" "$SECRETS/ikiz_ed25519"
+chmod 0640 "$SECRETS/jwt_secret" "$SECRETS/lisans_ed25519" "$SECRETS/ikiz_ed25519"
+chown root:root "$SECRETS/ikiz_ed25519.pub"
+chmod 0644 "$SECRETS/ikiz_ed25519.pub"
 ls -l "$SECRETS" | sed 's/^/  /'
 
 adim "Geçişler"
@@ -83,7 +88,7 @@ printf '  servis: %s, sağlık: %s\n' "$(systemctl is-active peyrev.service)" "$
 
 adim "Statik site"
 SITE_USER=$(stat -c %U "/home/$SITE")
-rsync -a --delete --exclude '/indir/' --exclude '/.well-known/' --chown="$SITE_USER:$SITE_USER" --chmod=D755,F644 \
+rsync -a --delete --exclude '/indir/' --exclude '/.well-known/' --exclude '/ikiz/' --chown="$SITE_USER:$SITE_USER" --chmod=D755,F644 \
   "$REL/web/" "$WEB/"
 # /indir/ holds the signed update feeds and installers (installed apps update from there); its page is only a notice,
 # installers go out as personal links (/api/indir/<anahtar>).

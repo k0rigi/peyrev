@@ -166,7 +166,7 @@ def api_blueprint(core) -> Blueprint:
 
     @blueprint.post("/kullanicilar")
     def user_create():
-        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan", "sifre", "sunucu"},
+        data = json_body({"giris", "ad_soyad", "telefon", "rol", "baslangic", "bitis", "ajan", "ikiz", "sifre", "sunucu"},
                          {"giris", "ad_soyad", "baslangic", "bitis"})
         role = data.get("rol", "kullanici")
         if not isinstance(role, str) or role not in service.ROLES:
@@ -176,7 +176,8 @@ def api_blueprint(core) -> Blueprint:
             raise ApiError("Sunucu hesabı yönetici rolü olmadan, kullanıcı olarak açılır.")
         created = accounts_admin.create_user(core, me(), giris=data["giris"], ad_soyad=data["ad_soyad"],
                                              baslangic=data["baslangic"], bitis=data["bitis"],
-                                             ajan=data.get("ajan", False), telefon=data.get("telefon"),
+                                             ajan=data.get("ajan", False), ikiz=data.get("ikiz", False),
+                                             telefon=data.get("telefon"),
                                              sifre=data.get("sifre") or None)
         warning = None
         if server:

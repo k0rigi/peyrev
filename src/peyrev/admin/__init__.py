@@ -20,10 +20,10 @@ Uçlar (routes.py, hepsi /api/yonetim altında; giriş dışındakiler oturum is
   GET  /ozet                                       → sayılar ve 30 gün içinde bitecek haklar
   GET  /ortak-model · POST /ortak-model/kuyrugu-bosalt {}
   GET  /kullanicilar?ara=&durum=&sayfa=            → {kullanicilar, toplam, sayfa, sayfa_boyu}
-  POST /kullanicilar {giris, ad_soyad, telefon?, rol?, baslangic, bitis, ajan?}  → 201 {kullanici, kod, uyari?}
+  POST /kullanicilar {giris, ad_soyad, telefon?, rol?, baslangic, bitis, ajan?, ikiz?}  → 201 {kullanici, kod, uyari?}
   GET  /kullanicilar/<id>                          → {kullanici, oturumlar, ofisler, destek, basvuru}
   POST /kullanicilar/<id>/bilgiler {ad_soyad, telefon?} · /rol {rol} · /durum {durum}
-  POST /kullanicilar/<id>/moduller/<MOD_RPA|MOD_AJAN> {baslangic?, bitis?}   (bitiş boş = süresiz)
+  POST /kullanicilar/<id>/moduller/<MOD_RPA|MOD_AJAN|MOD_IKIZ> {baslangic?, bitis?}   (bitiş boş = süresiz)
   POST /kullanicilar/<id>/moduller/<modul>/kaldir {} · /sifre-kodu {saat?} · /oturumlari-kapat {oturum_id?}
   POST /kullanicilar/<id>/iki-adim-sifirla {}
   POST /ofisler/<ofis_id>/durum {durum}

@@ -18,7 +18,7 @@ spec = importlib.util.spec_from_file_location("site_tool", ROOT / "tools" / "sit
 site = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(site)
 PAGES = site.pages()
-DYNAMIC = ("/api/",)  # served by the application
+DYNAMIC = ("/api/", "/ikiz/")  # served by the application and by the Dijital İkiz service
 # Extra sources a page may allow, beyond 'self' and 'none'.
 ALLOWED = {"img-src": {"https://i.ytimg.com"}, "frame-src": {"https://www.youtube-nocookie.com"}}
 
