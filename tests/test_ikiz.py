@@ -275,6 +275,10 @@ def test_the_twin_sign_in_screen_signs_in_with_the_peyrev_password(client, core)
     assert location.startswith("https://ikiz.peyrev.com/giris?b=")
     assert verify_twin(location.split("b=", 1)[1], core.keys.ikiz_public_key, now(core))["ad"] == "Ali Veli"
     assert "peyrev_hesap" not in opened.headers.get("Set-Cookie", "")  # no peyrev.com session is opened
+    # Behind OpenLiteSpeed the browser's Origin arrives twice, joined with a comma; mixed copies are refused.
+    doubled = twin_form(client, "https://ikiz.peyrev.com, https://ikiz.peyrev.com").headers["Location"]
+    assert doubled.startswith("https://ikiz.peyrev.com/giris?b=")
+    assert twin_form(client, "https://ikiz.peyrev.com, https://kotu.example").status_code == 403
     # A firm's own address gets the user back to that address.
     firm = twin_form(client, "https://basbug.peyrev.com").headers["Location"]
     assert firm.startswith("https://basbug.peyrev.com/giris?b=")

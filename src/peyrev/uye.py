@@ -307,7 +307,9 @@ def create_blueprint(core) -> Blueprint:
     @blueprint.post("/ikiz-giris")
     def twin_sign_in_route():
         """İkizin giriş ekranındaki form: doğruysa geldiği adrese tek kullanımlık giriş bağlantısıyla döner."""
-        origin = TWIN_ORIGIN.fullmatch(request.headers.get("Origin", ""))
+        # OpenLiteSpeed's proxy adds its own copy of Origin and gunicorn joins them with a comma: every copy must match.
+        copies = {value.strip() for value in request.headers.get("Origin", "").split(",")}
+        origin = TWIN_ORIGIN.fullmatch(copies.pop()) if len(copies) == 1 else None
         if origin is None or origin.group(1) in ("www", "mail"):
             raise ApiError("İstek doğrulanamadı.", 403, "CSRF")
         home = f"https://{origin.group(1)}.peyrev.com"
