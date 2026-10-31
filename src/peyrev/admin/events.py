@@ -56,6 +56,8 @@ TYPES = {
     "iletisim_silindi": "İletişim mesajı silindi",
     "robot_komutu": "Robot Paneli komutu",
     "robot_komutu_uye": "Robot Paneli komutu (Hesabım)",
+    "ikiz_adresi": "Dijital İkiz adresi açıldı veya değişti",
+    "ikiz_adresi_kaldirildi": "Dijital İkiz adresi kaldırıldı",
 }
 
 

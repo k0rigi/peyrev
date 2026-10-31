@@ -200,6 +200,9 @@ fieldset.field { border: 0; margin: 0; padding: 0; }
 .choice small { display: block; color: var(--muted); font-weight: 400; font-size: 0.8125rem; }
 .with-button { display: flex; gap: 8px; }
 .with-button input { flex: 1; min-width: 0; }
+.with-suffix { display: flex; align-items: center; gap: 6px; }
+.with-suffix input { flex: 1; min-width: 0; }
+.with-suffix .suffix { color: var(--muted); white-space: nowrap; }
 
 /* ----- uygulama düzeni -------------------------------------------------------------------------- */
 .app { min-height: 100vh; }

@@ -31,6 +31,11 @@
   // Yönetici rolü bu modülleri hak satırı olmadan da açar (sunucuda users.ADMIN_OPEN).
   const ADMIN_OPEN = ['MOD_RPA', 'MOD_IKIZ'];
   const SERVER_OFFICES = 20;
+  // Dijital İkiz firma adresi (<ad>.peyrev.com): sunucudaki admin/ikiz_adresi.py ile aynı kural; son sözü servis söyler.
+  const TWIN_NAME = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
+  const TWIN_RESERVED = ['www', 'mail', 'ikiz', 'demo', 'api', 'yonetim', 'panel', 'admin', 'destek', 'indir', 'ftp',
+    'smtp', 'imap', 'pop', 'cdn', 'static', 'test', 'peyrev'];
+  const TWIN_POLL = 10000;
   const PACKAGES = { rpa: 'Peyrev', rpa_ajan: 'Peyrev + Ajanlar', ikiz: 'Peyrev Dijital İkiz' };
   const ROLES = { kullanici: 'Kullanıcı', yonetici: 'Yönetici' };
   const ACCOUNT_STATES = { aktif: 'Aktif', pasif: 'Pasif' };
@@ -55,6 +60,7 @@
     sifre: 'Şifre', baslik: 'Başlık', video: 'Video', yayinda: 'Yayında', aciklama: 'Açıklama', kategori: 'Kategori',
     sira: 'Sıra', eposta: 'E-posta', yeni: 'Yeni', silinen_basvuru: 'Silinen başvuru', sabit: 'Sabit', kilitli: 'Yoruma kapalı',
     gizli: 'Gizli', yorum: 'Yorum', konu: 'Konu', tarih: 'Tarih', komut: 'Komut', akis: 'Akış', kaynak: 'Kaynak',
+    ad: 'Ad',
   };
   const DETAIL_ORDER = Object.keys(DETAIL_LABELS);
   // Destek talebi durumlarının adları (sunucunun listesi Destek bölümünde yüklenince onunkiler geçerlidir).
@@ -831,6 +837,7 @@
         h('div', { class: 'detail-grid' }, [
           h('div', { class: 'detail-col' }, [
             rightsSection(user, path, refresh),
+            twinSection(user, path),
             downloadSection(user, data.indirme, path, refresh),
             passwordAdminSection(user, path, refresh),
             accountSection(user, path, refresh),
@@ -957,6 +964,100 @@
     return section(id, 'Modül hakları', [
       h('p', { class: 'muted', text: 'Peyrev için MOD_RPA, Ajanlar için MOD_AJAN, Dijital İkiz (peyrev.com/ikiz/) için MOD_IKIZ hakkı gerekir; Ajanlar MOD_RPA ile birlikte çalışır, Peyrev Dijital İkiz paketi üçünü birlikte verir. Değişiklik kişinin açık Studio\'suna bir sonraki lisans yenilemesinde (en geç 10 dakika), Dijital İkiz\'e bir sonraki girişte yansır.' }),
     ].concat(blocks));
+  }
+
+  function twinOpen(user) {
+    const row = (user.moduller || {}).MOD_IKIZ;
+    return row ? row.durum === 'aktif' : adminOpen(user, 'MOD_IKIZ');
+  }
+
+  function twinNameProblem(name) {
+    if (!TWIN_NAME.test(name)) return 'Adres 1-40 karakter olmalı: küçük harf (a-z), rakam ve tire; tire başta ya da sonda olamaz.';
+    if (TWIN_RESERVED.includes(name)) return 'Bu ad ayrılmış; başka bir ad seçin.';
+    return '';
+  }
+
+  /** Firmaya özel Dijital İkiz adresi. "Hazırlanıyor" durumunda 10 sn'de bir sorulur; bölüm sayfadan kalkınca durur. */
+  function twinSection(user, path) {
+    const id = 'bolum-ikiz-adresi';
+    const title = 'Dijital İkiz adresi';
+    const intro = h('p', { class: 'muted', text: 'Firmaya özel Dijital İkiz adresi (ör. firma.peyrev.com). Sertifika ve '
+      + 'yönlendirme sunucuda kendiliğinden kurulur; birkaç dakika sürebilir. Kişi yine kendi hesabıyla girer.' });
+    // Hakkı olmayan hesapta yeni adres açılmaz; açık kalmış bir adres (hakkı bitmiş firma) görünür ve kaldırılabilir.
+    const open = twinOpen(user);
+    const noRight = () => h('p', { class: 'notice', text: 'Önce Dijital İkiz hakkı verin (Modül hakları bölümü).' });
+    const twinPath = path + '/ikiz-adresi';
+    const body = h('div', { class: 'panel-section' });
+    const node = section(id, title, [intro, body]);
+    let timer = 0;
+    let last = null;
+
+    // The form is drawn again only when the state changes, so a name being typed is not lost.
+    const poll = async () => {
+      if (!node.isConnected) return;
+      try {
+        const area = (await api(twinPath)).alan;
+        if (!node.isConnected) return;
+        if (last && area.durum === last.durum && area.alt_alan === last.alt_alan) timer = setTimeout(poll, TWIN_POLL);
+        else show(area);
+      } catch (error) {
+        if (!(error instanceof SessionLost) && node.isConnected) timer = setTimeout(poll, TWIN_POLL);
+      }
+    };
+
+    function show(area) {
+      clearTimeout(timer);
+      last = area;
+      const current = area.alt_alan && TWIN_NAME.test(area.alt_alan) ? area.alt_alan : '';
+      const url = current ? 'https://' + current + '.peyrev.com' : '';
+      let status;
+      if (area.durum === 'hazir' && url) {
+        status = h('p', null, [pill('Açık', 'ok'), ' ', h('a', { href: url, target: '_blank', rel: 'noopener', text: url })]);
+      } else if (area.durum === 'bekliyor') {
+        status = h('div', { class: 'pills' }, [pill('Hazırlanıyor…' + (url ? ' · ' + current + '.peyrev.com' : ''), 'warn')]);
+      } else if (area.durum === 'hata') {
+        status = h('div', { class: 'notice notice-error', role: 'alert' },
+          h('p', { text: 'Hata: ' + (area.mesaj || 'Adres hazırlanamadı.') }));
+      } else {
+        status = empty('Firmaya özel adres yok.');
+      }
+      const name = input('ad', {
+        value: current, maxlength: 40, required: true, autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false',
+        placeholder: 'firma',
+      });
+      const wrapper = h('div', { class: 'with-suffix' }, [name, h('span', { class: 'suffix', text: '.peyrev.com' })]);
+      const remove = current ? button('Adresi kaldır', async () => {
+        const data = await api(twinPath + '/kaldir', {});
+        say(current + '.peyrev.com kaldırıldı.', 'ok');
+        show(data.alan);
+      }, { kind: 'danger', confirm: current + '.peyrev.com kaldırılsın mı? Firma bu adresle Dijital İkiz\'e giremez.' }) : null;
+      const change = form([
+        field('Adres', name, { wrapper, hint: 'Küçük harf, rakam ve tire; en çok 40 karakter.' }),
+      ], current ? 'Adresi değiştir' : 'Adresi aç', async () => {
+        const wanted = name.value.trim().toLowerCase();
+        const problem = twinNameProblem(wanted);
+        if (problem) throw new Error(problem);
+        const data = await api(twinPath, { ad: wanted });
+        say(wanted + '.peyrev.com hazırlanıyor.', 'ok');
+        show(data.alan);
+      }, {
+        extra: [remove],
+        confirm: () => {
+          const wanted = name.value.trim().toLowerCase();
+          if (twinNameProblem(wanted)) return '';
+          return current && current !== wanted
+            ? 'Adres ' + wanted + '.peyrev.com olsun mu? ' + current + '.peyrev.com kapanır.'
+            : wanted + '.peyrev.com açılsın mı?';
+        },
+      });
+      if (open) put(body, status, change);
+      else if (current) put(body, status, noRight(), h('div', { class: 'actions' }, [remove]));
+      else put(body, noRight());
+      if (area.durum === 'bekliyor') timer = setTimeout(poll, TWIN_POLL);
+    }
+
+    fill(body, async () => show((await api(twinPath)).alan));
+    return node;
   }
 
   function passwordAdminSection(user, path, refresh) {

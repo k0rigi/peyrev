@@ -12,6 +12,8 @@ from pathlib import Path
 
 SECRETS_DIR = Path("/etc/peyrev")
 PUBLIC_BASE = "https://peyrev.com"
+# Dijital İkiz servisinin iç yönetim API'si (yalnız sunucunun döngü arayüzünde dinler).
+IKIZ_INTERNAL = "http://127.0.0.1:5102"
 
 
 def _read_env_file(path: Path) -> dict[str, str]:
@@ -44,6 +46,8 @@ class Settings:
     support_settings_path: Path = field(default=SECRETS_DIR / "destek.env")
     # Ortak model (LLM) ayar dosyası; yoksa /llm uçları enabled:false döner.
     llm_settings_path: Path = field(default=SECRETS_DIR / "llm.env")
+    # Panelin Dijital İkiz firma adresi işleri bu köke gider (admin/ikiz_adresi.py); testler sahte servise yönlendirir.
+    ikiz_internal_base: str = IKIZ_INTERNAL
 
     @classmethod
     def from_environment(cls) -> Settings:
@@ -55,4 +59,5 @@ class Settings:
                    public_base=os.environ.get("PEYREV_PUBLIC_BASE", PUBLIC_BASE),
                    allow_generate=os.environ.get("PEYREV_ALLOW_GENERATE") == "1",
                    support_settings_path=secrets_dir / "destek.env",
-                   llm_settings_path=secrets_dir / "llm.env")
+                   llm_settings_path=secrets_dir / "llm.env",
+                   ikiz_internal_base=os.environ.get("PEYREV_IKIZ_IC_ADRES", IKIZ_INTERNAL))

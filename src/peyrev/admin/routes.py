@@ -18,6 +18,7 @@ from ..robotlar import service as robots
 from ..support import answer_ticket, file_response, list_tickets, open_ticket, ticket_attachment
 from . import auth, service
 from . import egitim as training
+from . import ikiz_adresi as twin_address
 from . import iletisim as contact
 from . import indirme as downloads
 from . import topluluk as community
@@ -270,6 +271,20 @@ def api_blueprint(core) -> Blueprint:
     def user_office_open(user_id: int):
         data = json_body({"ad"}, {"ad"})
         return ok(201, ofis=agents_admin.open_office(core, me(), user_id, data["ad"]))
+
+    @blueprint.get("/kullanicilar/<int:user_id>/ikiz-adresi")
+    def user_twin_address(user_id: int):
+        return ok(alan=twin_address.status(core, me(), user_id))
+
+    @blueprint.post("/kullanicilar/<int:user_id>/ikiz-adresi")
+    def user_twin_address_set(user_id: int):
+        data = json_body({"ad"}, {"ad"})
+        return ok(alan=twin_address.assign(core, me(), user_id, data["ad"]))
+
+    @blueprint.post("/kullanicilar/<int:user_id>/ikiz-adresi/kaldir")
+    def user_twin_address_remove(user_id: int):
+        json_body(set())
+        return ok(alan=twin_address.remove(core, me(), user_id))
 
     @blueprint.post("/ofisler/<office_id>/durum")
     def office_status(office_id: str):

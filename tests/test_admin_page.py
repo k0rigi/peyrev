@@ -182,3 +182,21 @@ def test_the_panel_knows_every_right_and_package_the_server_knows():
     # The new-account form sends the twin choice and the user table has its column.
     assert "ikiz: twin.control.checked" in SCRIPT and "rightCell(user, 'MOD_IKIZ')" in SCRIPT
     assert "stat(data.ikiz_kullanici," in SCRIPT
+
+
+def test_the_panel_checks_twin_addresses_with_the_servers_rule():
+    """Dijital İkiz adresinin önden denetimi sunucunun kuralıyla aynıdır; durum 10 sn'de bir, bölüm sayfadayken sorulur."""
+    from peyrev.admin import ikiz_adresi
+
+    pattern = re.search(r"const TWIN_NAME = /\^(.*)\$/;", SCRIPT).group(1)
+    assert pattern == ikiz_adresi.NAME.pattern
+    reserved = re.search(r"const TWIN_RESERVED = \[([^\]]*)\];", SCRIPT).group(1)
+    assert set(re.findall(r"'([a-z]+)'", reserved)) == ikiz_adresi.RESERVED
+    assert "const TWIN_POLL = 10000;" in SCRIPT
+    section = re.search(r"function twinSection\(user, path\) \{(.*?)\n  \}\n", SCRIPT, re.DOTALL).group(1)
+    assert "twinSection(user, path)," in SCRIPT and "const open = twinOpen(user);" in section
+    assert "if (open) put(body, status, change);" in section
+    assert "Önce Dijital İkiz hakkı verin" in section
+    assert "if (!node.isConnected) return;" in section and "setTimeout(poll, TWIN_POLL)" in section
+    assert "'https://' + current + '.peyrev.com'" in section and "TWIN_NAME.test(area.alt_alan)" in section
+    assert "'Adresi değiştir' : 'Adresi aç'" in section and "button('Adresi kaldır'" in section
