@@ -67,8 +67,12 @@ jobs:
       - name: Dışarıdan denetim
         run: |
           fail=0
-          for u in https://peyrev.com/ikiz/api/saglik https://peyrev.com/ikiz/ https://peyrev.com/api/saglik https://peyrev.com/; do
+          for u in https://ikiz.peyrev.com/api/saglik https://ikiz.peyrev.com/ https://peyrev.com/ikiz/api/saglik https://peyrev.com/api/saglik https://peyrev.com/; do
             c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$u" || true)
             echo "$u -> $c"; [ "$c" = 200 ] || fail=1
+          done
+          # Sertifikası doğrulanmayan ad olmasın (www ve ikiz).
+          for u in https://www.peyrev.com/ https://ikiz.peyrev.com/; do
+            curl -s -o /dev/null --max-time 20 "$u" || { echo "$u sertifika / bağlantı hatası"; fail=1; }
           done
           exit $fail
