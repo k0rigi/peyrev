@@ -21,6 +21,7 @@ on:
           - eposta-dns
           - eposta-tani
           - destek-eposta
+          - alan-tani
 
 permissions:
   contents: read
@@ -58,6 +59,7 @@ jobs:
             eposta-dns) betik=deploy/eposta-dns.sh; ortam='{}' ;;
             eposta-tani) betik=deploy/eposta-tani.sh; ortam='{}' ;;
             destek-eposta) betik=deploy/destek-eposta.sh; ortam='{}' ;;
+            alan-tani) betik=deploy/alan-tani.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
