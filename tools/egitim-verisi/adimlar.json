@@ -1,5 +1,5 @@
 {
- "surum": "1.6.0",
+ "surum": "1.7.0",
  "kategoriler": [
   "Pencere",
   "Fare ve klavye",
@@ -6689,6 +6689,80 @@
     "15-yapay-zeka-ve-onay"
    ],
    "alistirma": ""
+  },
+  {
+   "numara": 108,
+   "tur": "ikiz.send",
+   "ad": "İkize gönder (Dijital İkiz)",
+   "kategori": "Web, e-posta ve API",
+   "aciklama": "Bir listenin satırlarını (ör. veritabanı sorgusunun veya Excel'in satırları) depo olaylarına çevirip peyrev.com Dijital İkiz'deki tesisinize gönderir ya da bir kaynak sistemden son gönderilen kaydın anahtarını alır. Dijital İkiz hakkı olan hesapta çalışır.",
+   "nasil": [
+    "Önce satırları okuyun: ör. Veritabanı sorgusu ile depo hareketleri (son anahtardan sonrakiler) veya Excel / CSV oku.",
+    "Tesis numarasını yazın ve Satırlar alanına listeyi verin (ör. ${rows}).",
+    "Eşleme'de olay alanlarını sütunlara bağlayın: tur (ör. mal_kabul, sevk_edildi, stok_anlik), zaman, urun, miktar, nereden / nereye (konum kodları) ve kaynak_anahtar (kaydın benzersiz numarası).",
+    "Kaldığı yerden sürdürmek için akışın başına İşlem: Son gönderilen anahtarı al ekleyin ve sorguda ${ikiz.son_anahtar}'dan sonraki kayıtları okuyun; gönderirken Son anahtar alanına en son kaydın anahtarını yazın."
+   ],
+   "sonuc": "${ikiz.alindi}: kaydedilen, ${ikiz.tekrar}: daha önce gelmiş, ${ikiz.hata_sayisi} ve ${ikiz.hatalar}: kabul edilmeyen olaylar (her biri satir ve neden). Son anahtarda ${ikiz.son_anahtar} (yoksa boş) ve ${ikiz.bulundu}.",
+   "ipucu": "Olaylar 1.000'erli paketlerle gider; veri bilgisayardan peyrev.com'a çıkar. kaynak_anahtar verin: adım yeniden çalışırsa aynı kayıt ikinci kez sayılmaz. Önizleme bu adımı atlar. Yalnız Dijital İkiz hakkı olan hesapta çalışır.",
+   "alanlar": [
+    {
+     "ad": "Tesis numarası",
+     "yardim": "Dijital İkiz'deki tesisinizin numarası (peyrev.com/ikiz'de tesis bilgilerinde görünür). ${tesis_no} de yazılabilir.",
+     "zorunlu": true,
+     "secenekler": []
+    },
+    {
+     "ad": "İşlem",
+     "yardim": "Olayları gönder: listedeki her satır bir olay olur. Son gönderilen anahtarı al: bu kaynak sistemden en son hangi kayda kadar gönderildiğini öğrenir; sorguyu oradan sürdürmek için.",
+     "zorunlu": true,
+     "secenekler": [
+      "Olayları gönder",
+      "Son gönderilen anahtarı al"
+     ]
+    },
+    {
+     "ad": "Satırlar",
+     "yardim": "Gönderilecek satırlar: genellikle Veritabanı sorgusunun ${rows} sonucu ya da Excel / CSV oku'nun listesi. Bir adımda en fazla 100.000 satır.",
+     "zorunlu": true,
+     "secenekler": []
+    },
+    {
+     "ad": "Eşleme (olay alanı → satır değeri)",
+     "yardim": "Olayın her alanına satırdan hangi değerin yazılacağı: ${row.SutunAdi} o satırın sütunudur, sabit değer de yazılabilir. tur ve zaman gereklidir. Örnek: {\"tur\": \"mal_kabul\", \"zaman\": \"${row.Tarih}\", \"urun\": \"${row.StokKodu}\", \"miktar\": \"${row.Miktar}\", \"nereye\": \"KB-01\", \"kaynak_anahtar\": \"${row.ID}\"}. Belge için \"belgeler\": [{\"tur\": \"irsaliye\", \"no\": \"${row.IrsaliyeNo}\"}].",
+     "zorunlu": true,
+     "secenekler": []
+    },
+    {
+     "ad": "Kaynak sistem",
+     "yardim": "Verinin geldiği sistemin kısa adı (ör. erp, depo-excel); aynı kaynak kaydı ikinci kez gelirse ikiz onu bir kez sayar. Son anahtar her kaynak için ayrı tutulur.",
+     "zorunlu": true,
+     "secenekler": []
+    },
+    {
+     "ad": "Son anahtar (isteğe bağlı)",
+     "yardim": "Bu gönderimin son kaydının anahtarı (ör. ${son_id}); bütün olaylar ulaşınca ikiz saklar ve Son gönderilen anahtarı al onu verir. Boş: değişmez.",
+     "zorunlu": false,
+     "secenekler": []
+    },
+    {
+     "ad": "Hatalı olay olursa",
+     "yardim": "İkiz bir olayı kabul etmezse (ör. yerleşimde olmayan konum kodu): Devam et, nedenleri ${ikiz.hatalar} içinde verir; Akışı durdur, geçerli olaylar kaydedildikten sonra hata verir.",
+     "zorunlu": false,
+     "secenekler": [
+      "Devam et (hatalar sonuçta listelenir)",
+      "Akışı durdur (geçerli olaylar yine kaydedilir)"
+     ]
+    },
+    {
+     "ad": "Sonucu değişkene kaydet",
+     "yardim": "Olay gönderiminde ${ikiz.alindi}, ${ikiz.tekrar}, ${ikiz.hata_sayisi}, ${ikiz.hatalar}; son anahtarda ${ikiz.son_anahtar} (yoksa boş) ve ${ikiz.bulundu}.",
+     "zorunlu": true,
+     "secenekler": []
+    }
+   ],
+   "ajan": false,
+   "akislar": [],
+   "alistirma": "Dijital İkiz hakkı olan hesapta: Excel / CSV oku ile Tarih, StokKodu, Miktar ve ID sütunları olan birkaç satırlık bir mal kabul listesini okuyun. İkize gönder ekleyin; Tesis numarasını peyrev.com/ikiz'deki tesis bilgilerinden yazın, Satırlar'a ${rows} verin, Eşleme'deki nereye değerini tesisinizdeki bir kabul alanının koduyla değiştirin ve Bu adımı test et ile gönderin: ${ikiz.alindi} satır sayısını verir. Adımı yeniden çalıştırınca kaynak_anahtar sayesinde olaylar ${ikiz.tekrar} olarak sayılır. Son olarak İşlem: Son gönderilen anahtarı al ile ${ikiz.son_anahtar}'ı okuyun."
   }
  ],
  "ortak_alanlar": [

@@ -304,7 +304,7 @@ def test_the_step_counts_add_up():
     counts = [int(re.fullmatch(r"(\d+) adım", node.text()).group(1)) for node in catalog.walk()
               if node.tag == "span" and node.parent.parent is catalog]
     total = sum(counts)
-    assert (total, len(counts)) == (107, 11)
+    assert (total, len(counts)) == (108, 11)
     text = " ".join(HTML.split())
     assert f"<strong>{total}</strong><span>hazır adım</span>" in text and f"{total} adım, {len(counts)} kategori." in text
     assert f"{total} adımlık kütüphane" in text and f"kategorilerindeki {total} adımdan" in text
