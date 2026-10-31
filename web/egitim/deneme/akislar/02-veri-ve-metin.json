@@ -1,0 +1,1112 @@
+{
+ "name": "Deneme 02 · Veri ve metin",
+ "description": "Değişken, hesap, metin, tarih ve iş günü, liste, gruplama, iki listeyi eşleştirme ve TCKN / VKN / IBAN doğrulama adımlarını bilinen değerlerle çalıştırır ve sonuçları denetler.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Ham müşteri adı",
+   "action": "core.set",
+   "params": {
+    "name": "musteri",
+    "value": "  ayşe yılmaz  "
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Boşlukları al",
+   "action": "text.transform",
+   "params": {
+    "text": "${musteri}",
+    "operation": "trim",
+    "output": "ad"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Baş harfleri büyüt",
+   "action": "text.transform",
+   "params": {
+    "text": "${ad}",
+    "operation": "title",
+    "turkish": true,
+    "output": "ad"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "Ad doğru biçimde",
+   "action": "control.if",
+   "params": {
+    "left": "${ad}",
+    "operator": "eq",
+    "right": "Ayşe Yılmaz"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a004",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Başlık biçimi Ayşe Yılmaz olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a006",
+   "title": "Türkçe büyük harf",
+   "action": "text.transform",
+   "params": {
+    "text": "istanbul",
+    "operation": "upper",
+    "turkish": true,
+    "output": "sehir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "İ harfi doğru",
+   "action": "control.if",
+   "params": {
+    "left": "${sehir}",
+    "operator": "eq",
+    "right": "İSTANBUL"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a007",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Türkçe büyük harf İSTANBUL olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a009",
+   "title": "Fatura numarasını çek",
+   "action": "text.transform",
+   "params": {
+    "text": "Fatura No: INV-2026-0042",
+    "operation": "regex_extract",
+    "pattern": "\\d{4}$",
+    "output": "fatura_no"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Numara bulundu",
+   "action": "control.if",
+   "params": {
+    "left": "${fatura_no}",
+    "operator": "eq",
+    "right": "0042"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a010",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Düzenli ifade 0042 bulmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a012",
+   "title": "Virgülle parçala",
+   "action": "text.transform",
+   "params": {
+    "text": "elma,armut,muz",
+    "operation": "split",
+    "find": ",",
+    "output": "meyveler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Parçaları say",
+   "action": "data.list",
+   "params": {
+    "list": "${meyveler}",
+    "operation": "length",
+    "output": "meyve_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a015",
+   "title": "Üç parça",
+   "action": "control.if",
+   "params": {
+    "left": "${meyve_sayisi}",
+    "operator": "eq",
+    "right": 3
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a014",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Metin üç parçaya ayrılmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a016",
+   "title": "Tutar",
+   "action": "core.set",
+   "params": {
+    "name": "tutar",
+    "value": "1.234,50"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "KDV dahil tutar",
+   "action": "data.calculate",
+   "params": {
+    "expression": "round(${tutar} * 1.2, 2)",
+    "output": "kdvli"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a019",
+   "title": "KDV dahil 1481,40",
+   "action": "control.if",
+   "params": {
+    "left": "${kdvli}",
+    "operator": "eq",
+    "right": 1481.4
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a018",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "1.234,50 × 1,2 = 1481,4 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a020",
+   "title": "Tutarı biçimlendir",
+   "action": "data.validate",
+   "params": {
+    "operation": "money",
+    "value": "${kdvli}",
+    "symbol": "TL",
+    "decimals": 2,
+    "output": "kdvli_metin"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a022",
+   "title": "Tutar metni",
+   "action": "control.if",
+   "params": {
+    "left": "${kdvli_metin}",
+    "operator": "eq",
+    "right": "1.481,40 TL"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a021",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Biçim 1.481,40 TL olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a023",
+   "title": "Tutarı yazıyla yaz",
+   "action": "data.validate",
+   "params": {
+    "operation": "words",
+    "value": "1234,50",
+    "currency": "TRY",
+    "output": "yaziyla"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a025",
+   "title": "Yazıyla tutar",
+   "action": "control.if",
+   "params": {
+    "left": "${yaziyla}",
+    "operator": "contains",
+    "right": "bin iki yüz otuz dört"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a024",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yazıyla tutar 'bin iki yüz otuz dört' içermeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a026",
+   "title": "Bugün",
+   "action": "data.date",
+   "params": {
+    "operation": "now",
+    "format": "%d.%m.%Y",
+    "output": "bugun"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a027",
+   "title": "Bir iş günü sonrası",
+   "action": "data.date",
+   "params": {
+    "operation": "add_business_days",
+    "value": "28.10.2026",
+    "input_format": "%d.%m.%Y",
+    "amount": 1,
+    "format": "%d.%m.%Y",
+    "output": "is_gunu"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a029",
+   "title": "Tatil atlandı",
+   "action": "control.if",
+   "params": {
+    "left": "${is_gunu}",
+    "operator": "eq",
+    "right": "30.10.2026"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a028",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "28.10.2026'dan bir iş günü sonrası 30.10.2026 olmalıydı (29 Ekim tatil)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a030",
+   "title": "29 Ekim iş günü mü?",
+   "action": "data.date",
+   "params": {
+    "operation": "is_business_day",
+    "value": "29.10.2026",
+    "input_format": "%d.%m.%Y",
+    "output": "tatil_mi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a032",
+   "title": "29 Ekim iş günü değil",
+   "action": "control.if",
+   "params": {
+    "left": "${tatil_mi}",
+    "operator": "eq",
+    "right": false
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a031",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "29 Ekim iş günü sayılmamalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a033",
+   "title": "Şubat'ın son günü",
+   "action": "data.date",
+   "params": {
+    "operation": "month_end",
+    "value": "15.02.2026",
+    "input_format": "%d.%m.%Y",
+    "format": "%d.%m.%Y",
+    "output": "ay_sonu"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a035",
+   "title": "Ay sonu",
+   "action": "control.if",
+   "params": {
+    "left": "${ay_sonu}",
+    "operator": "eq",
+    "right": "28.02.2026"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a034",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Şubat 2026'nın son günü 28 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a036",
+   "title": "İki tarih arası gün",
+   "action": "data.date",
+   "params": {
+    "operation": "difference",
+    "value": "01.01.2026",
+    "other": "31.01.2026",
+    "input_format": "%d.%m.%Y",
+    "unit": "days",
+    "output": "gun_farki"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a037",
+   "title": "Tarihleri yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Bugün ${bugun}; 1–31 Ocak arası ${gun_farki} gün."
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a038",
+   "title": "Satış listesi",
+   "action": "core.set",
+   "params": {
+    "name": "satislar",
+    "value": [
+     {
+      "Cari": "Akın Ltd.",
+      "Ay": "Ekim",
+      "Tutar": "1.200,00"
+     },
+     {
+      "Cari": "Deniz Ticaret",
+      "Ay": "Ekim",
+      "Tutar": "300,00"
+     },
+     {
+      "Cari": "Akın Ltd.",
+      "Ay": "Kasım",
+      "Tutar": "800,00"
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a039",
+   "title": "Toplam satış",
+   "action": "data.list",
+   "params": {
+    "list": "${satislar}",
+    "operation": "sum",
+    "field": "Tutar",
+    "output": "toplam"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a041",
+   "title": "Toplam 2300",
+   "action": "control.if",
+   "params": {
+    "left": "${toplam}",
+    "operator": "eq",
+    "right": 2300
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a040",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Satışların toplamı 2300 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a042",
+   "title": "Akın Ltd. satışları",
+   "action": "data.list",
+   "params": {
+    "list": "${satislar}",
+    "operation": "filter",
+    "field": "Cari",
+    "operator": "eq",
+    "value": "Akın Ltd.",
+    "output": "akin"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a043",
+   "title": "Cari başına topla",
+   "action": "data.group",
+   "params": {
+    "list": "${satislar}",
+    "group_by": "Cari",
+    "field_1": "Tutar",
+    "operation_1": "toplam",
+    "output": "ozet"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a044",
+   "title": "Özet satır sayısı",
+   "action": "data.list",
+   "params": {
+    "list": "${ozet}",
+    "operation": "length",
+    "output": "cari_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a046",
+   "title": "İki cari",
+   "action": "control.if",
+   "params": {
+    "left": "${cari_sayisi}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a045",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Özette iki cari olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a047",
+   "title": "En büyük satış önce",
+   "action": "data.list",
+   "params": {
+    "list": "${satislar}",
+    "operation": "sort",
+    "field": "Tutar",
+    "descending": true,
+    "output": "sirali"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a048",
+   "title": "En büyük satış",
+   "action": "data.list",
+   "params": {
+    "list": "${sirali}",
+    "operation": "first",
+    "output": "en_buyuk"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a050",
+   "title": "En büyük 1200",
+   "action": "control.if",
+   "params": {
+    "left": "${en_buyuk.Tutar}",
+    "operator": "eq",
+    "right": "1.200,00"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a049",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Tutara göre sıralamada ilk satır 1.200,00 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a051",
+   "title": "Sonuçlara ekle",
+   "action": "data.append",
+   "params": {
+    "name": "sonuclar",
+    "value": "${ozet}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a052",
+   "title": "Carileri birleştir",
+   "action": "data.list",
+   "params": {
+    "list": "${ozet}",
+    "operation": "join",
+    "field": "Cari",
+    "separator": " | ",
+    "output": "cariler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a053",
+   "title": "Özeti yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Cariler: ${cariler}; Akın Ltd. satışları: ${akin}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a054",
+   "title": "Banka hareketleri",
+   "action": "core.set",
+   "params": {
+    "name": "banka",
+    "value": [
+     {
+      "Fatura No": "1001",
+      "Tutar": "500,00"
+     },
+     {
+      "Fatura No": "1002",
+      "Tutar": "300,00"
+     },
+     {
+      "Fatura No": "1003",
+      "Tutar": "120,00"
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a055",
+   "title": "Muhasebe kayıtları",
+   "action": "core.set",
+   "params": {
+    "name": "muhasebe",
+    "value": [
+     {
+      "Fatura No": "1001",
+      "Tutar": "500,00"
+     },
+     {
+      "Fatura No": "1002",
+      "Tutar": "350,00"
+     },
+     {
+      "Fatura No": "1004",
+      "Tutar": "80,00"
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a056",
+   "title": "Fatura numarasıyla eşleştir",
+   "action": "data.match",
+   "params": {
+    "list_a": "${banka}",
+    "key_a": "Fatura No",
+    "list_b": "${muhasebe}",
+    "compare": "exact",
+    "amount_a": "Tutar",
+    "amount_b": "Tutar",
+    "tolerance": 0.01,
+    "name_a": "Banka",
+    "name_b": "Muhasebe",
+    "output": "eslesme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a057",
+   "title": "Eşleşenler",
+   "action": "data.list",
+   "params": {
+    "list": "${eslesme.eslesen}",
+    "operation": "length",
+    "output": "eslesen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a059",
+   "title": "Bir tam eşleşme",
+   "action": "control.if",
+   "params": {
+    "left": "${eslesen}",
+    "operator": "eq",
+    "right": 1
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a058",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yalnız 1001 tam eşleşmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a060",
+   "title": "Tutarı farklı olanlar",
+   "action": "data.list",
+   "params": {
+    "list": "${eslesme.tutar_farkli}",
+    "operation": "length",
+    "output": "farkli"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a062",
+   "title": "Bir tutar farkı",
+   "action": "control.if",
+   "params": {
+    "left": "${farkli}",
+    "operator": "eq",
+    "right": 1
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a061",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "1002'nin tutar farkı bulunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a064",
+   "title": "Mutabakat tam değil",
+   "action": "control.if",
+   "params": {
+    "left": "${eslesme.tamam}",
+    "operator": "eq",
+    "right": false
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a063",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Karşılıksız kayıtlar olduğu için mutabakat tam çıkmamalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a065",
+   "title": "TCKN doğrula",
+   "action": "data.validate",
+   "params": {
+    "operation": "tckn",
+    "value": "10000000146",
+    "output": "tckn"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a067",
+   "title": "TCKN geçerli",
+   "action": "control.if",
+   "params": {
+    "left": "${tckn.gecerli}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a066",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "10000000146 geçerli bir TCKN'dir."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a068",
+   "title": "Hatalı TCKN",
+   "action": "data.validate",
+   "params": {
+    "operation": "tckn",
+    "value": "12345678901",
+    "output": "hatali"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a070",
+   "title": "Hatalı TCKN yakalandı",
+   "action": "control.if",
+   "params": {
+    "left": "${hatali.gecerli}",
+    "operator": "eq",
+    "right": false
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a069",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "12345678901 geçersiz çıkmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a071",
+   "title": "VKN doğrula",
+   "action": "data.validate",
+   "params": {
+    "operation": "vkn",
+    "value": "4540536920",
+    "output": "vkn"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a073",
+   "title": "VKN geçerli",
+   "action": "control.if",
+   "params": {
+    "left": "${vkn.gecerli}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a072",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "4540536920 geçerli bir VKN'dir."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a074",
+   "title": "IBAN doğrula",
+   "action": "data.validate",
+   "params": {
+    "operation": "iban",
+    "value": "TR330006100519786457841326",
+    "output": "iban"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a076",
+   "title": "IBAN geçerli",
+   "action": "control.if",
+   "params": {
+    "left": "${iban.gecerli}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a075",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Örnek IBAN geçerli çıkmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a077",
+   "title": "IBAN'ı yaz",
+   "action": "core.log",
+   "params": {
+    "message": "IBAN: ${iban.deger}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a078",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Veri ve metin adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Metin",
+   "text": "Metin işlemi boşlukları alır, Türkçe büyük/küçük harfe çevirir (i → İ), parçalar ve düzenli ifadeyle numara çeker.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a003",
+    "a005",
+    "a006",
+    "a008",
+    "a009",
+    "a011",
+    "a012",
+    "a013",
+    "a015"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Hesap",
+   "text": "Hesapla 1.234,50 gibi Türkçe yazılmış sayıları çevirir; round, len ve koşullu ifade kullanılabilir.",
+   "color": "yellow",
+   "steps": [
+    "a016",
+    "a017",
+    "a019",
+    "a020",
+    "a022",
+    "a023",
+    "a025"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Tarih ve iş günü",
+   "text": "29 Ekim resmî tatildir; 28 Ekim'den bir iş günü sonrası 30 Ekim olur. Ay sonu Şubat'ta 28'dir (2026).",
+   "color": "yellow",
+   "steps": [
+    "a026",
+    "a027",
+    "a029",
+    "a030",
+    "a032",
+    "a033",
+    "a035",
+    "a036",
+    "a037"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Liste ve gruplama",
+   "text": "Liste işlemi sayar, toplar, süzer ve sıralar; Grupla ve topla Excel'deki özet tablo gibi cari başına toplam çıkarır; Listeye ekle sonuçları toplar.",
+   "color": "yellow",
+   "steps": [
+    "a038",
+    "a039",
+    "a041",
+    "a042",
+    "a043",
+    "a044",
+    "a046",
+    "a047",
+    "a048",
+    "a050",
+    "a051",
+    "a052",
+    "a053"
+   ]
+  },
+  {
+   "id": "n5",
+   "title": "Mutabakat",
+   "text": "İki listeyi eşleştir: banka ve muhasebe kayıtlarında 1001 tutar; 1002'nin tutarı farklı; 1003 yalnız bankada, 1004 yalnız muhasebede.",
+   "color": "yellow",
+   "steps": [
+    "a054",
+    "a055",
+    "a056",
+    "a057",
+    "a059",
+    "a060",
+    "a062",
+    "a064"
+   ]
+  },
+  {
+   "id": "n6",
+   "title": "Doğrulama",
+   "text": "TCKN, VKN ve IBAN'ın kontrol haneleri denetlenir; yanlış numara geçersiz çıkar.",
+   "color": "yellow",
+   "steps": [
+    "a065",
+    "a067",
+    "a068",
+    "a070",
+    "a071",
+    "a073",
+    "a074",
+    "a076",
+    "a077",
+    "a078"
+   ]
+  }
+ ]
+}

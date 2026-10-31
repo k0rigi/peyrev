@@ -1,0 +1,181 @@
+{
+ "name": "Deneme 08 · Web servisi (API) ve TCMB kuru",
+ "description": "peyrev.com'un herkese açık eğitim listesini HTTP isteğiyle alır, TCMB'den bugünün ve geçmiş bir günün kurunu çeker ve dolar tutarını TL'ye çevirir.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Eğitim listesini al",
+   "action": "http.request",
+   "params": {
+    "method": "GET",
+    "url": "https://peyrev.com/api/egitim",
+    "timeout": 30,
+    "fail_on_error": true,
+    "output": "yanit"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Yanıt 200",
+   "action": "control.if",
+   "params": {
+    "left": "${yanit.status}",
+    "operator": "eq",
+    "right": 200
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a002",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "peyrev.com 200 yanıtı vermeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a004",
+   "title": "Yanıtı yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Eğitim listesi alındı: ${yanit.body}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "Bugünün dolar satış kuru",
+   "action": "finance.exchange_rate",
+   "params": {
+    "currency": "USD",
+    "date": "",
+    "rate_type": "ForexSelling",
+    "previous_day": true,
+    "output": "kur"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Kur alındı",
+   "action": "control.if",
+   "params": {
+    "left": "${kur.kur}",
+    "operator": "gt",
+    "right": 0
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a006",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "TCMB'den dolar kuru alınmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a008",
+   "title": "2 Ocak 2026 euro alış kuru",
+   "action": "finance.exchange_rate",
+   "params": {
+    "currency": "EUR",
+    "date": "02.01.2026",
+    "rate_type": "ForexBuying",
+    "previous_day": true,
+    "output": "eski_kur"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "250 doların TL karşılığı",
+   "action": "data.calculate",
+   "params": {
+    "expression": "round(250 * ${kur.kur}, 2)",
+    "output": "tl"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "TL biçimi",
+   "action": "data.validate",
+   "params": {
+    "operation": "money",
+    "value": "${tl}",
+    "symbol": "TL",
+    "decimals": 2,
+    "output": "tl_metin"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Kurları yaz",
+   "action": "core.log",
+   "params": {
+    "message": "USD ${kur.kur} (${kur.tarih}); 250 USD = ${tl_metin}. EUR ${eski_kur.kur} (${eski_kur.tarih})."
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a012",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "API ve kur adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "HTTP isteği",
+   "text": "JSON yanıt ${yanit.body} içinde gelir; durum kodu ${yanit.status}.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a003",
+    "a004"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "TCMB kuru",
+   "text": "Tarih boşsa bugünün kuru alınır (15.30'dan önce önceki iş gününün kuru). Tutarı TL'ye Hesapla adımı çevirir.",
+   "color": "yellow",
+   "steps": [
+    "a005",
+    "a007",
+    "a008",
+    "a009",
+    "a010",
+    "a011",
+    "a012"
+   ]
+  }
+ ]
+}

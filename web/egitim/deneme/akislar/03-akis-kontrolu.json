@@ -1,0 +1,544 @@
+{
+ "name": "Deneme 03 · Döngüler, koşullar ve hata yakalama",
+ "description": "Tekrarla, Koşul sürdükçe tekrarla, Her satır için (atla ve devam et), Sonraki tura geç, Döngüden çık, Hata olursa ve Adıma git adımlarını sayaçlarla çalıştırır ve sonuçları denetler.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Sayaç",
+   "action": "core.set",
+   "params": {
+    "name": "sayac",
+    "value": 0
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Üç kez",
+   "action": "control.repeat",
+   "params": {
+    "count": 3
+   },
+   "children": [
+    {
+     "id": "a002",
+     "title": "Sayacı artır",
+     "action": "data.calculate",
+     "params": {
+      "expression": "${sayac} + 1",
+      "output": "sayac"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "Sayaç 3",
+   "action": "control.if",
+   "params": {
+    "left": "${sayac}",
+    "operator": "eq",
+    "right": 3
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a004",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Tekrarla üç kez dönmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a007",
+   "title": "Sayaç 6 olana kadar",
+   "action": "control.while",
+   "params": {
+    "left": "${sayac}",
+    "operator": "lt",
+    "right": 6,
+    "max_iterations": 10,
+    "max_seconds": 30
+   },
+   "children": [
+    {
+     "id": "a006",
+     "title": "Sayacı artır",
+     "action": "data.calculate",
+     "params": {
+      "expression": "${sayac} + 1",
+      "output": "sayac"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Sayaç 6",
+   "action": "control.if",
+   "params": {
+    "left": "${sayac}",
+    "operator": "eq",
+    "right": 6
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a008",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Koşul sürdükçe tekrarla sayaç 6 olunca durmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a010",
+   "title": "Bir saniye bekle",
+   "action": "core.wait",
+   "params": {
+    "seconds": 1
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Toplananlar",
+   "action": "core.set",
+   "params": {
+    "name": "toplananlar",
+    "value": []
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "Her sayı için",
+   "action": "control.for_each",
+   "params": {
+    "items": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
+    ],
+    "item_name": "sayi"
+   },
+   "children": [
+    {
+     "id": "a013",
+     "title": "2 ise atla",
+     "action": "control.if",
+     "params": {
+      "left": "${sayi}",
+      "operator": "eq",
+      "right": 2
+     },
+     "children": [
+      {
+       "id": "a012",
+       "title": "Sonraki tura geç",
+       "action": "control.continue",
+       "params": {},
+       "children": [],
+       "otherwise": []
+      }
+     ],
+     "otherwise": []
+    },
+    {
+     "id": "a015",
+     "title": "5 ise çık",
+     "action": "control.if",
+     "params": {
+      "left": "${sayi}",
+      "operator": "eq",
+      "right": 5
+     },
+     "children": [
+      {
+       "id": "a014",
+       "title": "Döngüden çık",
+       "action": "control.break",
+       "params": {},
+       "children": [],
+       "otherwise": []
+      }
+     ],
+     "otherwise": []
+    },
+    {
+     "id": "a016",
+     "title": "Topla",
+     "action": "data.append",
+     "params": {
+      "name": "toplananlar",
+      "value": "${sayi}"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a018",
+   "title": "Birleştir",
+   "action": "data.list",
+   "params": {
+    "list": "${toplananlar}",
+    "operation": "join",
+    "separator": ",",
+    "output": "toplanan_metin"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a020",
+   "title": "1,3,4 toplandı",
+   "action": "control.if",
+   "params": {
+    "left": "${toplanan_metin}",
+    "operator": "eq",
+    "right": "1,3,4"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a019",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Döngü 2'yi atlayıp 5'te çıkmalıydı (1,3,4)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a022",
+   "title": "Her değer için (hatada atla)",
+   "action": "control.for_each",
+   "params": {
+    "items": [
+     "10",
+     "abc",
+     "5"
+    ],
+    "item_name": "row",
+    "on_error": "skip",
+    "errors_name": "satir_hatalari"
+   },
+   "children": [
+    {
+     "id": "a021",
+     "title": "Sayıya çevir",
+     "action": "text.transform",
+     "params": {
+      "text": "${row}",
+      "operation": "number",
+      "output": "sayi_degeri"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a023",
+   "title": "Hatalı satırlar",
+   "action": "data.list",
+   "params": {
+    "list": "${satir_hatalari}",
+    "operation": "length",
+    "output": "hata_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a025",
+   "title": "Bir hatalı satır",
+   "action": "control.if",
+   "params": {
+    "left": "${hata_sayisi}",
+    "operator": "eq",
+    "right": 1
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a024",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yalnız 'abc' satırı hatalı olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a026",
+   "title": "Yakalandı mı?",
+   "action": "core.set",
+   "params": {
+    "name": "yakalandi",
+    "value": false
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a030",
+   "title": "Hata olursa",
+   "action": "control.try",
+   "params": {
+    "error_name": "hata_mesaji"
+   },
+   "children": [
+    {
+     "id": "a027",
+     "title": "Olmayan dosyayı oku",
+     "action": "file.read_text",
+     "params": {
+      "path": "${sistem.ev}/peyrev-olmayan-dosya.txt",
+      "output": "olmayan"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": [
+    {
+     "id": "a028",
+     "title": "Hata yakalandı",
+     "action": "core.set",
+     "params": {
+      "name": "yakalandi",
+      "value": true
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a029",
+     "title": "Hatayı yaz",
+     "action": "core.log",
+     "params": {
+      "message": "Yakalanan hata: ${hata_mesaji}"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a032",
+   "title": "Hata yakalandı",
+   "action": "control.if",
+   "params": {
+    "left": "${yakalandi}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a031",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Hata olursa dalı çalışmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a034",
+   "title": "Deneme sayısı",
+   "action": "core.set",
+   "params": {
+    "name": "deneme",
+    "value": 0
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a033",
+   "title": "Deneme sayısını artır",
+   "action": "data.calculate",
+   "params": {
+    "expression": "${deneme} + 1",
+    "output": "deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a036",
+   "title": "3'ten azsa geri dön",
+   "action": "control.if",
+   "params": {
+    "left": "${deneme}",
+    "operator": "lt",
+    "right": 3
+   },
+   "children": [
+    {
+     "id": "a035",
+     "title": "Deneme sayısına dön",
+     "action": "control.goto",
+     "params": {
+      "target": "a033",
+      "max_jumps": 5
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a038",
+   "title": "Üç deneme",
+   "action": "control.if",
+   "params": {
+    "left": "${deneme}",
+    "operator": "eq",
+    "right": 3
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a037",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Adıma git iki kez geri dönmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a039",
+   "title": "Çalışma notu",
+   "action": "core.log",
+   "params": {
+    "message": "Sayaç ${sayac}, deneme ${deneme}."
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a040",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Döngü ve koşul adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Tekrar",
+   "text": "Tekrarla (N kez) sayacı üç kez artırır; Koşul sürdükçe tekrarla sayaç 6 olana kadar döner. En fazla tur ve süre sınırı sonsuz döngüyü önler.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a003",
+    "a005",
+    "a007",
+    "a009",
+    "a010"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Her satır için",
+   "text": "2. satır Sonraki tura geç ile atlanır, 5. satırda Döngüden çık ile döngü biter; toplananlar 1, 3, 4 olur.",
+   "color": "yellow",
+   "steps": [
+    "a011",
+    "a017",
+    "a018",
+    "a020"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Hatalı satırı atla",
+   "text": "Hata olursa: Atla ve devam et seçilince hatalı satır listeye yazılır, döngü sürer. 'abc' sayıya çevrilemez.",
+   "color": "yellow",
+   "steps": [
+    "a022",
+    "a023",
+    "a025"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Hata olursa",
+   "text": "İç adım hata verince akış durmaz, Hata olursa dalı çalışır; hata mesajı ${hata_mesaji} değişkenindedir.",
+   "color": "yellow",
+   "steps": [
+    "a026",
+    "a030",
+    "a032"
+   ]
+  },
+  {
+   "id": "n5",
+   "title": "Adıma git",
+   "text": "Adıma git geriye dönerek bir bölümü yeniden çalıştırır; Her turda en fazla sınırı sonsuz döngüyü önler.",
+   "color": "yellow",
+   "steps": [
+    "a034",
+    "a033",
+    "a036",
+    "a038",
+    "a039",
+    "a040"
+   ]
+  }
+ ]
+}

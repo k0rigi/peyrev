@@ -1,0 +1,680 @@
+{
+ "name": "Deneme 04 · Excel ve dosya işlemleri",
+ "description": "Excel dosyası oluşturur, okur, hücre yazar, satır bulup günceller ve ekler; metin dosyası yazar, kopyalar, taşır, siler, zip'ler ve çalışma raporu çıkarır.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Excel klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "excel",
+    "value": "${klasor}/Excel"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Excel klasörünü oluştur",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${excel}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Müşteri listesi",
+   "action": "core.set",
+   "params": {
+    "name": "musteriler",
+    "value": [
+     {
+      "Ad": "Ali Kaya",
+      "Şehir": "İstanbul",
+      "Tutar": 1250
+     },
+     {
+      "Ad": "Ayşe Demir",
+      "Şehir": "Ankara",
+      "Tutar": 480.5
+     },
+     {
+      "Ad": "Mehmet Can",
+      "Şehir": "İzmir",
+      "Tutar": 2100
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "Excel'e yaz",
+   "action": "file.write_table",
+   "params": {
+    "rows": "${musteriler}",
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "mode": "overwrite"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Excel'i oku",
+   "action": "file.read_table",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "output": "okunan"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Satırları say",
+   "action": "data.list",
+   "params": {
+    "list": "${okunan}",
+    "operation": "length",
+    "output": "satir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Üç satır",
+   "action": "control.if",
+   "params": {
+    "left": "${satir}",
+    "operator": "eq",
+    "right": 3
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a008",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Excel'den üç satır okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a010",
+   "title": "Durum başlığını yaz",
+   "action": "file.write_cell",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "column": "D",
+    "row_mode": "number",
+    "row": "1",
+    "value_type": "value",
+    "value": "Durum"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Ali Kaya'yı güncelle",
+   "action": "file.excel_update",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "key_column": "Ad",
+    "key_value": "Ali Kaya",
+    "match": "exact",
+    "updates": {
+     "Durum": "Arandı"
+    },
+    "on_missing": "stop",
+    "on_multiple": "stop",
+    "output": "guncelleme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Satır bulundu",
+   "action": "control.if",
+   "params": {
+    "left": "${guncelleme.bulundu}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a012",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Ali Kaya satırı bulunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a014",
+   "title": "Yeni müşteriyi ekle",
+   "action": "file.excel_update",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "key_column": "Ad",
+    "key_value": "Zeynep Ak",
+    "match": "exact",
+    "updates": {
+     "Şehir": "Bursa",
+     "Tutar": 0,
+     "Durum": "Yeni"
+    },
+    "on_missing": "add",
+    "on_multiple": "stop",
+    "output": "ekleme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Satır eklendi",
+   "action": "control.if",
+   "params": {
+    "left": "${ekleme.eklendi}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a015",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Zeynep Ak yeni satır olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a017",
+   "title": "Sonraki boş satıra yaz",
+   "action": "file.write_cell",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "column": "A",
+    "row_mode": "next",
+    "last_row_column": "A",
+    "value_type": "value",
+    "value": "Deniz Er",
+    "output": "hucre"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a018",
+   "title": "Yeniden oku",
+   "action": "file.read_table",
+   "params": {
+    "path": "${excel}/musteriler.xlsx",
+    "sheet": "Müşteriler",
+    "output": "okunan"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a019",
+   "title": "Arananlar",
+   "action": "data.list",
+   "params": {
+    "list": "${okunan}",
+    "operation": "filter",
+    "field": "Durum",
+    "operator": "eq",
+    "value": "Arandı",
+    "output": "arananlar"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a020",
+   "title": "Arananları say",
+   "action": "data.list",
+   "params": {
+    "list": "${arananlar}",
+    "operation": "length",
+    "output": "aranan"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a022",
+   "title": "Bir aranan",
+   "action": "control.if",
+   "params": {
+    "left": "${aranan}",
+    "operator": "eq",
+    "right": 1
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a021",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Durumu Arandı olan bir satır olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a023",
+   "title": "Tüm satırlar",
+   "action": "data.list",
+   "params": {
+    "list": "${okunan}",
+    "operation": "length",
+    "output": "satir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a025",
+   "title": "Beş satır",
+   "action": "control.if",
+   "params": {
+    "left": "${satir}",
+    "operator": "eq",
+    "right": 5
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a024",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Güncellemelerden sonra beş satır olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a026",
+   "title": "Sonuna ekle",
+   "action": "file.write_table",
+   "params": {
+    "rows": [
+     {
+      "Ad": "Ek Satır",
+      "Şehir": "Bursa"
+     }
+    ],
+    "path": "${excel}/ekler.csv",
+    "mode": "append"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a027",
+   "title": "Çalışma raporu",
+   "action": "data.export_csv",
+   "params": {
+    "rows": "${okunan}",
+    "format": "xlsx",
+    "filename": "musteri-raporu.xlsx"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a028",
+   "title": "Not yaz",
+   "action": "file.write_text",
+   "params": {
+    "path": "${excel}/not.txt",
+    "text": "Peyrev deneme notu\n",
+    "mode": "overwrite"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a029",
+   "title": "Not ekle",
+   "action": "file.write_text",
+   "params": {
+    "path": "${excel}/not.txt",
+    "text": "İkinci satır: ${sistem.bugun}\n",
+    "mode": "append"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a030",
+   "title": "Notu oku",
+   "action": "file.read_text",
+   "params": {
+    "path": "${excel}/not.txt",
+    "output": "not_metni"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a032",
+   "title": "İki satır yazıldı",
+   "action": "control.if",
+   "params": {
+    "left": "${not_metni}",
+    "operator": "contains",
+    "right": "İkinci satır"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a031",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Nota ikinci satır eklenmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a033",
+   "title": "Notu kopyala",
+   "action": "file.operation",
+   "params": {
+    "operation": "copy",
+    "source": "${excel}/not.txt",
+    "destination": "${excel}/not-kopya.txt",
+    "overwrite": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a034",
+   "title": "Kopyayı bekle",
+   "action": "file.wait",
+   "params": {
+    "path": "${excel}/not-kopya.txt",
+    "timeout": 10,
+    "output": "kopya"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a035",
+   "title": "Arşiv klasörü",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${excel}/Arşiv"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a036",
+   "title": "Kopyayı arşive taşı",
+   "action": "file.operation",
+   "params": {
+    "operation": "move",
+    "source": "${kopya}",
+    "destination": "${excel}/Arşiv/not-kopya.txt",
+    "overwrite": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a037",
+   "title": "Zip oluştur",
+   "action": "file.zip",
+   "params": {
+    "operation": "create",
+    "items": "${excel}/musteriler.xlsx\n${excel}/not.txt",
+    "destination": "${excel}/paket.zip",
+    "overwrite": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a038",
+   "title": "Zip'i denetle",
+   "action": "file.info",
+   "params": {
+    "path": "${excel}/paket.zip",
+    "extensions": "zip",
+    "check_content": true,
+    "on_problem": "continue",
+    "output": "zip_bilgi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a040",
+   "title": "Zip uygun",
+   "action": "control.if",
+   "params": {
+    "left": "${zip_bilgi.ok}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a039",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "paket.zip geçerli bir zip olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a041",
+   "title": "Excel dosyaları",
+   "action": "file.list",
+   "params": {
+    "folder": "${excel}",
+    "pattern": "*.xlsx",
+    "sort": "newest",
+    "output": "excel_dosyalari"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a042",
+   "title": "Arşivdeki kopyayı sil",
+   "action": "file.operation",
+   "params": {
+    "operation": "delete",
+    "source": "${excel}/Arşiv/not-kopya.txt"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a043",
+   "title": "Silindi mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${excel}/Arşiv/not-kopya.txt",
+    "output": "duruyor"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a045",
+   "title": "Silindi",
+   "action": "control.if",
+   "params": {
+    "left": "${duruyor}",
+    "operator": "eq",
+    "right": false
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a044",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Kopya silinmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a046",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Excel ve dosya adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Excel'e yaz ve oku",
+   "text": "Excel / CSV'ye yaz listeyi başlıklarıyla yazar; Excel / CSV oku her satırı başlık adlarıyla geri verir (${row.Ad}).",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a003",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a009"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Hücre ve satır güncelle",
+   "text": "Excel hücresine yaz başlık ekler; Excel'de bul ve güncelle satırı Ad sütununda arar, bulamazsa yeni satır ekler. Diğer hücreler ve biçimler korunur.",
+   "color": "yellow",
+   "steps": [
+    "a010",
+    "a011",
+    "a013",
+    "a014",
+    "a016",
+    "a017",
+    "a018",
+    "a019",
+    "a020",
+    "a022",
+    "a023",
+    "a025",
+    "a026",
+    "a027"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Metin dosyası",
+   "text": "Metin dosyasına yaz üzerine yazar veya sonuna ekler; Metin dosyası oku tüm içeriği verir.",
+   "color": "yellow",
+   "steps": [
+    "a028",
+    "a029",
+    "a030",
+    "a032"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Kopyala, taşı, sil, zip",
+   "text": "Dosya işlemleri; Dosyanın oluşmasını bekle başka bir programın bıraktığı dosyayı bekler. Dosya bilgisi zip'in gerçekten zip olduğunu denetler.",
+   "color": "yellow",
+   "steps": [
+    "a033",
+    "a034",
+    "a035",
+    "a036",
+    "a037",
+    "a038",
+    "a040",
+    "a041",
+    "a042",
+    "a043",
+    "a045",
+    "a046"
+   ]
+  }
+ ]
+}

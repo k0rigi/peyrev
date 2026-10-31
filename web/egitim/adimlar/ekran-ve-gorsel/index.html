@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Ekran ve görsel kategorisindeki 5 adımın kullanımı.">
+<title>Ekran ve görsel adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/ekran-ve-gorsel/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Ekran ve görsel</h1>
+      <p class="lead">5 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Ekran ve görsel adımları">
+        <ol>
+        <li><a href="#adim-26"><span>26</span> Ekranda görsele tıkla</a></li>
+        <li><a href="#adim-27"><span>27</span> Ekrandan metin oku (OCR)</a></li>
+        <li><a href="#adim-28"><span>28</span> Ekranda metni bekle</a></li>
+        <li><a href="#adim-29"><span>29</span> Piksel rengini oku</a></li>
+        <li><a href="#adim-30"><span>30</span> Ekran görüntüsü al</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-26">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 26">26</span>
+          <h2>Ekranda görsele tıkla</h2>
+        </div>
+        <p class="guide-lead">Görseli ekranda bekleyip tıklar; ikon ve düğmeler için. Görselin merkezinden fark verilebilir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ekrandan görsel seç ile tıklanacak düğmeyi veya simgeyi kaydedin.</li>
+          <li>Görselin yanındaki bir yere tıklanacaksa merkezden farkı yazın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Görsel bulunamazsa tıklama yapılmaz, adım durur. Bu adımı test et → Yeri göster, tıklamadan fareyi hedefe götürür.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan görsel seç ile kaydedin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>Merkezden sağa / sola</dt>
+            <dd>Görselin merkezinden kaç piksel sağa (+) veya sola (−) tıklanacağı.</dd>
+            <dt>Merkezden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Fare düğmesi</dt>
+            <dd>Sağ tık menüsünü açmak için Sağ seçin. <span class="guide-options">Seçenekler: Sol, Sağ, Orta.</span></dd>
+            <dt>Tıklama</dt>
+            <dd>Kayıt açmak gibi işlemler için Çift tık seçin. <span class="guide-options">Seçenekler: Tek tık, Çift tık, Üç tık.</span></dd>
+            <dt>Bölge neye göre? <span class="guide-required">zorunlu</span></dt>
+            <dd>Tanıtılan pencere seçilirse bölge pencerenin sol üst köşesine göre ölçülür; pencere taşınsa da doğru kalır. <span class="guide-options">Seçenekler: Ana ekran, Tanıtılan pencere (pencere taşınsa da doğru kalır).</span></dd>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Yalnız &#x27;Tanıtılan pencere&#x27; seçiliyken kullanılır.</dd>
+            <dt>Bölge [x, y, genişlik, yükseklik]</dt>
+            <dd>Boş bırakılırsa tüm ekran/pencere kullanılır. Bölge çiz düğmesiyle seçebilirsiniz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Ekranda seç ile Not Defteri&#x27;nin Düzen menüsünü görsel olarak kaydedin ve adımı test edin: menü açılır. Eşleşme eşiğini 0,8&#x27;e indirip yükseltmenin etkisini deneyin.</p>
+      </article>
+      <article class="guide-step" id="adim-27">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 27">27</span>
+          <h2>Ekrandan metin oku (OCR)</h2>
+        </div>
+        <p class="guide-lead">Ekrandaki yazıyı okur: hata mesajları, fatura numaraları, onay metinleri. Kurulum gerektirmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Bölge neye göre? alanında Tanıtılan pencere seçin.</li>
+          <li>Bölge çiz ile görüntüyü alın; fareyi basılı tutup okunacak alanı dikdörtgen çizerek seçin ve kaydedin.</li>
+          <li>Çıktı değişkenine ad verin (ör. mesaj).</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Okunan metin. Koşul adımında İçerir ile kontrol edin veya Sheets&#x27;e yazın.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Bölgeyi dar tutun: yalnız okunacak yazı kalsın. Sayı okurken Metin işlemi ile gereksiz karakterleri temizleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (4)</summary>
+          <dl>
+            <dt>Bölge neye göre? <span class="guide-required">zorunlu</span></dt>
+            <dd>Tanıtılan pencere seçilirse bölge pencerenin sol üst köşesine göre ölçülür; pencere taşınsa da doğru kalır. <span class="guide-options">Seçenekler: Ana ekran, Tanıtılan pencere (pencere taşınsa da doğru kalır).</span></dd>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Yalnız &#x27;Tanıtılan pencere&#x27; seçiliyken kullanılır.</dd>
+            <dt>Bölge [x, y, genişlik, yükseklik]</dt>
+            <dd>Boş bırakılırsa tüm ekran/pencere kullanılır. Bölge çiz düğmesiyle seçebilirsiniz.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-28">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 28">28</span>
+          <h2>Ekranda metni bekle</h2>
+        </div>
+        <p class="guide-lead">Belirli bir yazı (ör. Kaydedildi) ekranda görünene kadar OCR ile bekler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Beklenen kelimeyi yazın (ör. kaydedildi).</li>
+          <li>Bölge çiz ile yazının çıkacağı alanı seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${text_found}</code>: metin göründü mü?</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Aranacak metin <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda geçmesi beklenen kelime; büyük/küçük harf fark etmez (ör. kaydedildi).</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Süre dolarsa <span class="guide-required">zorunlu</span></dt>
+            <dd>Devam et seçerseniz sonuç <code>${text_found}</code> yanlış olur; Koşul ile kontrol edin. <span class="guide-options">Seçenekler: Akışı durdur, Yanlış sonucuyla devam et.</span></dd>
+            <dt>Bölge neye göre? <span class="guide-required">zorunlu</span></dt>
+            <dd>Tanıtılan pencere seçilirse bölge pencerenin sol üst köşesine göre ölçülür; pencere taşınsa da doğru kalır. <span class="guide-options">Seçenekler: Ana ekran, Tanıtılan pencere (pencere taşınsa da doğru kalır).</span></dd>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Yalnız &#x27;Tanıtılan pencere&#x27; seçiliyken kullanılır.</dd>
+            <dt>Bölge [x, y, genişlik, yükseklik]</dt>
+            <dd>Boş bırakılırsa tüm ekran/pencere kullanılır. Bölge çiz düğmesiyle seçebilirsiniz.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-29">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 29">29</span>
+          <h2>Piksel rengini oku</h2>
+        </div>
+        <p class="guide-lead">Bir noktanın rengini #RRGGBB olarak okur; durum lambası veya seçili satır kontrolü için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Fare konumunu al ile noktayı alın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${pixel}</code>: #RRGGBB rengi. Durum lambası veya seçili satır kontrolü için Koşul&#x27;da kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>X (ekran) <span class="guide-required">zorunlu</span></dt>
+            <dd>Fare konumunu al ile otomatik doldurabilirsiniz.</dd>
+            <dt>Y (ekran) <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranın üst kenarından piksel. Fare konumunu al ile X ile birlikte dolar.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-30">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 30">30</span>
+          <h2>Ekran görüntüsü al</h2>
+        </div>
+        <p class="guide-lead">Ekranın veya bir bölgenin görüntüsünü çalışma çıktılarına ve isterseniz bir klasöre kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Tüm ekran için bölgeyi boş bırakın veya Bölge çiz ile seçin.</li>
+          <li>Dosya adını yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Görüntü çalışma ayrıntısındaki çıktılara eklenir.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Hata olursa dalına ekleyin: hata anında ekranın nasıl göründüğünü sonradan görürsünüz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Bölge neye göre? <span class="guide-required">zorunlu</span></dt>
+            <dd>Tanıtılan pencere seçilirse bölge pencerenin sol üst köşesine göre ölçülür; pencere taşınsa da doğru kalır. <span class="guide-options">Seçenekler: Ana ekran, Tanıtılan pencere (pencere taşınsa da doğru kalır).</span></dd>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Yalnız &#x27;Tanıtılan pencere&#x27; seçiliyken kullanılır.</dd>
+            <dt>Bölge [x, y, genişlik, yükseklik]</dt>
+            <dd>Boş bırakılırsa tüm ekran/pencere kullanılır. Bölge çiz düğmesiyle seçebilirsiniz.</dd>
+            <dt>Dosya adı <span class="guide-required">zorunlu</span></dt>
+            <dd>Çalışma çıktılarında görünecek ad (ör. hata-ekrani.png).</dd>
+            <dt>Ayrıca bu klasöre kaydet</dt>
+            <dd>Boş: yalnız çalışma çıktılarına.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/fare-ve-klavye/">← Fare ve klavye</a> <a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/uygulama-ve-sistem/">Uygulama ve sistem →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

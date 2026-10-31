@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Web, e-posta ve API kategorisindeki 21 adımın kullanımı.">
+<title>Web, e-posta ve API adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/web-e-posta-ve-api/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Web, e-posta ve API</h1>
+      <p class="lead">21 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Web, e-posta ve API adımları">
+        <ol>
+        <li><a href="#adim-73"><span>73</span> Web sayfası aç</a></li>
+        <li><a href="#adim-74"><span>74</span> Web öğesine tıkla</a></li>
+        <li><a href="#adim-75"><span>75</span> Web alanını doldur</a></li>
+        <li><a href="#adim-76"><span>76</span> Web&#x27;den metin oku</a></li>
+        <li><a href="#adim-77"><span>77</span> Web listesinden seç</a></li>
+        <li><a href="#adim-78"><span>78</span> Web&#x27;de bekle</a></li>
+        <li><a href="#adim-79"><span>79</span> Web&#x27;de tuşa bas</a></li>
+        <li><a href="#adim-80"><span>80</span> Web&#x27;de geri / ileri / yenile</a></li>
+        <li><a href="#adim-81"><span>81</span> Web sekmesine geç / kapat</a></li>
+        <li><a href="#adim-82"><span>82</span> Web tablosunu oku</a></li>
+        <li><a href="#adim-83"><span>83</span> Web&#x27;den dosya indir</a></li>
+        <li><a href="#adim-84"><span>84</span> Web&#x27;e dosya yükle</a></li>
+        <li><a href="#adim-85"><span>85</span> Web sayfasının görüntüsünü al</a></li>
+        <li><a href="#adim-86"><span>86</span> Web&#x27;de JavaScript çalıştır</a></li>
+        <li><a href="#adim-87"><span>87</span> E-posta gönder</a></li>
+        <li><a href="#adim-88"><span>88</span> HTTP isteği gönder (API)</a></li>
+        <li><a href="#adim-90"><span>90</span> E-postaları oku</a></li>
+        <li><a href="#adim-91"><span>91</span> FTP dosya aktarımı</a></li>
+        <li><a href="#adim-92"><span>92</span> Mesaj gönder (WhatsApp, Telegram, Teams…)</a></li>
+        <li><a href="#adim-99"><span>99</span> TCMB döviz kuru</a></li>
+        <li><a href="#adim-105"><span>105</span> E-postayı taşı / işaretle</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-73">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 73">73</span>
+          <h2>Web sayfası aç</h2>
+        </div>
+        <p class="guide-lead">Bilgisayardaki Edge veya Chrome ile sayfayı açar; sonraki web adımları bu sayfada çalışır. Tarayıcı, çalışma bitince kapanır; girişler ayrı Peyrev profilinde hatırlanır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Adresi yazın (https://…).</li>
+          <li>Tarayıcıyı seçin; Otomatik Windows&#x27;ta Edge, Mac&#x27;te Chrome kullanır.</li>
+          <li>Sonra Web alanını doldur, Web öğesine tıkla ve Web&#x27;den metin oku adımlarını ekleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_url}</code>: açılan sayfanın adresi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Tarayıcı çalışma bitince kapanır. Girişler Peyrev&#x27;in ayrı profilinde hatırlanır; kendi tarayıcınızın profili kullanılmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (4)</summary>
+          <dl>
+            <dt>Adres <span class="guide-required">zorunlu</span></dt>
+            <dd>http:// veya https:// ile başlamalıdır.</dd>
+            <dt>Tarayıcı</dt>
+            <dd>Seçilen tarayıcı bilgisayarda kurulu olmalıdır; ayrıca tarayıcı indirilmez. <span class="guide-options">Seçenekler: Otomatik (Windows: Edge, Mac: Chrome), Microsoft Edge, Google Chrome.</span></dd>
+            <dt>Tarayıcıyı göstermeden çalıştır</dt>
+            <dd>Açıkken pencere görünmez. Giriş veya doğrulama gereken sitelerde kapalı bırakın.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Açılan sayfanın son adresi (yönlendirmelerden sonra).</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-74">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 74">74</span>
+          <h2>Web öğesine tıkla</h2>
+        </div>
+        <p class="guide-lead">Açık sayfada düğme, bağlantı veya metne tıklar. Hedef birden fazla öğeyle eşleşirse tıklamaz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Hedefi bulma yöntemini seçin; düğmeler için Düğme veya bağlantı adı.</li>
+          <li>Hedef&#x27;e sayfada görünen yazıyı yazın (ör. Kaydet).</li>
+          <li>Gerekirse Tıklama türünü değiştirin: çift tık, sağ tık, orta tık veya tıklamadan yalnız üzerine gelme.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Hedef birden fazla öğeyle eşleşirse tıklanmaz; Tam eşleşmeyi açın veya daha ayırt edici bir yazı kullanın. Tıklama tekrarlanmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Tıklama türü <span class="guide-required">zorunlu</span></dt>
+            <dd>Tek tık çoğu düğme ve bağlantı için yeterlidir. Çift tık satır veya dosya açar; sağ tık sitenin kendi sağ tık menüsünü açar. Üzerine gel tıklamaz; fareyle açılan menüleri gösterir. <span class="guide-options">Seçenekler: Tek tık, Çift tık, Sağ tık, Orta tık, Yalnız üzerine gel (tıklamaz).</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-75">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 75">75</span>
+          <h2>Web alanını doldur</h2>
+        </div>
+        <p class="guide-lead">Açık sayfada bir yazı alanının değerini yazılan değerle değiştirir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Hedefi bulma yöntemi olarak Alan etiketi veya Alandaki silik yazı seçin.</li>
+          <li>Hedef&#x27;e alanın yanındaki etiketi yazın (ör. Fatura No); Yazılacak değeri girin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Alandaki eski değer silinip yenisi yazılır. Şifre için <code>${sifre.ad}</code> kullanın; günlükte gizlenir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Yazılacak değer</dt>
+            <dd>Değişken kullanılabilir: <code>${row.no}</code>. Şifre için <code>${sifre.ad}</code> kullanın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-76">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 76">76</span>
+          <h2>Web&#x27;den metin oku</h2>
+        </div>
+        <p class="guide-lead">Açık sayfadaki bir öğenin metnini veya yazı alanının değerini okur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Okunacak öğeyi görünen metniyle, etiketiyle veya CSS ile belirtin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_text}</code>: öğenin metni; yazı alanlarında alanın değeri.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Boş bir sonuç alanı da okunabilir; değer boş metin olur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-77">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 77">77</span>
+          <h2>Web listesinden seç</h2>
+        </div>
+        <p class="guide-lead">Açık sayfadaki açılır listede (select) yazılan seçeneği seçer. Bulunamaz veya birden fazla eşleşirse seçmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Açılır listeyi etiketiyle veya CSS ile belirtin.</li>
+          <li>Seçilecek seçeneğin listede görünen adını yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_option}</code>: seçilen seçeneğin tam adı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Tam eşleşme kapalıyken adın içinde geçmesi yeterlidir; birden fazla seçenek eşleşirse seçilmez.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Seçilecek seçenek <span class="guide-required">zorunlu</span></dt>
+            <dd>Listede görünen ad. Tam eşleşme kapalıyken ad içinde geçmesi yeterlidir.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Seçilen seçeneğin tam adı.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-78">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 78">78</span>
+          <h2>Web&#x27;de bekle</h2>
+        </div>
+        <p class="guide-lead">Bir öğe görünene veya kaybolana ya da sayfa adresi bir metni içerene kadar bekler (ör. yükleniyor yazısı).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ne beklensin? seçin: öğe görünsün, kaybolsun veya adres bir metni içersin.</li>
+          <li>Öğe için hedefi yazın (ör. Kaydedildi yazısı) ve en fazla bekleme süresini girin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_waited}</code>: koşul gerçekleştiyse doğru.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Yükleniyor yazısının kaybolmasını beklemek, sabit beklemeden hem hızlı hem güvenlidir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (9)</summary>
+          <dl>
+            <dt>Ne beklensin? <span class="guide-required">zorunlu</span></dt>
+            <dd>Sabit Bekle yerine: sayfa hazır olunca hemen devam edilir. <span class="guide-options">Seçenekler: Öğe görünsün, Öğe kaybolsun, Adres şu metni içersin.</span></dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Adreste geçecek metin <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. /siparisler veya ?durum=tamam</dd>
+            <dt>En fazla bekle (saniye) <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu süre içinde koşul gerçekleşmezse Süre dolarsa seçimine göre davranılır.</dd>
+            <dt>Süre dolarsa <span class="guide-required">zorunlu</span></dt>
+            <dd>Akışı durdur: adım hata verir. Devam et: sonuç &#x27;bulunamadı&#x27; olur; ardından Koşul ile kontrol edin. <span class="guide-options">Seçenekler: Akışı durdur, Yanlış sonucuyla devam et.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Koşul gerçekleştiyse doğru; süre dolduysa yanlış.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-79">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 79">79</span>
+          <h2>Web&#x27;de tuşa bas</h2>
+        </div>
+        <p class="guide-lead">Açık sayfada Enter, Tab, ok tuşları gibi bir tuşa basar; hedef verilirse önce o öğeye basar.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Tuşu seçin (ör. Enter).</li>
+          <li>Belirli bir alana basmak için hedefi yazın; boşsa odaktaki öğeye basılır.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Arama kutusuna yazdıktan sonra Enter ile aramayı başlatmak için kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Tuş <span class="guide-required">zorunlu</span></dt>
+            <dd>Basılacak tuş. <span class="guide-options">Seçenekler: Enter, Tab, Escape, Aşağı ok, Yukarı ok, Sol ok, Sağ ok, Page Down, Page Up, Home, End, Boşluk, Backspace, Delete, F5.</span></dd>
+            <dt>Birlikte basılacak tuş</dt>
+            <dd>Ör. Ctrl/Command + Enter ile gönderilen formlar için; çoğu durumda Yok kalır. <span class="guide-options">Seçenekler: Yok, Ctrl (Windows) / Command (Mac), Shift, Alt / Option.</span></dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Hedef boşsa tuş, sayfada o an odaktaki öğeye gönderilir. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef</dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-80">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 80">80</span>
+          <h2>Web&#x27;de geri / ileri / yenile</h2>
+        </div>
+        <p class="guide-lead">Tarayıcının Geri, İleri veya Yenile düğmesine basar ve sayfanın yüklenmesini bekler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Geri, İleri veya Yenile seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_url}</code>: gidilen sayfanın adresi.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Yenile, sayfayı yeniden yükler; doldurulmuş ama gönderilmemiş alanlar silinebilir. <span class="guide-options">Seçenekler: Geri, İleri, Yenile.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Gidilen sayfanın adresi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-81">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 81">81</span>
+          <h2>Web sekmesine geç / kapat</h2>
+        </div>
+        <p class="guide-lead">Açık sekmeler arasında geçer veya etkin sekmeyi kapatır. Sayfanın açtığı yeni sekmeye zaten kendiliğinden geçilir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Geçilecek sekmeyi seçin veya etkin sekmeyi kapatın.</li>
+          <li>Başlık veya adrese göre seçmek için aranacak metni yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_url}</code>: etkin sekmenin adresi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Bir bağlantı yeni sekme açarsa sonraki adımlar o sekmede çalışır; bu adım yalnız başka sekmeye dönmek içindir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Sekmeler soldan sağa sıralıdır; kapatılan sekmeden sonra son sekmeye geçilir. <span class="guide-options">Seçenekler: Son açılan sekmeye geç, İlk sekmeye geç, Başlığında şu geçen sekmeye geç, Adresinde şu geçen sekmeye geç, Etkin sekmeyi kapat.</span></dd>
+            <dt>Aranacak metin <span class="guide-required">zorunlu</span></dt>
+            <dd>Tek bir sekmeyle eşleşmelidir; büyük/küçük harf fark etmez.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Etkin sekmenin adresi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-82">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 82">82</span>
+          <h2>Web tablosunu oku</h2>
+        </div>
+        <p class="guide-lead">Sayfadaki bir HTML tablosunu satır listesine çevirir; başlıklar alan adı olur. Ardından Her satır için ekleyin.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Tablonun içindeki bir yazıyı (ör. sütun başlığı) veya tablonun CSS seçicisini hedef olarak yazın.</li>
+          <li>Ardından Her satır için ekleyip <code>${row.Sütun_adı}</code> ile kullanın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_rows}</code>: satır listesi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Birleştirilmiş hücreler tek hücre olarak okunur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Tablonun içindeki bir hücrenin yazısı (ör. bir sütun başlığı) veya tablonun CSS seçicisi (ör. table#siparisler).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>İlk satır sütun başlıklarıdır</dt>
+            <dd>Açıkken başlıklar alan adı olur: <code>${row.Tutar}</code>. Kapalıyken sutun_1, sutun_2…</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-83">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 83">83</span>
+          <h2>Web&#x27;den dosya indir</h2>
+        </div>
+        <p class="guide-lead">İndirmeyi başlatan bağlantıya veya düğmeye tıklar, inen dosyayı klasöre kaydeder ve yolunu verir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İndirmeyi başlatan bağlantıyı veya düğmeyi hedef olarak yazın (ör. Excel&#x27;e aktar).</li>
+          <li>Kaydedilecek klasörü seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_file}</code>: indirilen dosyanın tam yolu; ardından Excel / CSV oku ile açabilirsiniz.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Tıklamadan sonra süre içinde indirme başlamazsa adım durur. İzin verilen uzantılar yazılırsa inen dosyanın türü ve içeriği de denetlenir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (9)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Görünen metin, alan etiketi veya düğme adı çoğu sitede yeterlidir; CSS yalnız gerekirse. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Sayfada görünen yazı (ör. Giriş yap, Fatura No) veya CSS seçici (ör. #kullanici).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Kaydedilecek klasör <span class="guide-required">zorunlu</span></dt>
+            <dd>Klasör yoksa oluşturulur. Dosya, sitenin verdiği adla kaydedilir.</dd>
+            <dt>Aynı adlı dosyanın üzerine yaz</dt>
+            <dd>Kapalıyken aynı ad varsa sonuna (2), (3)… eklenir.</dd>
+            <dt>İzin verilen uzantılar</dt>
+            <dd>Ör. xlsx, csv. İnen dosya bu türlerde değilse veya içi uzantısıyla uyuşmuyorsa (ör. site hata sayfası indirdi) akış durur; dosya silinmez. Boş: kontrol edilmez.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>İndirilen dosyanın tam yolu.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a></p>
+      </article>
+      <article class="guide-step" id="adim-84">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 84">84</span>
+          <h2>Web&#x27;e dosya yükle</h2>
+        </div>
+        <p class="guide-lead">Sayfadaki dosya seçme alanına bilgisayardaki dosyaları verir (Gözat penceresi açılmaz).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Dosya seçme alanını etiketiyle veya CSS ile belirtin.</li>
+          <li>Her satıra bir dosya yolu yazın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Gözat penceresi açılmaz; dosya doğrudan alana verilir. Ardından Yükle düğmesine tıklayın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Dosya alanları çoğunlukla gizlidir; Alan etiketi veya CSS seçici kullanın. <span class="guide-options">Seçenekler: Görünen metin, Alan etiketi, Alandaki silik yazı (yer tutucu), Düğme veya bağlantı adı, CSS seçici (gelişmiş).</span></dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Dosya alanının etiketi (ör. Fatura dosyası) veya CSS seçicisi (ör. input[type=file]).</dd>
+            <dt>Tam eşleşme</dt>
+            <dd>Kapalıyken yazdığınız metnin içinde geçmesi yeterlidir; büyük/küçük harf fark etmez.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Hedef görünene kadar bekler; süre dolarsa adım durur.</dd>
+            <dt>Çerçeve (iframe)</dt>
+            <dd>Hedef sayfanın içindeki bir çerçevedeyse çerçevenin CSS seçicisi (ör. iframe#icerik). Boş: sayfanın kendisi.</dd>
+            <dt>Yüklenecek dosyalar <span class="guide-required">zorunlu</span></dt>
+            <dd>Her satıra bir dosya yolu. Bulunamayan dosya varsa hiçbiri yüklenmez.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-85">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 85">85</span>
+          <h2>Web sayfasının görüntüsünü al</h2>
+        </div>
+        <p class="guide-lead">Açık sayfanın görüntüsünü çalışmanın çıktılarına PNG olarak ekler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Dosya adını yazın; sayfanın tamamı veya yalnız görünen kısmı seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_image}</code>: görüntünün yolu; çalışmanın çıktılarında da görünür.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Hata olursa dalında kullanarak hata anındaki sayfayı saklayabilirsiniz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Dosya adı <span class="guide-required">zorunlu</span></dt>
+            <dd>Uzantısı .png olur.</dd>
+            <dt>Sayfanın tamamı (kaydırılan kısım dahil)</dt>
+            <dd>Kapalıyken yalnız ekranda görünen kısım alınır.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Kaydedilen görüntünün yolu.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-86">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 86">86</span>
+          <h2>Web&#x27;de JavaScript çalıştır</h2>
+        </div>
+        <p class="guide-lead">Açık sayfada kendi JavaScript kodunuzu çalıştırır ve return ile döndürdüğünüz değeri değişkene kaydeder. Diğer web adımlarının yetmediği işler için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>JavaScript kodunu async bir fonksiyonun gövdesi olarak yazın; sonucu return ile verin.</li>
+          <li>Akış değişkenlerini Girdi alanından verin; kodda girdi adıyla kullanılır.</li>
+          <li>Örnek: return [...document.querySelectorAll(&#x27;h2&#x27;)].map(h =&gt; h.innerText);</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${web_result}</code>: return ile döndürülen değer.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Kod sayfanın içinde, oturum açmış kullanıcı yetkisiyle çalışır; güvenmediğiniz kodu yapıştırmayın. Kodun içindeki <code>${...}</code> JavaScript&#x27;e aittir; akış değişkeni olarak doldurulmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>JavaScript <span class="guide-required">zorunlu</span></dt>
+            <dd>async bir fonksiyonun gövdesi: await kullanılabilir, sonucu return ile verin. Akış değişkenleri koda yazılmaz; Girdi alanından gelir: girdi.no</dd>
+            <dt>Girdi</dt>
+            <dd>Koda girdi adıyla verilen değer; değişken kullanılabilir: {&quot;no&quot;: &quot;<code>${row.no}</code>&quot;}.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>return ile döndürülen değer (metin, sayı, liste veya nesne).</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-87">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 87">87</span>
+          <h2>E-posta gönder</h2>
+        </div>
+        <p class="guide-lead">Seçilen SMTP hesabından düz metin veya HTML e-posta gönderir; bir listeyi tablo olarak ekleyebilir, ek dosya eklenebilir. Hata olursa yeniden denemez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>E-posta (SMTP) bağlantısı seçin veya yeni oluşturun; Bağlantıyı test et ile deneyin (posta gönderilmez).</li>
+          <li>Kime, Konu ve İleti yazın; ek için her satıra bir dosya yolu yazın.</li>
+          <li>Değişken kullanabilirsiniz: Konu: Fatura <code>${row.no}</code> işlendi.</li>
+          <li>Biçimli ileti için Gövde biçimini HTML yapın; bir listeyi tablo olarak eklemek için Tablo olarak ekle&#x27;ye <code>${rapor}</code> gibi değişkeni yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${mail_result.to}</code>: gönderilen adresler.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Gmail ve Microsoft 365&#x27;te uygulama şifresi gerekebilir. Hata olursa posta yeniden gönderilmez; iki kez gitmesin diye. Akışın sonunda özet göndermek için Hata olursa bloğuyla birlikte kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (12)</summary>
+          <dl>
+            <dt>E-posta (SMTP) bağlantısı</dt>
+            <dd>Gönderen hesap ve sunucu. Şifre yalnız bu bilgisayarda saklanır.</dd>
+            <dt>Kime <span class="guide-required">zorunlu</span></dt>
+            <dd>Virgül veya noktalı virgülle birden fazla adres: a@firma.com; b@firma.com</dd>
+            <dt>Bilgi (CC)</dt>
+            <dd>Alıcıların göreceği ek adresler; virgülle ayırın.</dd>
+            <dt>Gizli (BCC)</dt>
+            <dd>Diğer alıcıların görmeyeceği adresler; virgülle ayırın.</dd>
+            <dt>Konu <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişken kullanılabilir: Fatura <code>${row.no}</code> işlendi</dd>
+            <dt>Gövde biçimi</dt>
+            <dd>HTML&#x27;de iletiyi biçimlendirebilirsiniz (&lt;b&gt;, &lt;p&gt;, &lt;a&gt;…). Alıcının programı HTML göstermezse düz metin hâli görünür. <span class="guide-options">Seçenekler: Düz metin, HTML.</span></dd>
+            <dt>İleti</dt>
+            <dd>Düz metin. Değişken kullanılabilir.</dd>
+            <dt>İleti (HTML)</dt>
+            <dd>HTML ileti, ör. &lt;p&gt;Merhaba,&lt;/p&gt;&lt;p&gt;Fatura &lt;b&gt;<code>${row.no}</code>&lt;/b&gt; işlendi.&lt;/p&gt;. Değişkenlerin değeri metin olarak eklenir; içindeki &lt; &gt; gibi işaretler HTML&#x27;e dönüşmez.</dd>
+            <dt>Tablo olarak ekle</dt>
+            <dd>Liste değişkeni (ör. <code>${rapor}</code>): iletinin altına tablo olarak eklenir. Sütunlar kayıtların alan adlarıdır. Boş: tablo eklenmez.</dd>
+            <dt>Ek dosyalar</dt>
+            <dd>Her satıra bir dosya yolu. Toplam en fazla 25 MB. Bulunamayan ek varsa gönderilmez.</dd>
+            <dt>Yanıtlanan e-posta (Message-ID)</dt>
+            <dd>Bir e-postayı yanıtlarken onun kimliği: <code>${eposta.message_id}</code> (uzun yazışmalarda <code>${eposta.references}</code> <code>${eposta.message_id}</code>). Yanıt alıcının e-posta programında aynı yazışmanın altında görünür. Boş bırakılırsa yeni e-posta gider.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Gönderilen adresler: <code>${mail_result.to}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a></p>
+      </article>
+      <article class="guide-step" id="adim-88">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 88">88</span>
+          <h2>HTTP isteği gönder (API)</h2>
+        </div>
+        <p class="guide-lead">Bir web servisine istek gönderir; JSON yanıt <code>${response.body}</code> içinde gelir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Firmanızın veya bir hizmetin API&#x27;si için API bağlantısı seçin (ana adres ve kimlik doğrulama bir kez Ayarlar → Bağlantılar&#x27;da girilir); yoksa tam adresi yazın.</li>
+          <li>Yöntemi ve yolu girin (ör. GET /v1/siparisler/<code>${row.no}</code>).</li>
+          <li>Veri gönderilecekse gövdeyi JSON olarak yazın; değişken kullanabilirsiniz: {&quot;no&quot;: &quot;<code>${row.no}</code>&quot;}.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${response.status}</code>: durum kodu, <code>${response.body}</code>: yanıt (JSON ise alanlarıyla).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Ekranda yapılan bir işin API&#x27;si varsa ekran otomasyonu yerine bu adımı tercih edin: daha hızlıdır ve pencere değişikliğinden etkilenmez. Kimlik bilgileri yalnız bağlantının kendi sunucusuna gönderilir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (8)</summary>
+          <dl>
+            <dt>API bağlantısı</dt>
+            <dd>Seçilirse adres bağlantının ana adresine göre bir yol olur (ör. /v1/siparisler) ve kimlik bilgileri otomatik eklenir. Boş: tam adres yazın, kimlik bilgisi eklenmez.</dd>
+            <dt>Yöntem</dt>
+            <dd>Veri almak için GET, göndermek için POST. <span class="guide-options">Seçenekler: GET, POST, PUT, PATCH, DELETE.</span></dd>
+            <dt>Adres <span class="guide-required">zorunlu</span></dt>
+            <dd>API bağlantısı seçiliyse yol (ör. /v1/siparisler/<code>${row.no}</code>); değilse https:// ile başlayan tam adres.</dd>
+            <dt>Başlıklar</dt>
+            <dd>Ek başlıklar (ör. {&quot;Accept&quot;: &quot;application/json&quot;}). Kimlik bilgisini buraya değil, API bağlantısına yazın; orada korunur ve günlükte gizlenir.</dd>
+            <dt>Gövde</dt>
+            <dd>JSON nesnesi veya metin; GET&#x27;te gönderilmez.</dd>
+            <dt>Zaman aşımı (saniye)</dt>
+            <dd>Yanıt bu sürede gelmezse istek durdurulur.</dd>
+            <dt>4xx/5xx yanıtında akışı durdur</dt>
+            <dd>Kapalıysa hata olsa da akış sürer; sonucu Koşul ile kontrol edin.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a></p>
+      </article>
+      <article class="guide-step" id="adim-90">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 90">90</span>
+          <h2>E-postaları oku</h2>
+        </div>
+        <p class="guide-lead">Gelen kutusundaki (IMAP) e-postaları liste olarak okur: gönderen, konu, metin ve ekler. Okumak iletiyi okundu yapmaz; istenirse okundu işaretler ve ekleri bir klasöre kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ayarlar → Bağlantılar&#x27;da Gelen e-posta (IMAP) bağlantısı oluşturun ve test edin.</li>
+          <li>Gerekirse gönderen veya konuya göre süzün (ör. Konu içeriyorsa: Fatura).</li>
+          <li>Sonucu Her satır için döngüsüne verin; içinde <code>${email.subject}</code>, <code>${email.from}</code>, <code>${email.text}</code> ve <code>${email.attachments}</code> kullanın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${emails}</code>: e-posta listesi (en eski önce).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Okumak iletiyi okundu yapmaz. Her çalışmada aynı iletileri işlememek için Okunanları okundu olarak işaretle&#x27;yi açın veya Otomasyonlar&#x27;daki Yeni e-posta geldiğinde tetikleyicisini kullanın. Gmail&#x27;de uygulama şifresi gerekir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Gelen e-posta (IMAP) bağlantısı</dt>
+            <dd>Okunacak posta kutusu. Şifre yalnız bu bilgisayarda saklanır.</dd>
+            <dt>Klasör</dt>
+            <dd>Boş: bağlantıdaki klasör (genellikle INBOX). Ör. INBOX/Faturalar.</dd>
+            <dt>Yalnız okunmamışlar</dt>
+            <dd>Açıkken yalnız henüz okunmamış iletiler gelir; işlediklerinizi okundu işaretleyerek aynı iletiyi iki kez işlemezsiniz.</dd>
+            <dt>Gönderen içeriyorsa</dt>
+            <dd>Gönderen adresinde veya adında geçen metin (ör. @tedarikci.com). Boş: herkes.</dd>
+            <dt>Konu içeriyorsa</dt>
+            <dd>Konuda geçen metin (ör. Fatura). Büyük/küçük harf fark etmez.</dd>
+            <dt>Son kaç gün (0: hepsi)</dt>
+            <dd>Yalnız son bu kadar gündeki iletiler; 0 tarih sınırı koymaz.</dd>
+            <dt>En fazla e-posta <span class="guide-required">zorunlu</span></dt>
+            <dd>Bundan fazla ileti varsa en eskileri önce gelir, kalanlar sonraki çalışmada okunur.</dd>
+            <dt>Okunanları okundu olarak işaretle</dt>
+            <dd>İşaretlenen iletiler Yalnız okunmamışlar açıkken bir daha gelmez.</dd>
+            <dt>Ekleri bu klasöre kaydet</dt>
+            <dd>Boş bırakılırsa ekler kaydedilmez; yalnız adları ve boyutları listelenir.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>E-posta listesi: Her satır için ile <code>${email.subject}</code>, <code>${email.from}</code>, <code>${email.text}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a></p>
+      </article>
+      <article class="guide-step" id="adim-91">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 91">91</span>
+          <h2>FTP dosya aktarımı</h2>
+        </div>
+        <p class="guide-lead">FTP, FTPS veya SFTP sunucusuna dosya yükler, sunucudan dosya indirir ya da klasördeki dosyaları listeler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ayarlar → Bağlantılar&#x27;da FTP bağlantısı oluşturun (FTPS önerilir).</li>
+          <li>İşlemi seçin; uzak yolu başlangıç klasörüne göre, yerel dosyayı tam yol olarak yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${ftp_result}</code>: indirme/yüklemede dosya boyutu, listelemede <code>${ftp_result.items}</code>.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> SFTP&#x27;de ilk Bağlantıyı test et sunucunun anahtar parmak izini gösterir; onaylayınca kaydedilir. Anahtar sonradan değişirse aktarım yapılmaz. Yarım kalan indirme hedef dosyayı bozmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>FTP bağlantısı</dt>
+            <dd>Sunucu, kullanıcı ve başlangıç klasörü bağlantıda tanımlanır.</dd>
+            <dt>İşlem</dt>
+            <dd>İndir: sunucudan bu bilgisayara; Yükle: bu bilgisayardan sunucuya; Listele: uzak klasördeki dosyalar. <span class="guide-options">Seçenekler: Dosya indir, Dosya yükle, Klasörü listele.</span></dd>
+            <dt>Uzak yol</dt>
+            <dd>Başlangıç klasörüne göre: gelen/fatura.xml veya gelen</dd>
+            <dt>Yerel dosya</dt>
+            <dd>Bu bilgisayardaki dosyanın tam yolu (ör. C:\Aktarim\fatura.xml).</dd>
+            <dt>Varsa üzerine yaz</dt>
+            <dd>Kapalıyken hedefte aynı adlı dosya varsa aktarım yapılmaz ve akış durur.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a></p>
+      </article>
+      <article class="guide-step" id="adim-92">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 92">92</span>
+          <h2>Mesaj gönder (WhatsApp, Telegram, Teams…)</h2>
+        </div>
+        <p class="guide-lead">WhatsApp, Telegram, Microsoft Teams, Slack, Google Chat veya Discord&#x27;a mesaj gönderir: hata bildirimi, günlük özet, müşteriye bilgi veya onay bekleyen iş haberi için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ayarlar → Bağlantılar&#x27;da Mesajlaşma bağlantısı oluşturun: WhatsApp&#x27;ta Meta&#x27;nın telefon numarası kimliği ve erişim anahtarı, Telegram&#x27;da @BotFather bot anahtarı ve sohbet, Teams&#x27;te kanalın İş Akışları webhook&#x27;u, Slack&#x27;te Incoming Webhook adresi.</li>
+          <li>Mesajı yazın; değişken kullanabilirsiniz. WhatsApp ve Telegram&#x27;da isterseniz alıcıyı yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${message_result.sent}</code>: gönderildi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Hata olursa mesaj yeniden gönderilmez (iki kez gitmesin diye). WhatsApp&#x27;ta son 24 saatte size yazmamış kişiye yalnız Meta&#x27;da onaylı şablonla mesaj gönderilebilir; Meta şablon mesajlarını ücretlendirir. Telegram ücretsizdir; kişi bota önce /start yazmalıdır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Mesajlaşma bağlantısı</dt>
+            <dd>Teams, Slack, Google Chat veya Discord kanalının webhook adresi bağlantıda saklanır.</dd>
+            <dt>Başlık</dt>
+            <dd>Mesajın üstünde kalın görünen kısa başlık (isteğe bağlı).</dd>
+            <dt>Mesaj <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişken kullanılabilir: <code>${row.no}</code> numaralı fatura işlendi.</dd>
+            <dt>Alıcı (WhatsApp, Telegram)</dt>
+            <dd>WhatsApp&#x27;ta ülke koduyla telefon (905321234567, ör. <code>${musteri.telefon}</code>); Telegram&#x27;da sohbet kimliği. Boşsa bağlantıdaki varsayılan alıcıya gider. Teams, Slack gibi kanallarda kullanılmaz.</dd>
+            <dt>Şablon değişkenleri (WhatsApp)</dt>
+            <dd>WhatsApp şablonuyla gönderirken şablondaki <code>{{1}}</code>, <code>{{2}}</code>… yerine geçecek değerler; her satıra bir değer. Serbest metinde kullanılmaz.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a></p>
+      </article>
+      <article class="guide-step" id="adim-99">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 99">99</span>
+          <h2>TCMB döviz kuru</h2>
+        </div>
+        <p class="guide-lead">Türkiye Cumhuriyet Merkez Bankası&#x27;nın günlük gösterge kurunu alır: bugünün veya geçmiş bir tarihin döviz / efektif alış ve satış kuru.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Döviz kodunu yazın (ör. USD).</li>
+          <li>Geçmiş bir tarihin kuru gerekiyorsa tarihi yazın (ör. <code>${row.FaturaTarihi}</code>); boş bırakılırsa bugünün kuru alınır.</li>
+          <li>Kur türünü seçin: döviz alış, döviz satış, efektif alış veya efektif satış.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${kur.kur}</code>: 1 birimin TL karşılığı (JPY gibi 100 birim yayımlananlar 1 birime çevrilir). <code>${kur.tarih}</code>: kullanılan kurun tarihi, <code>${kur.kod}</code>, <code>${kur.tur}</code>, <code>${kur.birim}</code>: TCMB&#x27;nin yayımladığı birim.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> İnternet bağlantısı gerekir; önizleme bu adımı atlar. Aynı tarihin kuru bir çalışmada bir kez indirilir, döngüde her satır için yeniden istenmez. TCMB kurları 15.30&#x27;da yayımlanır; bugünün kuru o saate kadar önceki iş gününün kurudur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Döviz kodu <span class="guide-required">zorunlu</span></dt>
+            <dd>Üç harfli döviz kodu: USD, EUR, GBP, CHF, JPY, SAR… <code>${row.doviz}</code> de yazılabilir.</dd>
+            <dt>Tarih</dt>
+            <dd>Boş: bugün. 28.09.2026, 2026-09-28 veya <code>${row.tarih}</code> yazılabilir.</dd>
+            <dt>Kur türü <span class="guide-required">zorunlu</span></dt>
+            <dd>Döviz kurları banka işlemlerinde, efektif kurlar nakit alım satımda kullanılır. <span class="guide-options">Seçenekler: Döviz alış, Döviz satış, Efektif alış, Efektif satış.</span></dd>
+            <dt>Tatil veya hafta sonuysa önceki iş gününün kurunu al</dt>
+            <dd>TCMB hafta sonu ve resmi tatillerde kur yayımlamaz; açıkken o günden önceki en yakın kur alınır (en fazla 10 gün geri).</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd><code>${kur.kur}</code>: 1 birimin TL karşılığı; <code>${kur.tarih}</code>: kullanılan kurun tarihi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a></p>
+      </article>
+      <article class="guide-step" id="adim-105">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 105">105</span>
+          <h2>E-postayı taşı / işaretle</h2>
+        </div>
+        <p class="guide-lead">E-postaları oku ile alınan iletileri başka klasöre taşır, okundu / okunmadı veya yıldızlı yapar ya da siler. Yalnız seçilen iletiler değişir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>E-postaları oku ile iletileri alın ve Her satır için döngüsü ekleyin.</li>
+          <li>Döngünün içinde, ileti işlendikten sonra bu adımı ekleyin; E-posta alanı <code>${email.uid}</code> kalır.</li>
+          <li>İşlemi seçin: ör. İşlenenler klasörüne taşı veya okundu işaretle.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${eposta_islem.islenen}</code>: değişen ileti sayısı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Klasör, E-postaları oku&#x27;daki klasörle aynı olmalıdır; ileti numarası yalnız o klasörde geçerlidir. Taşıma yalnız seçilen iletileri etkiler; klasördeki diğer iletiler silinmez. Silme için Silmeyi onaylıyorum işaretlenmelidir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (8)</summary>
+          <dl>
+            <dt>Gelen e-posta (IMAP) bağlantısı</dt>
+            <dd>Okunacak posta kutusu. Şifre yalnız bu bilgisayarda saklanır.</dd>
+            <dt>Klasör</dt>
+            <dd>İletilerin şu an bulunduğu klasör; E-postaları oku&#x27;daki klasörle aynı olmalıdır. Boş: bağlantıdaki klasör (genellikle INBOX).</dd>
+            <dt>E-posta <span class="guide-required">zorunlu</span></dt>
+            <dd>E-postaları oku sonucundaki ileti numarası: döngüde <code>${email.uid}</code>. Bir liste de verilebilir (ör. <code>${emails}</code>); hepsi işlenir.</dd>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Taşı: hedef klasöre. Okundu / okunmadı ve yıldız işaretleri e-posta programında da görünür. Sil: çöp kutusu varsa oraya taşınır, yoksa silinmiş olarak işaretlenir. <span class="guide-options">Seçenekler: Klasöre taşı, Okundu işaretle, Okunmadı işaretle, Yıldızla, Yıldızı kaldır, Sil (çöp kutusuna taşı).</span></dd>
+            <dt>Hedef klasör <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. İşlenenler veya INBOX/Faturalar. Türkçe karakter kullanılabilir.</dd>
+            <dt>Hedef klasör yoksa oluştur</dt>
+            <dd>Kapalıyken hedef klasör yoksa hiçbir ileti taşınmaz ve akış durur.</dd>
+            <dt>Silmeyi onaylıyorum</dt>
+            <dd>Silme işlemi için işaretlenmelidir; işaretsizken hiçbir ileti silinmez.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd><code>${eposta_islem.islenen}</code>: işlenen ileti sayısı.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/kullanici-etkilesimi/">← Kullanıcı etkileşimi</a> <a href="/egitim/adimlar/">Bütün kategoriler</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

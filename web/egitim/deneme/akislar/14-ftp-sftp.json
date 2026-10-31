@@ -1,0 +1,148 @@
+{
+ "name": "Deneme 14 · FTP / SFTP ile dosya gönder ve al",
+ "description": "Deneme faturasını sunucunuza yükler, klasörü listeler, dosyayı geri indirir ve indirilenin gerçekten PDF olduğunu denetler.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Faturayı yükle",
+   "action": "ftp.transfer",
+   "params": {
+    "operation": "upload",
+    "remote_path": "peyrev-deneme-fatura.pdf",
+    "local_path": "${klasor}/fatura.pdf",
+    "overwrite": true,
+    "output": "yukleme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Klasörü listele",
+   "action": "ftp.transfer",
+   "params": {
+    "operation": "list",
+    "remote_path": "",
+    "output": "liste"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Listeyi yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Sunucudaki dosyalar: ${liste.items}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "Geri indir",
+   "action": "ftp.transfer",
+   "params": {
+    "operation": "download",
+    "remote_path": "peyrev-deneme-fatura.pdf",
+    "local_path": "${klasor}/sunucudan-fatura.pdf",
+    "overwrite": true,
+    "output": "indirme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "İndirileni denetle",
+   "action": "file.info",
+   "params": {
+    "path": "${klasor}/sunucudan-fatura.pdf",
+    "extensions": "pdf",
+    "check_content": true,
+    "on_problem": "stop",
+    "output": "bilgi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "FTP adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Yükle, listele, indir",
+   "text": "Uzak yol bağlantıdaki başlangıç klasörüne göredir.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a008",
+    "a009",
+    "a010"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,254 @@
+{
+ "name": "Deneme 13 · Google Sheets'e yaz ve oku",
+ "description": "Sizin seçtiğiniz bir Google Sheets tablosunun Peyrev sekmesine başlık ve iki satır yazar, hücreyi ve satırları geri okur.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Tablonun adresi",
+   "action": "ui.input",
+   "params": {
+    "title": "Peyrev deneme",
+    "prompt": "Google Sheets tablosunun adresini yapıştırın:",
+    "default": "",
+    "on_cancel": "stop",
+    "timeout": 0,
+    "output": "tablo"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Başlık A1",
+   "action": "sheets.write_cell",
+   "params": {
+    "spreadsheet_id": "${tablo}",
+    "worksheet": "Peyrev",
+    "cell": "A1",
+    "value": "Kod"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Başlık B1",
+   "action": "sheets.write_cell",
+   "params": {
+    "spreadsheet_id": "${tablo}",
+    "worksheet": "Peyrev",
+    "cell": "B1",
+    "value": "Durum"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "İki satır yaz",
+   "action": "control.for_each",
+   "params": {
+    "items": [
+     {
+      "satir": 2,
+      "kod": "P-1"
+     },
+     {
+      "satir": 3,
+      "kod": "P-2"
+     }
+    ],
+    "item_name": "row"
+   },
+   "children": [
+    {
+     "id": "a004",
+     "title": "Kod",
+     "action": "sheets.write_cell",
+     "params": {
+      "spreadsheet_id": "${tablo}",
+      "worksheet": "Peyrev",
+      "cell": "A${row.satir}",
+      "value": "${row.kod}"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a005",
+     "title": "Durum",
+     "action": "sheets.write_cell",
+     "params": {
+      "spreadsheet_id": "${tablo}",
+      "worksheet": "Peyrev",
+      "cell": "B${row.satir}",
+      "value": "Bekliyor"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "A2'yi oku",
+   "action": "sheets.read_cell",
+   "params": {
+    "spreadsheet_id": "${tablo}",
+    "worksheet": "Peyrev",
+    "cell": "A2",
+    "allow_empty": false,
+    "output": "hucre"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "A2 doğru",
+   "action": "control.if",
+   "params": {
+    "left": "${hucre}",
+    "operator": "eq",
+    "right": "P-1"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a008",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "A2'de P-1 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a010",
+   "title": "Satırları oku",
+   "action": "sheets.read_rows",
+   "params": {
+    "spreadsheet_id": "${tablo}",
+    "worksheet": "Peyrev",
+    "start_row": 2,
+    "max_rows": 10,
+    "columns": {
+     "kod": "A",
+     "durum": "B"
+    },
+    "key": "kod",
+    "empty_policy": "stop",
+    "output": "satirlar"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Satırları say",
+   "action": "data.list",
+   "params": {
+    "list": "${satirlar}",
+    "operation": "length",
+    "output": "satir_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "İki satır",
+   "action": "control.if",
+   "params": {
+    "left": "${satir_sayisi}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a012",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Sheets'ten iki satır okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a015",
+   "title": "Her satırı işaretle",
+   "action": "control.for_each",
+   "params": {
+    "items": "${satirlar}",
+    "item_name": "row"
+   },
+   "children": [
+    {
+     "id": "a014",
+     "title": "Tamamlandı",
+     "action": "sheets.write_cell",
+     "params": {
+      "spreadsheet_id": "${tablo}",
+      "worksheet": "Peyrev",
+      "cell": "B${row.row_number}",
+      "value": "Tamamlandı"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Google Sheets adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Yaz",
+   "text": "Sheets hücresine yaz; döngüde C${row.row_number} gibi satır numarasıyla kullanılır.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a003",
+    "a006"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Oku",
+   "text": "Sheets satırlarını oku sütunları adlandırır ve satır numarasını ${row.row_number} olarak verir.",
+   "color": "yellow",
+   "steps": [
+    "a007",
+    "a009",
+    "a010",
+    "a011",
+    "a013",
+    "a015",
+    "a016"
+   ]
+  }
+ ]
+}

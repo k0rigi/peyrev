@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Veri ve metin kategorisindeki 11 adımın kullanımı.">
+<title>Veri ve metin adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/veri-ve-metin/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Veri ve metin</h1>
+      <p class="lead">11 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Veri ve metin adımları">
+        <ol>
+        <li><a href="#adim-48"><span>48</span> Değişken ata</a></li>
+        <li><a href="#adim-49"><span>49</span> Hesapla</a></li>
+        <li><a href="#adim-50"><span>50</span> Metin işlemi</a></li>
+        <li><a href="#adim-51"><span>51</span> Tarih ve saat</a></li>
+        <li><a href="#adim-52"><span>52</span> Liste işlemi</a></li>
+        <li><a href="#adim-53"><span>53</span> Listeye ekle</a></li>
+        <li><a href="#adim-54"><span>54</span> Yapay zekâya sor</a></li>
+        <li><a href="#adim-95"><span>95</span> İki listeyi eşleştir (DÜŞEYARA / mutabakat)</a></li>
+        <li><a href="#adim-96"><span>96</span> Grupla ve topla (özet tablo)</a></li>
+        <li><a href="#adim-97"><span>97</span> Doğrula ve biçimlendir (TCKN, VKN, IBAN, tutar)</a></li>
+        <li><a href="#adim-106"><span>106</span> Belgeden bilgi çıkar (yapay zekâ)</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-48">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 48">48</span>
+          <h2>Değişken ata</h2>
+        </div>
+        <p class="guide-lead">Bir değişkene metin, sayı, liste veya başka bir değişkenin değerini atar; sayaç başlatmak için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Değişkene bir ad verin (ör. sonuc).</li>
+          <li>Değeri yazın: metin, sayı veya başka bir değişken.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${ad}</code>: verdiğiniz değer. Sonraki adımlarda kullanılır.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Tablo adresi gibi birçok adımda geçen değerleri akışın başında bir kez tanımlayın; değişince tek yerden düzeltirsiniz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Değişken adı <span class="guide-required">zorunlu</span></dt>
+            <dd>Harfle başlayan, boşluksuz bir ad (ör. sayac). Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+            <dt>Değer</dt>
+            <dd>Metin, sayı, liste veya başka bir değişken (<code>${row.form_id}</code>). Türünü üstteki listeden seçin.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-12-veritabani">Deneme 12 · Veritabanı: sorgula ve güncelle</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a>, <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+      <article class="guide-step" id="adim-49">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 49">49</span>
+          <h2>Hesapla</h2>
+        </div>
+        <p class="guide-lead">Matematik ve mantık ifadesi hesaplar: sayac + 1, round(tutar * 1.2, 2), adet &gt; 0 and durum == &#x27;Bekliyor&#x27;.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İfadeyi yazın: sayac + 1, round(tutar * 1.2, 2), adet &gt; 0 and durum == &#x27;Bekliyor&#x27;.</li>
+          <li>Değişkenleri adıyla veya <code>${row.tutar}</code> biçiminde kullanın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Hesabın sonucu: sayı, metin veya doğru/yanlış.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Sayaç artırmak için çıktı adına aynı değişkeni yazın: sayac = sayac + 1.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>İfade <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişkenleri adıyla veya <code>${ad}</code> ile yazın. 1.234,56 gibi metin sayılar otomatik çevrilir.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a></p>
+      </article>
+      <article class="guide-step" id="adim-50">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 50">50</span>
+          <h2>Metin işlemi</h2>
+        </div>
+        <p class="guide-lead">Metni temizler, dönüştürür, parçalar veya içinden bilgi çıkarır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Metin alanına işlenecek değeri verin (ör. <code>${mesaj}</code>).</li>
+          <li>İşlemi seçin; altındaki alanlar buna göre değişir.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>İşlenmiş metin (bölme işlemlerinde liste, &#x27;İçeriyor mu?&#x27; gibi sorularda doğru/yanlış).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> OCR ile okunan sayıyı temizlemek için: Desenle değiştir (regex), desen [^0-9], yerine boş.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Metin <span class="guide-required">zorunlu</span></dt>
+            <dd>İşlenecek metin; genellikle bir değişken (ör. <code>${mesaj}</code>).</dd>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Aşağıdaki alanlar seçtiğiniz işleme göre değişir. <span class="guide-options">Seçenekler: Baştaki/sondaki boşlukları sil, Tüm boşlukları sil, BÜYÜK HARF, küçük harf, Baş Harfler Büyük, Bul ve değiştir, Ayraçla böl (liste), Satırlara böl (liste), Parça al, Desenle bilgi çıkar (regex), Desenle değiştir (regex), Sayıya çevir (1.234,56), Uzunluk, Soldan doldur (00042), İçeriyor mu?, Şununla başlıyor mu?, Şununla bitiyor mu?.</span></dd>
+            <dt>Aranan / ayraç / dolgu karakteri</dt>
+            <dd>Değiştir&#x27;de aranan metin, Böl&#x27;de ayraç (ör. virgül), Soldan doldur&#x27;da dolgu karakteri.</dd>
+            <dt>Yerine yazılacak</dt>
+            <dd>Bulunan metnin yerine yazılacak değer; silmek için boş bırakın.</dd>
+            <dt>Desen (regex)</dt>
+            <dd>Ör. INV-\d+ veya Fatura No: (\S+) (parantez içi alınır).</dd>
+            <dt>Tüm eşleşmeleri liste olarak al</dt>
+            <dd>Kapalıyken yalnız ilk eşleşme alınır.</dd>
+            <dt>Başlangıç (0&#x27;dan)</dt>
+            <dd>İlk karakter 0&#x27;dır. 2 yazarsanız üçüncü karakterden başlar.</dd>
+            <dt>Uzunluk</dt>
+            <dd>Alınacak karakter sayısı (Soldan doldur&#x27;da toplam uzunluk).</dd>
+            <dt>Türkçe harf kuralları (i/İ, ı/I)</dt>
+            <dd>Açıkken i → İ ve ı → I olarak çevrilir.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-51">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 51">51</span>
+          <h2>Tarih ve saat</h2>
+        </div>
+        <p class="guide-lead">Bugünün tarihini alır, tarih biçimler, gün/ay ekler, iki tarih arasındaki farkı hesaplar; iş günü ekler ve sayar (hafta sonu ve resmi tatiller hariç), ay sonunu bulur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İşlemi seçin: şimdi, biçimlendir, ekle/çıkar, fark, haftanın günü, iş günü işlemleri veya ay sonu.</li>
+          <li>Biçimi yazın: %d.%m.%Y → 02.10.2026, %H:%M → 14:30.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Biçimlenmiş tarih metni (farkta ve iş günü sayısında sayı, İş günü mü? işleminde doğru/yanlış).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> İş günü işlemleri Cumartesi, Pazar ve resmi tatilleri (Ramazan ve Kurban Bayramı dahil) atlar. İki tarih arası iş günü başlangıç gününü saymaz, bitiş gününü sayar: Cuma&#x27;dan sonraki Pazartesi&#x27;ye 1 iş günü. Dini bayram tarihleri 2024–2028 için yerleşiktir; sonraki yıllar için Ek tatil günleri&#x27;ne yazın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (11)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Aşağıdaki alanlar seçtiğiniz işleme göre değişir. <span class="guide-options">Seçenekler: Şimdi (biçimli), Tarihi biçimlendir, Ekle / çıkar, İki tarih arası fark, Haftanın günü, İş günü ekle / çıkar, İş günü mü?, İki tarih arası iş günü, Ay sonu.</span></dd>
+            <dt>Tarih</dt>
+            <dd>28.09.2026, 2026-09-28 14:30 veya şimdi.</dd>
+            <dt>İkinci tarih</dt>
+            <dd>Farkı alınacak ikinci tarih; &#x27;şimdi&#x27; yazılabilir.</dd>
+            <dt>Miktar (eksi: geri)</dt>
+            <dd>Eklenecek miktar; geçmişe gitmek için eksi yazın (ör. -7).</dd>
+            <dt>Birim</dt>
+            <dd>Miktarın birimi. <span class="guide-options">Seçenekler: Dakika, Saat, Gün, Hafta, Ay (yalnız ekle), Yıl (yalnız ekle).</span></dd>
+            <dt>Arife yarım gününü tatil say</dt>
+            <dd>Açıkken bayram arifeleri ve 28 Ekim (yarım gün) tatil sayılır; kapalıyken iş günüdür.</dd>
+            <dt>Cumartesi iş günü</dt>
+            <dd>Cumartesi çalışılan işyerleri için; Pazar her zaman tatildir.</dd>
+            <dt>Ek tatil günleri</dt>
+            <dd>İdari izin, köprü günü veya bu sürümde olmayan yılların bayramları: tarihleri virgülle ya da her satıra bir tane yazın (ör. 02.01.2029, 03.01.2029) veya bir liste değişkeni verin.</dd>
+            <dt>Çıktı biçimi</dt>
+            <dd>%d.%m.%Y → 28.09.2026 · %Y-%m-%d · %d.%m.%Y %H:%M · %H:%M:%S</dd>
+            <dt>Giriş biçimi</dt>
+            <dd>Boş: otomatik tanınır.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a></p>
+      </article>
+      <article class="guide-step" id="adim-52">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 52">52</span>
+          <h2>Liste işlemi</h2>
+        </div>
+        <p class="guide-lead">Listelerde sayma, öğe alma, filtreleme, sıralama, toplama ve birleştirme.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Listeyi verin (ör. <code>${sheet_rows}</code>).</li>
+          <li>İşlemi seçin: say, ilk/son öğe, filtrele, sırala, topla, birleştir.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>İşleme göre sayı, tek öğe veya yeni liste.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Yalnız BEKLIYOR satırlarını almak için: Filtrele, alan adı durum, Eşittir, BEKLIYOR.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Liste <span class="guide-required">zorunlu</span></dt>
+            <dd>İşlenecek liste; genellikle okuma adımının çıktısı (ör. <code>${sheet_rows}</code>).</dd>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Aşağıdaki alanlar seçtiğiniz işleme göre değişir. <span class="guide-options">Seçenekler: Kaç öğe var?, İlk öğe, Son öğe, Sıradaki öğe, Filtrele, Sırala, Tekrarları kaldır, Topla, Tek alanın değerleri, Metne birleştir, İçeriyor mu?, Sırasını bul, Parça al, Ters çevir.</span></dd>
+            <dt>Alan adı</dt>
+            <dd>Satır listelerinde alan: Tutar, form_id. Basit listelerde boş bırakın.</dd>
+            <dt>Karşılaştırma</dt>
+            <dd>Filtrede alanın değerle nasıl karşılaştırılacağı. <span class="guide-options">Seçenekler: Eşittir, Eşit değildir, İçerir (harf duyarsız), Büyüktür, Büyük veya eşittir, Küçüktür, Küçük veya eşittir, Dolu / doğru, Boş, Boş değil, Boş veya eşittir, Listedeki değerlerden biri.</span></dd>
+            <dt>Değer</dt>
+            <dd>Filtrede aranacak değer.</dd>
+            <dt>Sıra (0&#x27;dan; -1 son)</dt>
+            <dd>0 ilk öğe, 1 ikinci öğe, -1 son öğe.</dd>
+            <dt>Adet</dt>
+            <dd>Alınacak öğe sayısı; boşsa tümü.</dd>
+            <dt>Ayraç</dt>
+            <dd>Birleştir&#x27;de öğelerin arasına konacak metin.</dd>
+            <dt>Büyükten küçüğe</dt>
+            <dd>Açıkken büyükten küçüğe (Z → A) sıralar.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-12-veritabani">Deneme 12 · Veritabanı: sorgula ve güncelle</a>, <a href="/egitim/deneme/#deneme-13-google-sheets">Deneme 13 · Google Sheets&#x27;e yaz ve oku</a></p>
+      </article>
+      <article class="guide-step" id="adim-53">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 53">53</span>
+          <h2>Listeye ekle</h2>
+        </div>
+        <p class="guide-lead">Bir değeri veya kaydı listeye ekler; liste yoksa oluşturur. Sonuçları toplayıp rapora yazmak için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Liste adını yazın (ör. results).</li>
+          <li>Döngünün içinde her turda eklenecek değeri verin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Döngü bitince listeyi Excel / CSV&#x27;ye yaz veya Çalışma raporu ile dosyaya dökün.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Liste değişkeni <span class="guide-required">zorunlu</span></dt>
+            <dd>Listenin adı. Liste yoksa ilk eklemede oluşturulur.</dd>
+            <dt>Eklenecek değer</dt>
+            <dd>Eklenecek değer; satırın tamamı için <code>${row}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-54">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 54">54</span>
+          <h2>Yapay zekâya sor</h2>
+          <span class="guide-badge">Ajanlar hakkı gerekir</span>
+        </div>
+        <p class="guide-lead">Seçilen modele sınırlı veri gönderir; araç çalıştırmadan metin veya şemayla doğrulanan JSON döndürür.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ajanlar bölümünde bir sağlayıcı bağlantısı oluşturun; bu adımda bağlantıyı seçin.</li>
+          <li>Talimatı ve gönderilecek girdiyi yazın. Yapılandırılmış karar gerekiyorsa JSON şemasını girin.</li>
+          <li>Sonucu kaydeden değişkeni Koşul adımında kullanın; örneğin <code>${ai_result.karar}</code>.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Şema yoksa metin, şema varsa doğrulanmış JSON döner. Geçersiz yanıt sonuç değişkenine yazılmaz.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Ajan lisansı gerekir. Bulut bağlantısında girdi sağlayıcıya gönderilir; hassas veri için yerel model seçin. Önizleme dış çağrı yapmaz; sonuç bilinmeyen kalır. Elle, zamanlayıcıyla veya otomasyonla başlayan akışlarda çalışır; ajanların araç olarak çalıştırdığı akışlara eklenemez (ajan metni zaten kendisi anlar).</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Yapay zekâ bağlantısı <span class="guide-required">zorunlu</span></dt>
+            <dd>Ajanlar bölümündeki sağlayıcı bağlantısını seçin; model adı o bağlantıdan alınır.</dd>
+            <dt>Talimat <span class="guide-required">zorunlu</span></dt>
+            <dd>İstenen kararı veya analizi açıkça yazın; en fazla 8.000 karakter.</dd>
+            <dt>Girdi <span class="guide-required">zorunlu</span></dt>
+            <dd>Metin, liste, nesne veya <code>${değişken}</code>; en fazla 32.000 bayt. Kayıtlı sırlar maskelenir.</dd>
+            <dt>Sonuç JSON şeması (isteğe bağlı)</dt>
+            <dd>Boşsa metin döner. Draft 2020-12 şeması verilirse yalnız geçerli JSON kabul edilir; uzak başvuru ve düzenli ifade kuralları desteklenmez.</dd>
+            <dt>Yanıt süresi (saniye)</dt>
+            <dd>Süre dolarsa veya oturum değişirse sonuç kullanılmadan akış durur.</dd>
+            <dt>Yanıt token sınırı</dt>
+            <dd>Model yanıtının üst sınırı; güncel modellerin yanıttan önceki düşünmesi de buna sayılır. Sınır düşünürken dolarsa adım bir kez daha geniş sınırla sorar.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+      <article class="guide-step" id="adim-95">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 95">95</span>
+          <h2>İki listeyi eşleştir (DÜŞEYARA / mutabakat)</h2>
+        </div>
+        <p class="guide-lead">İki listeyi ortak bir alana göre eşleştirir: banka ekstresi ile muhasebe kayıtları, siparişler ile irsaliyeler, stok ile sayım. Eşleşenleri, tutarı farklı olanları ve yalnız bir listede kalanları ayırır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Liste A ve Liste B&#x27;ye iki listeyi verin (ör. banka ekstresi ve muhasebe kayıtları için iki Excel / CSV oku adımının çıktısı).</li>
+          <li>Her listede iki satırı bağlayan anahtar alanı yazın (ör. Fatura No); adı ikisinde de aynıysa B&#x27;yi boş bırakın.</li>
+          <li>Tutarlar da tutmalıysa tutar alanlarını ve toleransı yazın.</li>
+          <li>Sonuçları Excel / CSV&#x27;ye yaz ile ayrı sayfalara yazın veya Her satır için ile işleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${eslesme.eslesen}</code>: eşleşen satırlar, iki listenin alanları A_ ve B_ ön ekiyle yan yana (A_Tutar, B_Tutar). <code>${eslesme.tutar_farkli}</code>: anahtarı tutan ama tutarı farklı satırlar ve Fark alanı. <code>${eslesme.yalniz_a}</code> / <code>${eslesme.yalniz_b}</code>: karşılığı olmayan satırlar, olduğu gibi. <code>${eslesme.sayilar}</code>: dört sayı; <code>${eslesme.tamam}</code>: hepsi eşleştiyse doğru.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Aynı anahtar bir listede birden çok kez geçiyorsa sırayla birebir eşleşir: A&#x27;daki ilk 1001, B&#x27;deki ilk 1001 ile; fazlası eşleşmeden kalır. Boş anahtar hiçbir satırla eşleşmez. Her liste en fazla 100.000 satır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (11)</summary>
+          <dl>
+            <dt>Liste A <span class="guide-required">zorunlu</span></dt>
+            <dd>Birinci liste; genellikle Excel / CSV oku çıktısı (ör. <code>${banka}</code>).</dd>
+            <dt>Liste A&#x27;nın anahtar alanı</dt>
+            <dd>Liste A&#x27;da iki listeyi bağlayan alan (ör. Fatura No, Açıklama, Stok Kodu). Liste basit değerlerden oluşuyorsa boş bırakın.</dd>
+            <dt>Liste B <span class="guide-required">zorunlu</span></dt>
+            <dd>Karşılaştırılacak ikinci liste (ör. <code>${muhasebe}</code>).</dd>
+            <dt>Liste B&#x27;nin anahtar alanı</dt>
+            <dd>Liste B&#x27;deki aynı bilgi başka adla duruyorsa yazın (ör. Belge No); boşsa Liste A&#x27;nın anahtar alanı kullanılır.</dd>
+            <dt>Anahtarlar nasıl karşılaştırılsın? <span class="guide-required">zorunlu</span></dt>
+            <dd>Birebir: yazıldığı gibi. Harf ve boşluk farkını yok say: &#x27;AB 12&#x27; = &#x27;ab12&#x27;, İ/ı dahil. Sayı olarak: 1.234,56 ile 1234.56 aynıdır. <span class="guide-options">Seçenekler: Birebir aynı, Büyük/küçük harf ve boşluk farkını yok say, Sayı olarak (1.234,56 = 1234.56).</span></dd>
+            <dt>Liste A&#x27;nın tutar alanı</dt>
+            <dd>Doluysa eşleşen satırların tutarları da karşılaştırılır; farklı olanlar <code>${eslesme.tutar_farkli}</code> listesine ayrılır. Boş: tutar karşılaştırılmaz.</dd>
+            <dt>Liste B&#x27;nin tutar alanı</dt>
+            <dd>Liste B&#x27;deki tutar alanı; boşsa Liste A&#x27;nın tutar alanıyla aynı ad kullanılır.</dd>
+            <dt>Tutar farkı toleransı</dt>
+            <dd>Bu kadar farka kadar tutarlar eşit sayılır (ör. kuruş yuvarlaması için 0,01).</dd>
+            <dt>Liste A&#x27;nın adı</dt>
+            <dd>Sonuç satırlarında Liste A&#x27;nın alanlarının ön eki: A yazılırsa A_Tutar, Banka yazılırsa Banka_Tutar.</dd>
+            <dt>Liste B&#x27;nin adı</dt>
+            <dd>Sonuç satırlarında Liste B&#x27;nin alanlarının ön eki (ör. Muhasebe → Muhasebe_Tutar).</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd><code>${eslesme.eslesen}</code>, <code>${eslesme.tutar_farkli}</code>, <code>${eslesme.yalniz_a}</code>, <code>${eslesme.yalniz_b}</code>: satır listeleri; <code>${eslesme.sayilar.yalniz_a}</code> gibi sayılar.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a></p>
+      </article>
+      <article class="guide-step" id="adim-96">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 96">96</span>
+          <h2>Grupla ve topla (özet tablo)</h2>
+        </div>
+        <p class="guide-lead">Satırları bir veya birkaç alana göre gruplar; her grup için toplam, adet, ortalama, en küçük ve en büyük değeri hesaplar (Excel&#x27;deki özet tablo gibi). Sonuç gruba göre sıralı bir satır listesidir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Listeyi verin (ör. <code>${rows}</code>).</li>
+          <li>Gruplama alanını yazın (ör. Cari); birden fazlaysa virgülle (Cari, Ay).</li>
+          <li>Hesaplanacak alanı ve işlemi seçin (ör. Tutar → Toplam); en fazla üç alan.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Her grup için bir satır: gruplama alanları, Tutar_toplam gibi hesaplanan sütunlar ve gruptaki satır sayısı adet. Satırlar gruba göre (Türkçe alfabe sırasıyla) sıralanır.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> 1.234,56 gibi metin sayılar çevrilir; boş hücreler hesaba katılmaz. Sayı olmayan bir değer hangi satırda olduğu yazılarak akışı durdurur. Özeti Excel / CSV&#x27;ye yaz ile rapora dökün.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (9)</summary>
+          <dl>
+            <dt>Liste <span class="guide-required">zorunlu</span></dt>
+            <dd>Gruplanacak satır listesi; genellikle Excel / CSV oku çıktısı (ör. <code>${rows}</code>).</dd>
+            <dt>Gruplama alanları <span class="guide-required">zorunlu</span></dt>
+            <dd>Grupları belirleyen alan; birden fazlaysa virgülle ayırın (ör. Cari veya Cari, Ay).</dd>
+            <dt>1. değer alanı</dt>
+            <dd>Hesaplanacak alan (ör. Tutar). Sonuçta Tutar_toplam gibi bir sütun olur.</dd>
+            <dt>1. işlem</dt>
+            <dd>Alanın grup içindeki toplamı, ortalaması, en küçüğü, en büyüğü veya dolu hücre sayısı. <span class="guide-options">Seçenekler: Toplam, Adet (dolu hücre), Ortalama, En küçük, En büyük.</span></dd>
+            <dt>2. değer alanı</dt>
+            <dd>İsteğe bağlı ikinci alan (ör. Miktar); boşsa kullanılmaz.</dd>
+            <dt>2. işlem</dt>
+            <dd>İkinci alan için işlem. <span class="guide-options">Seçenekler: Toplam, Adet (dolu hücre), Ortalama, En küçük, En büyük.</span></dd>
+            <dt>3. değer alanı</dt>
+            <dd>İsteğe bağlı üçüncü alan; aynı alan farklı işlemle de yazılabilir.</dd>
+            <dt>3. işlem</dt>
+            <dd>Üçüncü alan için işlem. <span class="guide-options">Seçenekler: Toplam, Adet (dolu hücre), Ortalama, En küçük, En büyük.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Satır listesi: <code>${ozet}</code> Excel / CSV&#x27;ye yaz veya Her satır için ile kullanılır.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-97">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 97">97</span>
+          <h2>Doğrula ve biçimlendir (TCKN, VKN, IBAN, tutar)</h2>
+        </div>
+        <p class="guide-lead">T.C. kimlik no, vergi kimlik no ve IBAN&#x27;ı kontrol hanesiyle doğrular; tutarı 1.234,56 biçiminde yazar veya yazıyla yazar (fatura ve çek için).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İşlemi seçin: TCKN, VKN veya IBAN doğrulama, tutarı biçimlendirme ya da yazıyla yazma.</li>
+          <li>Değer alanına numarayı veya tutarı verin (ör. <code>${row.VKN}</code>).</li>
+          <li>Doğrulamada geçersiz değer akışı durdursun mu, yoksa sonucu Koşul ile mi kontrol edeceksiniz, seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Doğrulamada <code>${dogrulama.gecerli}</code> (doğru/yanlış), <code>${dogrulama.deger}</code> (boşlukları alınmış; IBAN dörtlü gruplarla: TR33 0006 …) ve <code>${dogrulama.neden}</code> (geçersizse neden). Biçimlendirmede metin: 1.234,56 TL veya bin iki yüz otuz dört Türk lirası elli kuruş.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Kontrol hanesi doğrulaması numaranın yazım hatasını yakalar; numaranın gerçekten birine ait olduğunu göstermez. Excel&#x27;in baştaki sıfırını sildiği VKN sayıları 10 haneye tamamlanır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (9)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Doğrulama işlemleri sonuç nesnesi verir; biçimlendirme işlemleri metin verir. <span class="guide-options">Seçenekler: T.C. kimlik numarası doğrula, Vergi kimlik numarası (VKN) doğrula, IBAN doğrula, Tutarı biçimlendir (1.234,56), Tutarı yazıyla yaz.</span></dd>
+            <dt>Değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Doğrulanacak numara veya biçimlendirilecek tutar; genellikle <code>${row.alan}</code>. Boşluklar yok sayılır.</dd>
+            <dt>Geçersizse akışı durdur</dt>
+            <dd>Kapalıyken geçersiz değer akışı durdurmaz; <code>${dogrulama.gecerli}</code> yanlış olur ve nedeni <code>${dogrulama.neden}</code> içinde yazar.</dd>
+            <dt>Para birimi işareti</dt>
+            <dd>Tutarın önüne veya arkasına eklenecek para birimi işareti. <span class="guide-options">Seçenekler: Yok (1.234,56), TL (1.234,56 TL), ₺ (₺1.234,56), $ ($1.234,56), € (€1.234,56).</span></dd>
+            <dt>Ondalık hane</dt>
+            <dd>Virgülden sonraki hane sayısı (0–4); yarım kuruş yukarı yuvarlanır.</dd>
+            <dt>Para birimi</dt>
+            <dd>Yazının birimleri: Türk lirası ve kuruş, Amerikan doları ve sent, avro ve sent. <span class="guide-options">Seçenekler: Türk lirası / kuruş, Amerikan doları / sent, Avro / sent.</span></dd>
+            <dt>Harf</dt>
+            <dd>BÜYÜK HARF Türkçe kurallarla yazılır (i → İ). <span class="guide-options">Seçenekler: küçük harf, BÜYÜK HARF.</span></dd>
+            <dt>Bitişik yaz</dt>
+            <dd>Faturada ve çekte araya kelime eklenmesin diye kelimeler bitişik yazılır.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a></p>
+      </article>
+      <article class="guide-step" id="adim-106">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 106">106</span>
+          <h2>Belgeden bilgi çıkar (yapay zekâ)</h2>
+          <span class="guide-badge">Ajanlar hakkı gerekir</span>
+        </div>
+        <p class="guide-lead">Fatura, irsaliye, dekont veya kendi şemanızdaki bilgileri PDF ya da resimden alanlara ayırır. Metin bu bilgisayarda okunur; yapay zekâya dosyanın kendisi değil, yalnız metni gönderilir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ajanlar bölümünde bir sağlayıcı bağlantısı oluşturun; bu adımda bağlantıyı seçin.</li>
+          <li>Belgeyi seçin (e-posta eki için <code>${email.attachments[0].path}</code>) ve belge türünü seçin.</li>
+          <li>Sonucu sonraki adımlarda kullanın: <code>${belge.fatura_no}</code>, <code>${belge.genel_toplam}</code>; kalemler için Her satır için adımına <code>${belge.kalemler}</code> verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Seçilen türün alanlarıyla doğrulanmış kayıt. Belgede olmayan alan boş (null) gelir; tarihler 2026-10-29, tutarlar sayı olarak döner.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Ajan lisansı gerekir. Belgenin metni bu bilgisayarda okunur (taranmış sayfalar OCR ile); sağlayıcıya dosya değil yalnız metin gider. Metin 32.000 baytı aşarsa Sayfalar alanını kullanın. Tutarsızsa onaya gönder açıkken sonuçta <code>${belge.kontrol.sorunlar}</code>, <code>${belge.onaylandi}</code> ve <code>${belge.duzeltildi}</code> de olur; atlanan belgeyi döngüde Koşul (<code>${belge.onaylandi}</code>) ile geçin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (11)</summary>
+          <dl>
+            <dt>Yapay zekâ bağlantısı <span class="guide-required">zorunlu</span></dt>
+            <dd>Ajanlar bölümündeki sağlayıcı bağlantısını seçin; model adı o bağlantıdan alınır.</dd>
+            <dt>Belge (PDF, PNG, JPG) <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. <code>${email.attachments[0].path}</code> veya <code>${row.path}</code>. Taranmış sayfalar OCR ile okunur.</dd>
+            <dt>Belge türü <span class="guide-required">zorunlu</span></dt>
+            <dd>Fatura, İrsaliye ve Banka dekontu hazır alanlarla gelir. Kendi şemam: dönecek alanları JSON şemasıyla siz tanımlarsınız. <span class="guide-options">Seçenekler: Fatura, İrsaliye, Banka dekontu, Kendi şemam.</span></dd>
+            <dt>Sonuç JSON şeması <span class="guide-required">zorunlu</span></dt>
+            <dd>Hangi alanların döneceğini tanımlayan Draft 2020-12 şeması; yanıt buna uymazsa kullanılmaz.</dd>
+            <dt>Talimat <span class="guide-required">zorunlu</span></dt>
+            <dd>Belgenin ne olduğunu ve alanların nasıl doldurulacağını yazın; en fazla 6.000 karakter.</dd>
+            <dt>Sayfalar (PDF)</dt>
+            <dd>Boş: tüm sayfalar. Uzun belgede yalnız gerekli sayfaları yazın (ör. 1 veya 1-2).</dd>
+            <dt>Yanıt süresi (saniye)</dt>
+            <dd>Süre dolarsa sonuç kullanılmadan akış durur.</dd>
+            <dt>Tutarsızsa onaya gönder</dt>
+            <dd>Toplamlar, KDV, VKN / TCKN, IBAN, tarih ve zorunlu alanlar kontrol edilir. Bir sorun varsa akış bekler; belge Peyrev&#x27;in çalışma sayfasında alanlarıyla açılır, düzeltilip onaylanır.</dd>
+            <dt>Onay süresi (dakika)</dt>
+            <dd>Bu sürede kimse onaylamazsa Süre dolarsa seçimine göre davranılır.</dd>
+            <dt>Süre dolarsa</dt>
+            <dd>Akışı durdur: çalışma hata ile biter. Onaysız devam et: değerler olduğu gibi kullanılır, <code>${belge.onaylandi}</code> yanlış olur. <span class="guide-options">Seçenekler: Akışı durdur, Onaysız devam et (onaylandi: yanlış).</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Alanlar <code>${belge.fatura_no}</code>, <code>${belge.genel_toplam}</code>; kalemler için Her satır için adımına <code>${belge.kalemler}</code> verin.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/dosya-ve-excel/">← Dosya ve Excel</a> <a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/google-sheets/">Google Sheets →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

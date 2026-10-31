@@ -24,8 +24,9 @@ NAV = [("/#ozellikler", "Özellikler"), ("/cozumler/", "Çözümler"), ("/sablon
 FOOTER = [
     ("Ürün", [("/#ozellikler", "Özellikler"), ("/#ajanlar", "Ajanlar"), ("/cozumler/", "Çözümler"),
               ("/sablonlar/", "Şablonlar"), ("/#paketler", "Fiyatlar"), ("/yenilikler/", "Yenilikler")]),
-    ("Kaynaklar", [("/egitim/", "Eğitim videoları"), ("/topluluk/", "Topluluk"), ("/#indir", "Peyrev'i nasıl alırım?"),
-                   ("/#sss", "Sık sorulanlar")]),
+    ("Kaynaklar", [("/egitim/", "Eğitim videoları"), ("/egitim/adimlar/", "Adım rehberi"),
+                   ("/egitim/deneme/", "Deneme akışları"), ("/topluluk/", "Topluluk"),
+                   ("/#indir", "Peyrev'i nasıl alırım?"), ("/#sss", "Sık sorulanlar")]),
     ("Hesap", [("/hesabim/", "Hesabım"), ("/#basvuru", "Hesap başvurusu"), ("/iletisim/", "İletişim")]),
     ("Yasal", [("/yasal/kvkk/", "KVKK aydınlatma metni"), ("/yasal/gizlilik/", "Gizlilik ve çerezler"),
                ("/yasal/mesafeli-satis/", "Mesafeli satış sözleşmesi"), ("/yasal/iade/", "İade ve iptal")]),
@@ -91,8 +92,9 @@ def pages() -> list[Path]:
     return sorted(page for page in WEB.rglob("*.html"))
 
 
-def render(page: Path) -> str:
-    text = page.read_text(encoding="utf-8")
+def render(page: Path, text: str | None = None) -> str:
+    """The page with the shared parts and stamps; ``text`` is the page's source when it is not yet on disk."""
+    text = page.read_text(encoding="utf-8") if text is None else text
     if page.is_relative_to(WEB):
         path = page_path(page)
         text = re.sub(r'<header class="site-header">.*?</header>', lambda _m: header(path), text, count=1, flags=re.DOTALL)

@@ -1,0 +1,653 @@
+{
+ "name": "Deneme 10 · Masaüstü programı: Not Defteri",
+ "description": "Not Defteri'ni açar, penceresini tanır, taşır ve boyutlandırır; fareyle tıklar, klavyeyle yazar, kısayol gönderir, metni panoya kopyalar, ekrandan OCR ile okur ve programı kapatır.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Peyrev Deneme klasörü",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${klasor}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Pencere başlığı",
+   "action": "core.set",
+   "params": {
+    "name": "baslik",
+    "value": "Not Defteri"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Not Defteri'ni aç",
+   "action": "system.open",
+   "params": {
+    "target": "notepad.exe",
+    "wait": 2
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "Pencereyi tanı",
+   "action": "desktop.find_window",
+   "params": {
+    "title": "${baslik}",
+    "match": "contains",
+    "timeout": 10,
+    "on_missing": "stop",
+    "output": "defter"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Öne getir",
+   "action": "window.activate",
+   "params": {
+    "window": "${defter}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Önce büyüt",
+   "action": "window.state",
+   "params": {
+    "window": "${defter}",
+    "state": "maximize"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "Eski boyutuna getir",
+   "action": "window.state",
+   "params": {
+    "window": "${defter}",
+    "state": "restore"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Taşı ve boyutlandır",
+   "action": "window.move",
+   "params": {
+    "window": "${defter}",
+    "x": 100,
+    "y": 100,
+    "width": 900,
+    "height": 600,
+    "output": "defter"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "Yazı alanına tıkla",
+   "action": "desktop.window_click",
+   "params": {
+    "window": "${defter}",
+    "target_mode": "coordinates",
+    "x": 300,
+    "y": 250,
+    "clicks": 1,
+    "button": "left"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "İlk satırı yaz",
+   "action": "input.type",
+   "params": {
+    "text": "Peyrev masaüstü denemesi",
+    "method": "auto",
+    "interval": 0.02
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a012",
+   "title": "İki kez Enter",
+   "action": "input.press",
+   "params": {
+    "key": "enter",
+    "presses": 2,
+    "interval": 0.1
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "İkinci satırı yaz",
+   "action": "input.type",
+   "params": {
+    "text": "Seçilecek satır",
+    "method": "auto",
+    "interval": 0.02
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a014",
+   "title": "Shift'e bas",
+   "action": "input.key_state",
+   "params": {
+    "key": "shift",
+    "state": "down"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a015",
+   "title": "Satır başına git (seçerek)",
+   "action": "input.press",
+   "params": {
+    "key": "home",
+    "presses": 1
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Shift'i bırak",
+   "action": "input.key_state",
+   "params": {
+    "key": "shift",
+    "state": "up"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "Kopyala",
+   "action": "input.hotkey",
+   "params": {
+    "keys": "mod+c"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a018",
+   "title": "Panoyu oku",
+   "action": "clipboard.get",
+   "params": {
+    "output": "secilen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a020",
+   "title": "Satır kopyalandı",
+   "action": "control.if",
+   "params": {
+    "left": "${secilen}",
+    "operator": "eq",
+    "right": "Seçilecek satır"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a019",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Shift + Home ile seçilen satır panoya kopyalanmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a021",
+   "title": "Belgenin sonuna git",
+   "action": "desktop.window_key",
+   "params": {
+    "window": "${defter}",
+    "key": "end",
+    "modifier": "mod"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a022",
+   "title": "Tıkla ve belgenin sonuna git",
+   "action": "desktop.window_click_key",
+   "params": {
+    "window": "${defter}",
+    "target_mode": "coordinates",
+    "x": 300,
+    "y": 250,
+    "clicks": 1,
+    "key": "end",
+    "modifier": "mod",
+    "delay": 0.2
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a023",
+   "title": "Alanı doldur",
+   "action": "desktop.window_fill",
+   "params": {
+    "window": "${defter}",
+    "target_mode": "coordinates",
+    "x": 300,
+    "y": 250,
+    "text": "PEYREV NOT DEFTERI DENEMESI",
+    "clear": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a024",
+   "title": "Alanın değerini oku",
+   "action": "window.read_field",
+   "params": {
+    "window": "${defter}",
+    "target_mode": "coordinates",
+    "x": 300,
+    "y": 250,
+    "output": "alan"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a026",
+   "title": "Alan okundu",
+   "action": "control.if",
+   "params": {
+    "left": "${alan}",
+    "operator": "contains",
+    "right": "PEYREV"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a025",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Not Defteri'nin metni okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a027",
+   "title": "Yazının görünmesini bekle",
+   "action": "screen.wait_text",
+   "params": {
+    "text": "PEYREV",
+    "timeout": 15,
+    "on_missing": "stop",
+    "relative_to": "window",
+    "window": "${defter}",
+    "output": "goruldu"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a028",
+   "title": "Pencereyi OCR ile oku",
+   "action": "screen.read_text",
+   "params": {
+    "relative_to": "window",
+    "window": "${defter}",
+    "output": "ekran_metni"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a030",
+   "title": "OCR okudu",
+   "action": "control.if",
+   "params": {
+    "left": "${ekran_metni}",
+    "operator": "contains",
+    "right": "DENEMES"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a029",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "OCR Not Defteri'ndeki yazıyı okumalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a031",
+   "title": "Pencerenin görüntüsü",
+   "action": "screen.screenshot",
+   "params": {
+    "relative_to": "window",
+    "window": "${defter}",
+    "filename": "not-defteri.png",
+    "folder": "${klasor}",
+    "output": "goruntu"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a032",
+   "title": "Fareyi taşı",
+   "action": "input.mouse_move",
+   "params": {
+    "x": 400,
+    "y": 300,
+    "duration": 0.3
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a033",
+   "title": "Fare konumunu oku",
+   "action": "input.mouse_position",
+   "params": {
+    "output": "fare"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a035",
+   "title": "Fare konumu okundu",
+   "action": "control.if",
+   "params": {
+    "left": "${fare.x}",
+    "operator": "not_empty",
+    "right": null
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a034",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Fare konumu okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a036",
+   "title": "Pikselin rengi",
+   "action": "screen.pixel",
+   "params": {
+    "x": 400,
+    "y": 300,
+    "output": "piksel"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a037",
+   "title": "Ekranda tıkla",
+   "action": "input.mouse_click",
+   "params": {
+    "x": 400,
+    "y": 300,
+    "button": "left",
+    "clicks": 1
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a038",
+   "title": "Kaydır",
+   "action": "input.scroll",
+   "params": {
+    "amount": -3,
+    "direction": "vertical",
+    "x": 400,
+    "y": 300
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a039",
+   "title": "Sürükleyerek seç",
+   "action": "input.drag",
+   "params": {
+    "from_x": 250,
+    "from_y": 200,
+    "to_x": 600,
+    "to_y": 200,
+    "duration": 0.5
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a040",
+   "title": "Fare ve renk",
+   "action": "core.log",
+   "params": {
+    "message": "Fare ${fare}; piksel ${piksel}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a041",
+   "title": "Tümünü seç",
+   "action": "input.hotkey",
+   "params": {
+    "keys": "mod+a"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a042",
+   "title": "Sil",
+   "action": "input.press",
+   "params": {
+    "key": "delete",
+    "presses": 1
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a046",
+   "title": "Kapanmazsa zorla kapat",
+   "action": "control.try",
+   "params": {
+    "error_name": "kapatma_hatasi"
+   },
+   "children": [
+    {
+     "id": "a043",
+     "title": "Pencereyi kapat",
+     "action": "window.close",
+     "params": {
+      "window": "${defter}"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a044",
+     "title": "Kapanmasını bekle",
+     "action": "window.wait_close",
+     "params": {
+      "window": "${defter}",
+      "timeout": 5
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": [
+    {
+     "id": "a045",
+     "title": "Not Defteri'ni kapat",
+     "action": "system.close_app",
+     "params": {
+      "application": "notepad.exe",
+      "force": true
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a047",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Masaüstü adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Aç ve tanı",
+   "text": "Pencereyi tanı başlığı içeren pencereyi bulur; sonraki adımlar onu ${defter} ile kullanır. Pencere taşınınca içindeki X / Y noktaları değişmez.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a003",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a008",
+    "a009"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Yaz ve kısayol",
+   "text": "Pencerede tıkla yazı alanına tıklar; Metin yaz, Tuşa bas, Tuşu basılı tut ve Klavye kısayolu ile satır seçilip panoya kopyalanır.",
+   "color": "yellow",
+   "steps": [
+    "a010",
+    "a011",
+    "a012",
+    "a013",
+    "a014",
+    "a015",
+    "a016",
+    "a017",
+    "a018",
+    "a020",
+    "a021",
+    "a022",
+    "a023",
+    "a024",
+    "a026"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Ekran",
+   "text": "OCR ekrandaki yazıyı okur; Ekranda metni bekle yazı görünene kadar bekler. Ekran kilitliyse bu adımlar çalışmaz.",
+   "color": "yellow",
+   "steps": [
+    "a027",
+    "a028",
+    "a030",
+    "a031"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Fare",
+   "text": "Ekranda tıkla ve fare adımları ekranın sol üst köşesine göre çalışır; pencere 100, 100'e taşındığı için 400, 300 yazı alanının içindedir. Ekran ölçeği %100 değilse okunan konum farklı sayılarla yazılabilir.",
+   "color": "yellow",
+   "steps": [
+    "a032",
+    "a033",
+    "a035",
+    "a036",
+    "a037",
+    "a038",
+    "a039",
+    "a040"
+   ]
+  },
+  {
+   "id": "n5",
+   "title": "Kapat",
+   "text": "Kaydedilmemiş metin varsa Not Defteri kaydetmek ister; o zaman Hata olursa dalı programı kaydetmeden kapatır.",
+   "color": "yellow",
+   "steps": [
+    "a041",
+    "a042",
+    "a046",
+    "a047"
+   ]
+  }
+ ]
+}

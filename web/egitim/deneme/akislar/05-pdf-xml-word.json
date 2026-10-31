@@ -1,0 +1,691 @@
+{
+ "name": "Deneme 05 · PDF, e-Fatura ve Word belgeleri",
+ "description": "Fatura PDF'inin metnini ve kalem tablosunu okur; PDF'i böler, birleştirir, sayfa çıkarır ve şifreler; e-Fatura, e-İrsaliye ve zip içindeki XML'leri okur; Word şablonundan teklif belgesi üretir.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Belgeler klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "belgeler",
+    "value": "${klasor}/Belgeler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Belgeler klasörünü oluştur",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${belgeler}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Faturanın metni",
+   "action": "file.read_pdf",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "mode": "text",
+    "output": "pdf_metin"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Fatura numarası okundu",
+   "action": "control.if",
+   "params": {
+    "left": "${pdf_metin}",
+    "operator": "contains",
+    "right": "PEY2026000000123"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a008",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "PDF metninde fatura numarası bulunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a010",
+   "title": "Kalem tablosu",
+   "action": "file.read_pdf",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "mode": "table",
+    "pages": "1",
+    "table": 1,
+    "header": true,
+    "output": "kalemler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Kalemleri say",
+   "action": "data.list",
+   "params": {
+    "list": "${kalemler}",
+    "operation": "length",
+    "output": "kalem_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Üç kalem",
+   "action": "control.if",
+   "params": {
+    "left": "${kalem_sayisi}",
+    "operator": "eq",
+    "right": 3
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a012",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Fatura tablosunda üç kalem olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a014",
+   "title": "Kalemlerin toplamı",
+   "action": "data.list",
+   "params": {
+    "list": "${kalemler}",
+    "operation": "sum",
+    "field": "Tutar",
+    "output": "kalem_toplami"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Toplam 4.150",
+   "action": "control.if",
+   "params": {
+    "left": "${kalem_toplami}",
+    "operator": "eq",
+    "right": 4150
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a015",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Kalem tutarlarının toplamı 4150 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a017",
+   "title": "Sayfa sayısı",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "page_count",
+    "source": "${klasor}/fatura.pdf",
+    "output": "sayfa"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a019",
+   "title": "İki sayfa",
+   "action": "control.if",
+   "params": {
+    "left": "${sayfa.pages}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a018",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme faturası iki sayfadır."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a020",
+   "title": "İlk sayfayı çıkar",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "extract",
+    "source": "${klasor}/fatura.pdf",
+    "pages": "1",
+    "destination": "${belgeler}/fatura-ilk-sayfa.pdf",
+    "overwrite": true,
+    "output": "ilk"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a021",
+   "title": "Sayfa sayfa böl",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "split",
+    "source": "${klasor}/fatura.pdf",
+    "every": 1,
+    "folder": "${belgeler}/bolunen",
+    "overwrite": true,
+    "output": "bolunen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a022",
+   "title": "Parçaları say",
+   "action": "data.list",
+   "params": {
+    "list": "${bolunen.files}",
+    "operation": "length",
+    "output": "parca"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a024",
+   "title": "İki parça",
+   "action": "control.if",
+   "params": {
+    "left": "${parca}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a023",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "PDF iki dosyaya bölünmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a025",
+   "title": "Parçaları alt alta yaz",
+   "action": "data.list",
+   "params": {
+    "list": "${bolunen.files}",
+    "operation": "join",
+    "separator": "\n",
+    "output": "parca_listesi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a026",
+   "title": "Yeniden birleştir",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "merge",
+    "sources": "${parca_listesi}",
+    "destination": "${belgeler}/birlesik.pdf",
+    "overwrite": true,
+    "output": "birlesik"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a027",
+   "title": "Birleşenin sayfa sayısı",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "page_count",
+    "source": "${birlesik.path}",
+    "output": "birlesik_sayfa"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a029",
+   "title": "Birleşen iki sayfa",
+   "action": "control.if",
+   "params": {
+    "left": "${birlesik_sayfa.pages}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a028",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Birleşen PDF iki sayfa olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a030",
+   "title": "Şifrele",
+   "action": "file.pdf_tools",
+   "params": {
+    "operation": "encrypt",
+    "source": "${ilk.path}",
+    "destination": "${belgeler}/sifreli.pdf",
+    "password": "deneme123",
+    "overwrite": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a031",
+   "title": "e-Faturayı oku",
+   "action": "file.read_xml",
+   "params": {
+    "path": "${klasor}/e-fatura.xml",
+    "mode": "efatura",
+    "output": "fatura"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a033",
+   "title": "Fatura numarası",
+   "action": "control.if",
+   "params": {
+    "left": "${fatura.fatura_no}",
+    "operator": "eq",
+    "right": "ORN2026000000042"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a032",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "e-Fatura numarası ORN2026000000042 olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a034",
+   "title": "Faturayı yaz",
+   "action": "core.log",
+   "params": {
+    "message": "${fatura.satici.unvan} → ${fatura.alici.unvan}: ${fatura.odenecek} ${fatura.para_birimi}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a036",
+   "title": "Her fatura kalemi",
+   "action": "control.for_each",
+   "params": {
+    "items": "${fatura.kalemler}",
+    "item_name": "kalem"
+   },
+   "children": [
+    {
+     "id": "a035",
+     "title": "Kalemi yaz",
+     "action": "core.log",
+     "params": {
+      "message": "${kalem.aciklama}: ${kalem.miktar} × ${kalem.birim_fiyat} = ${kalem.tutar}"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a037",
+   "title": "e-İrsaliyeyi oku",
+   "action": "file.read_xml",
+   "params": {
+    "path": "${klasor}/e-irsaliye.xml",
+    "mode": "auto",
+    "output": "irsaliye"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a039",
+   "title": "İrsaliye tanındı",
+   "action": "control.if",
+   "params": {
+    "left": "${irsaliye.belge_turu}",
+    "operator": "contains",
+    "right": "rsaliye"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a038",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Otomatik okuma belgeyi e-İrsaliye olarak tanımalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a040",
+   "title": "Zip'teki belgeler",
+   "action": "file.read_xml",
+   "params": {
+    "path": "${klasor}/e-belgeler.zip",
+    "mode": "auto",
+    "output": "paket"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a041",
+   "title": "Belgeleri say",
+   "action": "data.list",
+   "params": {
+    "list": "${paket.kayitlar}",
+    "operation": "length",
+    "output": "belge_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a043",
+   "title": "İki belge",
+   "action": "control.if",
+   "params": {
+    "left": "${belge_sayisi}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a042",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Zip'te iki belge okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a044",
+   "title": "Teklif kalemleri",
+   "action": "core.set",
+   "params": {
+    "name": "teklif_kalemleri",
+    "value": [
+     {
+      "urun": "Kurulum",
+      "miktar": 1,
+      "tutar": "2.500,00"
+     },
+     {
+      "urun": "Eğitim (saat)",
+      "miktar": 4,
+      "tutar": "1.600,00"
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a045",
+   "title": "Teklif belgesini üret",
+   "action": "file.word_template",
+   "params": {
+    "template": "${klasor}/teklif-sablonu.docx",
+    "destination": "${belgeler}/teklif-akin.docx",
+    "values": {
+     "musteri_adi": "Akın Ltd.",
+     "tarih": "${sistem.bugun}",
+     "toplam": "4.100,00 TL"
+    },
+    "rows": "${teklif_kalemleri}",
+    "overwrite": true,
+    "pdf": false,
+    "output": "teklif"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a046",
+   "title": "Belge oluştu mu?",
+   "action": "file.exists",
+   "params": {
+    "path": "${teklif.docx}",
+    "kind": "file",
+    "output": "teklif_var"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a048",
+   "title": "Teklif oluştu",
+   "action": "control.if",
+   "params": {
+    "left": "${teklif_var}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a047",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Teklif belgesi kaydedilmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a049",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Belge adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "PDF'ten oku",
+   "text": "Metin modu PDF'in yazısını, tablo modu çizgili tabloyu satır listesi olarak okur.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a009",
+    "a010",
+    "a011",
+    "a013",
+    "a014",
+    "a016"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "PDF araçları",
+   "text": "Sayfa sayısı, böl, birleştir, sayfa çıkar ve şifrele. Gerçek işte şifreyi Ayarlar → Kayıtlı şifreler'e kaydedip ${sifre.ad} ile verin.",
+   "color": "yellow",
+   "steps": [
+    "a017",
+    "a019",
+    "a020",
+    "a021",
+    "a022",
+    "a024",
+    "a025",
+    "a026",
+    "a027",
+    "a029",
+    "a030"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "e-Fatura ve e-İrsaliye",
+   "text": "XML / JSON dosyası oku GİB'in UBL-TR belgesini alanlarına ayırır; zip'teki her belge kayitlar listesine gelir.",
+   "color": "yellow",
+   "steps": [
+    "a031",
+    "a033",
+    "a034",
+    "a036",
+    "a037",
+    "a039",
+    "a040",
+    "a041",
+    "a043"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Word şablonu",
+   "text": "Şablondaki {{musteri_adi}} gibi alanlar doldurulur; {{satir.urun}} satırı her kalem için çoğalır.",
+   "color": "yellow",
+   "steps": [
+    "a044",
+    "a045",
+    "a046",
+    "a048",
+    "a049"
+   ]
+  }
+ ]
+}

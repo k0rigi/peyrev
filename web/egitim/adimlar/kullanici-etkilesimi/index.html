@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Kullanıcı etkileşimi kategorisindeki 4 adımın kullanımı.">
+<title>Kullanıcı etkileşimi adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/kullanici-etkilesimi/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Kullanıcı etkileşimi</h1>
+      <p class="lead">4 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Kullanıcı etkileşimi adımları">
+        <ol>
+        <li><a href="#adim-71"><span>71</span> Mesaj kutusu göster</a></li>
+        <li><a href="#adim-72"><span>72</span> Kullanıcıdan değer iste</a></li>
+        <li><a href="#adim-94"><span>94</span> Kullanıcıya dosya seçtir</a></li>
+        <li><a href="#adim-107"><span>107</span> Onay iste (Telegram)</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-71">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 71">71</span>
+          <h2>Mesaj kutusu göster</h2>
+        </div>
+        <p class="guide-lead">Ekranda mesaj gösterir ve yanıtı bekler; <code>${answer}</code>: ok, cancel, yes, no (süre dolarsa timeout).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Başlığı ve mesajı yazın.</li>
+          <li>Onay istenecekse Evet / Hayır seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${answer}</code>: ok, cancel, yes veya no; Otomatik kapanma süresi dolarsa timeout.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Akış, kutu kapatılana kadar bekler. Gözetimsiz çalışacak akışlarda kullanmayın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Başlık</dt>
+            <dd>Mesaj kutusunun başlığı.</dd>
+            <dt>Mesaj <span class="guide-required">zorunlu</span></dt>
+            <dd>Gösterilecek mesaj; <code>${değişken}</code> kullanılabilir.</dd>
+            <dt>Düğmeler</dt>
+            <dd>Evet / Hayır seçerseniz yanıtı <code>${answer}</code> ile Koşul adımında kontrol edin. <span class="guide-options">Seçenekler: Tamam, Tamam / İptal, Evet / Hayır.</span></dd>
+            <dt>Otomatik kapanma (saniye, 0: kapanmaz)</dt>
+            <dd>Yanıt verilmezse kutunun kendiliğinden kapanacağı süre; kapanınca <code>${answer}</code> timeout olur.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a></p>
+      </article>
+      <article class="guide-step" id="adim-72">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 72">72</span>
+          <h2>Kullanıcıdan değer iste</h2>
+        </div>
+        <p class="guide-lead">Çalışma sırasında bir değer sorar (ör. tarih, fatura no) ve değişkene kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Soruyu ve varsa varsayılan değeri yazın.</li>
+          <li>Çıktı değişkenine ad verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Kullanıcının yazdığı değer.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Her çalıştırmada değişen değerler (tarih, dönem) için akışın başına ekleyin. Başında kimse olmayan bilgisayarda Yanıt süresi verin ki akış süresiz beklemesin; uzaktan yanıt için Onay iste adımını kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Başlık</dt>
+            <dd>Soru kutusunun başlığı.</dd>
+            <dt>Soru <span class="guide-required">zorunlu</span></dt>
+            <dd>Kullanıcıya sorulacak soru (ör. Fatura tarihini girin).</dd>
+            <dt>Varsayılan değer</dt>
+            <dd>Kutuda hazır gelecek değer.</dd>
+            <dt>İptal edilirse</dt>
+            <dd>Kullanıcı İptal&#x27;e basarsa ne olacağı. <span class="guide-options">Seçenekler: Akışı durdur, Boş değerle devam et.</span></dd>
+            <dt>Yanıt süresi (saniye, 0: süresiz)</dt>
+            <dd>Başında kimse olmayan bilgisayarda akış süresiz beklemesin diye: süre dolunca kutu kapanır.</dd>
+            <dt>Süre dolarsa</dt>
+            <dd>Yanıt süresi dolunca: varsayılan değerle devam edilir veya akış durur. <span class="guide-options">Seçenekler: Varsayılan değerle devam et, Akışı durdur.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-13-google-sheets">Deneme 13 · Google Sheets&#x27;e yaz ve oku</a></p>
+      </article>
+      <article class="guide-step" id="adim-94">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 94">94</span>
+          <h2>Kullanıcıya dosya seçtir</h2>
+        </div>
+        <p class="guide-lead">Bilgisayarın kendi Aç penceresini gösterir; yalnız izin verilen uzantılar seçilebilir. Seçilen dosyanın yolu değişkene kaydedilir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Başlığı ve izin verilen uzantıları yazın (ör. xlsx, csv).</li>
+          <li>İsterseniz başlangıç klasörünü seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${chosen_file}</code>: seçilen dosyanın tam yolu.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Pencere yalnız izin verilen türdeki dosyaları gösterir; seçim ayrıca tekrar denetlenir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Başlık</dt>
+            <dd>Dosya seçme penceresinin başlığı.</dd>
+            <dt>İzin verilen uzantılar</dt>
+            <dd>Virgülle ayırın (ör. xlsx, xls, csv). Boş: her uzantı kabul edilir.</dd>
+            <dt>Başlangıç klasörü</dt>
+            <dd>Boş: bilgisayarın son kullandığı klasör.</dd>
+            <dt>İptal edilirse</dt>
+            <dd>Kullanıcı dosya seçmeden kapatırsa ne olacağı. <span class="guide-options">Seçenekler: Akışı durdur, Boş değerle devam et.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Seçilen dosyanın tam yolu.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a></p>
+      </article>
+      <article class="guide-step" id="adim-107">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 107">107</span>
+          <h2>Onay iste (Telegram)</h2>
+          <span class="guide-badge">Ajanlar hakkı gerekir</span>
+        </div>
+        <p class="guide-lead">Akışı durdurup bir soru sorar ve yanıtı bekler: Evet / Hayır, seçeneklerden biri veya yazılan bir değer. Soru Peyrev&#x27;in çalışma sayfasında ve ofisin Telegram sohbetinde görünür; ilk gelen yanıt geçer.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Ajanlar → Telegram&#x27;da ofisin sohbetini bağlayın (bir kez).</li>
+          <li>Soruyu yazın; değişken kullanabilirsiniz.</li>
+          <li>Yanıt türünü ve süreyi seçin; Evet / Hayır&#x27;da Hayır yanıtında akışın durup durmayacağını belirleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${onay}</code>: evet, hayir, seçilen seçenek veya yazılan değer; süre dolup devam edilirse zaman_asimi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Soru Peyrev&#x27;in çalışma sayfasında da görünür; ilk gelen yanıt geçer, öteki kapanır. Yalnız Ajanlar hakkı olan hesapta çalışır. Studio kapanırsa bekleyen çalışma da biter.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Soru <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişken kullanılabilir: <code>${row.FaturaNo}</code> numaralı fatura <code>${row.Tutar}</code> TL. Onaylansın mı?</dd>
+            <dt>Yanıt türü</dt>
+            <dd>Evet / Hayır: onay. Seçenekler: Telegram&#x27;da düğme olarak görünür. Değer: kişi bir metin yazar (ör. düzeltilmiş tutar). <span class="guide-options">Seçenekler: Evet / Hayır, Seçeneklerden biri, Yazılan bir değer.</span></dd>
+            <dt>Seçenekler <span class="guide-required">zorunlu</span></dt>
+            <dd>Virgülle ayırın (ör. Onayla, Beklet, İptal et); en fazla 8 seçenek.</dd>
+            <dt>Hayır yanıtında akışı durdur</dt>
+            <dd>Kapalıysa akış sürer; <code>${onay}</code> hayir olur ve Koşul adımıyla yolu seçebilirsiniz.</dd>
+            <dt>Yanıt süresi (dakika) <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu sürede yanıt gelmezse Süre dolarsa seçimine göre davranılır.</dd>
+            <dt>Süre dolarsa</dt>
+            <dd>Akışı durdur: çalışma hata ile biter. Yanıtsız devam et: <code>${onay}</code> zaman_asimi olur; Koşul ile kontrol edin. <span class="guide-options">Seçenekler: Akışı durdur, Yanıtsız devam et (sonuç: zaman_asimi).</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Yanıt: Evet / Hayır&#x27;da evet veya hayir; seçeneklerde seçilen seçenek; değerde yazılan metin. Süre dolup devam edilirse zaman_asimi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/akis/">← Akış</a> <a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/web-e-posta-ve-api/">Web, e-posta ve API →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Pencere kategorisindeki 16 adımın kullanımı.">
+<title>Pencere adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/pencere/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Pencere</h1>
+      <p class="lead">16 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Pencere adımları">
+        <ol>
+        <li><a href="#adim-1"><span>1</span> Pencereyi tanı</a></li>
+        <li><a href="#adim-2"><span>2</span> Pencerede tıkla</a></li>
+        <li><a href="#adim-3"><span>3</span> Alanı doldur</a></li>
+        <li><a href="#adim-4"><span>4</span> Pencerede tuşa bas</a></li>
+        <li><a href="#adim-5"><span>5</span> Tıkla ve tuşa bas</a></li>
+        <li><a href="#adim-6"><span>6</span> Pencerede görseli bekle / ara</a></li>
+        <li><a href="#adim-7"><span>7</span> Pencereyi öne getir</a></li>
+        <li><a href="#adim-8"><span>8</span> Alanın değerini oku</a></li>
+        <li><a href="#adim-9"><span>9</span> Tablodan değer oku</a></li>
+        <li><a href="#adim-10"><span>10</span> Tabloya değer yaz</a></li>
+        <li><a href="#adim-11"><span>11</span> Metni bul, tıkla ve yaz</a></li>
+        <li><a href="#adim-12"><span>12</span> Onay kutusu</a></li>
+        <li><a href="#adim-13"><span>13</span> Pencereyi büyüt / küçült</a></li>
+        <li><a href="#adim-14"><span>14</span> Pencereyi taşı ve boyutlandır</a></li>
+        <li><a href="#adim-15"><span>15</span> Pencereyi kapat</a></li>
+        <li><a href="#adim-16"><span>16</span> Pencerenin kapanmasını bekle</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-1">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 1">1</span>
+          <h2>Pencereyi tanı</h2>
+        </div>
+        <p class="guide-lead">Açık masaüstü penceresini uygulama ve başlığıyla bulur. Sonucu diğer adımlarda kullanın.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Otomasyon yapılacak uygulamayı açın.</li>
+          <li>Açık pencerelerden seç ile pencereyi seçin; başlık değişiyorsa sabit kısmını yazıp İçerir seçin.</li>
+          <li>Şimdi kontrol et ile bulunduğunu doğrulayın.</li>
+          <li>Pencereye verilecek ad alanına kısa bir ad yazın (ör. erp_window). Yalnız ad; <code>${ }</code> işaretleri olmadan.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Pencere bu adla saklanır. Sonraki pencere adımlarının Pencere alanında listeden seçilir. <code>${erp_window.found}</code>, pencerenin açık olup olmadığını verir.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Akışın ilk adımlarından biri olmalı. Her pencere adımı bu çıktıyı kullanır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Uygulama adı</dt>
+            <dd>Açık pencerelerden seçebilirsiniz. Boşsa tüm uygulamalarda arar.</dd>
+            <dt>Pencere başlığı <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişen belge numaraları varsa sabit kısmı yazıp İçerir seçin.</dd>
+            <dt>Başlık eşleşmesi <span class="guide-required">zorunlu</span></dt>
+            <dd>Başlık her açılışta aynıysa Tam eşleşme; içinde değişen numara, tarih veya ekran adı varsa İçerir. <span class="guide-options">Seçenekler: Tam eşleşme, İçerir.</span></dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Pencere henüz açılmadıysa bu kadar saniye beklenir.</dd>
+            <dt>Pencere bulunamazsa <span class="guide-required">zorunlu</span></dt>
+            <dd>Devam et seçerseniz sonraki adımları <code>${erp_window.found}</code> koşuluna bağlayın. <span class="guide-options">Seçenekler: Akışı durdur, Bulunamadı sonucu ile devam et.</span></dd>
+            <dt>Pencereye verilecek ad <span class="guide-required">zorunlu</span></dt>
+            <dd>Yalnız adı yazın (ör. erp_window). Sonraki pencere adımlarının Pencere alanında bu adla seçilir.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-2">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 2">2</span>
+          <h2>Pencerede tıkla</h2>
+        </div>
+        <p class="guide-lead">Bir butonu veya alanı konumuyla ya da görseliyle bulup tıklar; metin yazmaz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç&#x27;e basın, geri sayım bitmeden fareyi hedefin üzerine götürün. Uygulama destekliyorsa Alan kimliği seçeneğini kullanın.</li>
+          <li>Kayıt açmak için Tıklama sayısını Çift tık yapın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Alan kimliğiyle seçilen düğme, menü öğesi veya bağlantıya tek sol tık, fare kullanılmadan uygulama yapısından basılır; desteklemeyen alanda fareyle tıklanır. Bu adımı test et → Yeri göster, tıklamadan fareyi hedefe götürür.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (12)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin üst kenarından piksel. Ekranda seç ile X ile birlikte dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Görsel veya alan bu süre içinde bulunamazsa tıklama yapılmaz, adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Tıklama sayısı</dt>
+            <dd>Kayıt açmak gibi işlemler için Çift tık seçin. <span class="guide-options">Seçenekler: Tek tık, Çift tık.</span></dd>
+            <dt>Fare düğmesi</dt>
+            <dd>Sağ tık menüsünü açmak için Sağ seçin. <span class="guide-options">Seçenekler: Sol, Sağ.</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-3">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 3">3</span>
+          <h2>Alanı doldur</h2>
+        </div>
+        <p class="guide-lead">Hedef yazı alanını bulur, tıklar ve verilen değeri yazar. Ayrıca tıklama adımı eklemeniz gerekmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç&#x27;e basın, geri sayım bitmeden fareyi hedefin üzerine götürün. Uygulama destekliyorsa Alan kimliği seçeneğini kullanın.</li>
+          <li>Yazılacak değere sabit metin veya tablodan gelen değeri yazın (ör. <code>${row.form_id}</code>).</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Alana tıklamayı kendisi yapar; önüne ayrı bir tıklama adımı eklemeyin. Bu adımı test et → Yeri göster, tıklamadan fareyi hedefe götürür.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (13)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin üst kenarından piksel. Ekranda seç ile X ile birlikte dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Görsel veya alan bu süre içinde bulunamazsa yazma yapılmaz, adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Yazılacak değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Tablo satırında <code>${row.form_id}</code>; eski sütun adımında <code>${row.value}</code>; tek hücrede <code>${cell_value}</code>.</dd>
+            <dt>Önce alandaki mevcut değeri temizle</dt>
+            <dd>Açıkken alan seçilip silinir, sonra değer yazılır. Mevcut değerin sonuna eklemek için kapatın.</dd>
+            <dt>Yazma yöntemi</dt>
+            <dd>Klavyeyle yaz, uygulamanın tuş vuruşlarıyla yaptığı denetimleri de çalıştırır. Doğrudan değer ata, değeri uygulama yapısından alana koyar ve okuyarak doğrular; alan desteklemiyorsa klavyeyle yazılır. Değeri tuş vuruşuyla denetleyen ERP alanlarında Klavyeyle yaz&#x27;ı kullanın. <span class="guide-options">Seçenekler: Klavyeyle yaz (önerilen), Doğrudan değer ata (fare ve klavye kullanmaz).</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-4">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 4">4</span>
+          <h2>Pencerede tuşa bas</h2>
+        </div>
+        <p class="guide-lead">Tanıtılan pencerede Enter, Tab veya bir klavye kısayolu gönderir; alan aramaz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Tuşu seçin: Enter onaylar, Tab sonraki alana geçer, Escape kapatır.</li>
+          <li>Kısayol gerekiyorsa Birlikte basılacak tuşu seçin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Tuş, pencerede o an seçili olan alana gider. Önce Alanı doldur veya Pencerede tıkla ile doğru alanı seçin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Tuş <span class="guide-required">zorunlu</span></dt>
+            <dd>Enter onaylar, Tab sonraki alana geçer, Escape pencereyi/mesajı kapatır. <span class="guide-options">Seçenekler: Enter, Tab, Escape, Aşağı ok, Yukarı ok, Sol ok, Sağ ok, Boşluk, Backspace, Delete, Home, End, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, A, C, V, S.</span></dd>
+            <dt>Birlikte basılacak tuş</dt>
+            <dd>Kısayol için birlikte basılacak tuş (ör. Ctrl + Enter). Tek tuş için Yok. <span class="guide-options">Seçenekler: Yok, Ctrl (Windows) / Command (Mac), Shift, Alt / Option, Ctrl.</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-5">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 5">5</span>
+          <h2>Tıkla ve tuşa bas</h2>
+        </div>
+        <p class="guide-lead">Hedefi konumuyla, görseliyle veya alan kimliğiyle bulup tıklar, ardından seçilen tuşu veya kısayolu gönderir. Hedef bulunamazsa tıklamaz ve tuşa basmaz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç&#x27;e basın, geri sayım bitmeden fareyi hedefin üzerine götürün. Uygulama destekliyorsa Alan kimliği seçeneğini kullanın.</li>
+          <li>Tıklamadan sonra gönderilecek tuşu ve gerekiyorsa birlikte basılacak tuşu seçin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Tıklama ile tuş aynı adımda gider; pencere arada değişir veya odağı kaybederse tuş gönderilmez. Bu adımı test et → Yeri göster, tıklamadan fareyi hedefe götürür.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (14)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin üst kenarından piksel. Ekranda seç ile X ile birlikte dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Görsel veya alan bu süre içinde bulunamazsa tıklama ve tuş gönderilmez, adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Tıklama sayısı</dt>
+            <dd>Kayıt açmak gibi işlemler için Çift tık seçin. <span class="guide-options">Seçenekler: Tek tık, Çift tık.</span></dd>
+            <dt>Tuş <span class="guide-required">zorunlu</span></dt>
+            <dd>Tıklamadan sonra gönderilecek tuş: Enter onaylar, Tab sonraki alana geçer, Aşağı ok listeyi açar. <span class="guide-options">Seçenekler: Enter, Tab, Escape, Aşağı ok, Yukarı ok, Sol ok, Sağ ok, Boşluk, Backspace, Delete, Home, End, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, A, C, V, S.</span></dd>
+            <dt>Birlikte basılacak tuş</dt>
+            <dd>Kısayol için birlikte basılacak tuş (ör. Ctrl + Enter). Tek tuş için Yok. <span class="guide-options">Seçenekler: Yok, Ctrl (Windows) / Command (Mac), Shift, Alt / Option, Ctrl.</span></dd>
+            <dt>Tıklama ile tuş arasında bekle (saniye)</dt>
+            <dd>Tıklanan alanın odağı alması için kısa bekleme. Tuş, uygulama hazır olmadan gidiyorsa artırın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-6">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 6">6</span>
+          <h2>Pencerede görseli bekle / ara</h2>
+        </div>
+        <p class="guide-lead">Bir işaretin (düğme, başlık, hata kutusu) pencerede görünmesini veya kaybolmasını bekler; tıklamaz. Bulunup bulunmadığını Koşul adımında kullanmak için sonucu kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç ile beklenecek işareti (düğme, başlık, hata kutusu) görsel olarak kaydedin.</li>
+          <li>Görünsün veya Kaybolsun seçin ve en fazla bekleme süresini yazın.</li>
+          <li>Görsel çıkmazsa akış dursun mu, devam mı etsin seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${image.found}</code>: görsel bulundu mu (doğru/yanlış). <code>${image.center_x}</code>, <code>${image.center_y}</code>: ekrandaki yeri.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Sabit Bekle yerine bunu kullanın: ekran hazır olur olmaz devam eder. Bir hata kutusu çıktı mı diye bakmak için Süre dolarsa: Devam et seçin, ardından Koşul ile <code>${image.found}</code> değerini kontrol edin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Görsel bu süre içinde görünmezse (veya kaybolmazsa) adım durur.</dd>
+            <dt>Beklenen durum</dt>
+            <dd>Görsel görünene kadar mı, kaybolana kadar mı bekleneceği. <span class="guide-options">Seçenekler: Görünsün, Kaybolsun.</span></dd>
+            <dt>Süre dolarsa <span class="guide-required">zorunlu</span></dt>
+            <dd>Akışı durdur: görsel gelmezse akış hata ile biter. Devam et: akış sürer, <code>${image.found}</code> yanlış olur; Koşul ile karar verin. <span class="guide-options">Seçenekler: Akışı durdur, Devam et (sonuç: bulunamadı).</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Not Defteri açıkken Pencereyi tanı ekleyin. Bu adımda Ekranda seç ile Not Defteri&#x27;nin Dosya menüsünü görsel olarak kaydedin; Bu adımı test et görseli bulur. Durum: Kaybolana kadar seçip menüyü kapatınca beklemenin bittiğini görün.</p>
+      </article>
+      <article class="guide-step" id="adim-7">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 7">7</span>
+          <h2>Pencereyi öne getir</h2>
+        </div>
+        <p class="guide-lead">Tanıtılan pencereyi öne alır; küçültülmüşse geri açar. Klavye adımlarından önce kullanın.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Klavye adımlarından (Metin yaz, Tuşa bas, Kısayol) hemen önce ekleyin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Pencerede tıkla ve Alanı doldur pencereyi kendileri öne getirir; onlardan önce gerekmez.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-8">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 8">8</span>
+          <h2>Alanın değerini oku</h2>
+        </div>
+        <p class="guide-lead">Bir yazı alanındaki değeri okur. Alan kimliğinde doğrudan okunur; konum/görselde alan seçilip kopyalanır (pano eski haline döner).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç&#x27;e basın, geri sayım bitmeden fareyi hedefin üzerine götürün. Uygulama destekliyorsa Alan kimliği seçeneğini kullanın.</li>
+          <li>Çıktı değişkenine bir ad verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Alandaki metin. Koşul adımında veya Sheets&#x27;e yazarken kullanın.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Alan kimliği dışındaki yöntemlerde alana tıklanıp içerik kopyalanır; pano sonra eski haline döner. Hedef bir tablo/liste ise tablonun tamamı başlıklarıyla gelir; tek bir hücre için Tablodan değer oku adımını kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (11)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin üst kenarından piksel. Ekranda seç ile X ile birlikte dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-9">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 9">9</span>
+          <h2>Tablodan değer oku</h2>
+        </div>
+        <p class="guide-lead">Uygulamadaki tabloda bir hücreyi sütun adıyla okur; kaç satır bulunduğunu da verir. Tabloya tıklayıp tamamını kopyalar ve ayrıştırır; pano eski haline döner.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Ekranda seç ile tablonun herhangi bir satırına tıklayın; hücreyi tek tek göstermeniz gerekmez.</li>
+          <li>Sütun alanına tablodaki başlığı yazın (ör. Kod) ya da sütun numarasını (1, 2, …).</li>
+          <li>Satır 1, tablodaki ilk veri satırıdır.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Seçilen hücrenin metni, ekranda göründüğü gibi. “Kaç satır var?” seçilirse bulunan satır sayısı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Arama sonuç vermediyse satır sayısı 0 olur; önce bunu Koşul ile kontrol edin. Tablodaki 540.767 gibi bir numarayı Sheets&#x27;teki 540767 ile karşılaştırmadan önce Metin işlemi → Bul ve değiştir ile noktayı silin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (16)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>X ile birlikte, hedefi ekrandan seçtiğinizde otomatik dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Ne okunacak <span class="guide-required">zorunlu</span></dt>
+            <dd>Hücre değeri okumak için Bir hücrenin değeri; aramanın sonuç verip vermediğini anlamak için Kaç satır var?. <span class="guide-options">Seçenekler: Bir hücrenin değeri, Kaç satır var?.</span></dd>
+            <dt>Sütun <span class="guide-required">zorunlu</span></dt>
+            <dd>Tablodaki sütun başlığı (ör. Kod) veya sütun numarası. Büyük/küçük harf farkı önemsizdir.</dd>
+            <dt>Satır <span class="guide-required">zorunlu</span></dt>
+            <dd>1: tablodaki ilk veri satırı. Başlık satırı sayılmaz.</dd>
+            <dt>İlk satır sütun başlıklarıdır</dt>
+            <dd>Çoğu uygulama tablosu kopyalanırken ilk satıra sütun adlarını koyar. Kopyalanan metinde başlık yoksa kapatın; sütunlar sutun_1, sutun_2… olur.</dd>
+            <dt>Başlık satırı</dt>
+            <dd>Kopyalanan tablodaki başlık satırı. Öncesinde boş satır varsa 2 seçin; veri bu satırdan sonra başlar.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Tablosu olan bir masaüstü programında (ör. ERP&#x27;nin liste ekranı) Pencereyi tanı ekleyin; Ekranda seç ile tabloyu gösterin, Sütun ve Satır&#x27;ı yazıp Bu adımı test et ile değeri okuyun.</p>
+      </article>
+      <article class="guide-step" id="adim-10">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 10">10</span>
+          <h2>Tabloya değer yaz</h2>
+        </div>
+        <p class="guide-lead">Tablonun herhangi bir yerine tıklayarak seçin. Satır, sütun ve yeni değeri girin; hücreyi güncel tablo yapısından bulup yazar.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Pencereyi seçin; Tabloyu seç düğmesine basıp görüntüde tablonun herhangi bir hücresine tıklayın.</li>
+          <li>Satır 1, Yazılacak sütun Durum, Yazılacak değer Tamamlandı: ilk veri satırının Durum hücresini değiştirir.</li>
+          <li>Bu adımı test et → Yeri göster ile hücrenin güncel yerini kontrol edin; Gerçekten çalıştır ile yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Seçilen hücreye yazılan değer kontrol edilir.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Seçilen nokta tabloyu tanıtır; hedef hücrenin konumu değildir. Satır ve sütunlar seçimde okunur, çalışırken yeniden bulunur. Sütunu listeden seçebilir, adını, sutun_2 veya 2 yazabilirsiniz. Doğrudan hücre erişimi yoksa tablo kopyalanır ve görünür hücre doğrulanır. Boş hücre, sütun başlığı ile aynı satırdaki tek olan dolu bir değerin kesişiminden bulunur; ikisi de ekranda görünmelidir. Önizlemede başlık satırında Başlık yap seçin; başlık yoksa Başlık yok seçin. Veri 1, Satır 1’dir. Hücre otomatik düzenlemeye açılır; değişkenin değeri yazılıp tüm tablo yeniden okunarak doğrulanır. Kaydetme/onayı ayrıca ekleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (23)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Yazma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Otomatik: seçilen noktadaki tablo yapısını kullanır; doğrudan hücre erişimi yoksa tablonun tamamını kopyalayıp hücreyi bulur. Uygulamanın tablo yapısı: düzenlenebilir hücre erişimi gerektirir; eski adımlar bu yöntemi korur. <span class="guide-options">Seçenekler: Seçilen tabloyu otomatik tanı, Kaydedilmiş tablo alanını kullan, Uygulamanın tablo yapısını kullan.</span></dd>
+            <dt>Tabloyu bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>Uygulamanın tablo yapısında hangi tablonun kullanılacağını seçin. Referans verirseniz nokta tablonun içinde olmalıdır. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı), Penceredeki tek tablo.</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>X ile birlikte, hedefi ekrandan seçtiğinizde otomatik dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>Tablo alanı <span class="guide-required">zorunlu</span></dt>
+            <dd>Tablo alanını çiz ile yalnız bir tabloyu, başlıkları ve veri satırlarıyla birlikte seçin. Alan pencereye göre saklanır; hücrelerin güncel yeri bu alan içinde bulunur.</dd>
+            <dt>İlk satır sütun başlıklarıdır</dt>
+            <dd>Başlık varsa açık, kopya yalnız veri içeriyorsa kapalı olmalıdır. Önizlemede Başlık yap veya Başlık yok ile düzeltebilirsiniz.</dd>
+            <dt>Başlık satırı</dt>
+            <dd>Tablo önizlemesinde Başlık yap ile seçilir. Başlık ve öncesindeki satırlar veri sayılmaz; Satır 1 ilk veri kaydıdır.</dd>
+            <dt>Hücreyi düzenlemeye aç <span class="guide-required">zorunlu</span></dt>
+            <dd>Hücreyi elle nasıl düzenlemeye açıyorsanız onu seçin. Eski metin doğrulanmadan yeni değer yazılmaz. <span class="guide-options">Seçenekler: Otomatik doğrula, Çift tıklama, Tek tıklama, Hücreyi seçip F2.</span></dd>
+            <dt>Tablo adı veya kimliği</dt>
+            <dd>Pencerede tek tablo varsa boş bırakın. Birden fazlaysa uygulamanın erişilebilir tablo adı veya kimliğini yazın.</dd>
+            <dt>Satır seçimi</dt>
+            <dd>Değeri bul yöntemi, kayıtların sırası değişse de doğru satırı seçer. <span class="guide-options">Seçenekler: Satır numarası, Benzersiz değeri bul.</span></dd>
+            <dt>Satır <span class="guide-required">zorunlu</span></dt>
+            <dd>1: ilk veri satırı. Başlık sayılmaz; sıralama değişiyorsa benzersiz değerle arayın.</dd>
+            <dt>Aranacak sütun <span class="guide-required">zorunlu</span></dt>
+            <dd>Kaydı ayırt eden benzersiz değerin sütun başlığı veya 1&#x27;den başlayan sütun numarası.</dd>
+            <dt>Aranacak değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam eşleşme aranır; birden fazla satır eşleşirse yazılmaz. Değişken kullanılabilir: <code>${row.kod}</code>.</dd>
+            <dt>Yazılacak sütun <span class="guide-required">zorunlu</span></dt>
+            <dd>Okumadaki gibi sütun adı (Durum), sutun_2 veya 2 yazın. Numara kopyalanan tablonun soldan başlayan sütun sırasıdır; kutucuk/boş sütunları da sayar. Genişlik değişse de hücre yeniden bulunur.</dd>
+            <dt>Yazılacak değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Hücrenin yeni değeri; değişken kullanılabilir: <code>${row.deger}</code>. Boş değer, Tab ve satır sonu kabul edilmez.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Doğrulanan hücre: <code>${table_write.row}</code>, <code>${table_write.column}</code>, <code>${table_write.value}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Aynı tabloda Yazma yöntemi Uygulamanın tablosu, Satır 1 ve bir sütun seçip Bu adımı test et ile değer yazın. Önce deneme kaydında deneyin.</p>
+      </article>
+      <article class="guide-step" id="adim-11">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 11">11</span>
+          <h2>Metni bul, tıkla ve yaz</h2>
+        </div>
+        <p class="guide-lead">Çizdiğiniz alanda, yazdığınız metni içeren yazıyı her çalışmada OCR ile yeniden bulur, ortasına tıklar ve değeri yazar. Metin bulunamazsa veya birden fazla yerde görünürse tıklamaz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Bölge çiz ile pencere görüntüsünde aranacak alanı seçin (ör. yalnız tablo).</li>
+          <li>Nereye tıklansın? Dolu bir alan için Bulunan metnin üzerine; boş hücre için Sütun ve satır kesişimi.</li>
+          <li>Kesişimde Sütun metni başlık (ör. Miktar), Satır metni o satırdaki başka bir değerdir (ör. A125).</li>
+          <li>Bu adımı test et → Yeri göster ile noktayı kontrol edin; Gerçekten çalıştır ile yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Tıklanan nokta ve yazılan değer test günlüğünde görünür.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Metnin bir parçasını yazmak yeterlidir (İad → İade); tıklama o yazının ortasına yapılır. Konum her çalışmada ekrandaki metinden ölçülür; ekran ölçeği veya sütun genişliği değişse de kaydedilmiş koordinat kullanılmaz. Metin bulunamazsa veya alanda birden fazla yerde görünürse tıklanmaz; alanı daraltın. Satır kaydırılıp görünmez olduysa önce kaydırın. Kaydetme/onayı ayrıca ekleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Arama alanı</dt>
+            <dd>Bölge çiz ile pencerenin görüntüsünde aranacak alanı seçin. Boşsa pencerenin tamamında aranır. Alan pencereye göre saklanır.</dd>
+            <dt>Nereye tıklansın? <span class="guide-required">zorunlu</span></dt>
+            <dd>Kesişim: sütun başlığının altına, satırdaki metnin hizasına tıklar; hücre boş olabilir. <span class="guide-options">Seçenekler: Bulunan metnin üzerine, Sütun ve satır kesişimine (boş hücre için).</span></dd>
+            <dt>Aranacak metin <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda görünen metnin bir parçası yeterlidir (ör. İad → İade); büyük/küçük harf fark etmez. Bu parça alanda tek bir yerde geçmelidir. Değişken kullanılabilir: <code>${row.kod}</code>.</dd>
+            <dt>Sütun metni <span class="guide-required">zorunlu</span></dt>
+            <dd>Yazılacak sütunun ekrandaki başlığı veya bir parçası (ör. Miktar; kısaltılmış başlıkta İade Sonr).</dd>
+            <dt>Satır metni <span class="guide-required">zorunlu</span></dt>
+            <dd>Aynı satırda başka bir sütunda görünen, satırı ayırt eden değer veya bir parçası (ör. kayıt kodu).</dd>
+            <dt>Yazılacak değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Değişken kullanılabilir: <code>${row.deger}</code>. Enter veya Tab için aşağıdaki seçeneği kullanın.</dd>
+            <dt>Tıklama</dt>
+            <dd>Kayıt açmak gibi işlemler için Çift tık seçin. <span class="guide-options">Seçenekler: Tek tık, Çift tık (hücreyi düzenlemeye açar).</span></dd>
+            <dt>Önce mevcut değeri temizle</dt>
+            <dd>Tümünü seçip siler. Yalnız tıklama yazı alanını veya hücre düzenlemesini açıyorsa kullanın; aksi halde tablodaki tüm satırlar seçilebilir.</dd>
+            <dt>Yazdıktan sonra</dt>
+            <dd>Tab sonraki alana geçer, Enter değeri onaylar. Uygulamanız hücreyi nasıl onaylıyorsa onu seçin. <span class="guide-options">Seçenekler: Hiçbir şey, Tab&#x27;a bas, Enter&#x27;a bas.</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Etiketli alanları olan bir pencerede (ör. bir kayıt formu) Metni bul seçip etiketi yazın (ör. Açıklama) ve değeri girin; adım etiketi OCR ile bulup yanındaki alana yazar.</p>
+      </article>
+      <article class="guide-step" id="adim-12">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 12">12</span>
+          <h2>Onay kutusu</h2>
+        </div>
+        <p class="guide-lead">Bir onay kutusunu işaretler, işaretini kaldırır veya durumunu okur. Zaten istenen durumdaysa tıklamaz; değiştirdikten sonra yeni durumu doğrular.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>İşlemi seçin: İşaretle, İşaretini kaldır veya Durumunu oku.</li>
+          <li>Ekranda seç ile onay kutusunu seçin. Uygulama alan kimliği veriyorsa durum doğrudan uygulamadan okunur.</li>
+          <li>Java veya özel çizilmiş ekranlarda Konum ya da Referans görsel ile seçin; ardından kutu işaretliyken ve işaretsizken birer küçük görüntüsünü seçin.</li>
+          <li>Bu adımı test et → Yeri göster ile kutuyu kontrol edin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${checkbox_state}</code>: işaretliyse doğru, değilse yanlış.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Kutu zaten istenen durumdaysa tıklanmaz. Değiştirince yeni durum doğrulanır; değişmezse yeniden tıklanmaz. Durum kesin anlaşılamazsa adım durur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (14)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Durumunu oku hiçbir şeyi değiştirmez; sonucu Koşul&#x27;da kullanın. <span class="guide-options">Seçenekler: İşaretle, İşaretini kaldır, Durumunu oku.</span></dd>
+            <dt>Hedefi bulma yöntemi <span class="guide-required">zorunlu</span></dt>
+            <dd>X / Y: Ekranda seç ile alınan nokta. Referans görsel: düğme yer değiştirse de bulunur. Alan kimliği: uygulama destekliyorsa en sağlam yöntem. <span class="guide-options">Seçenekler: Pencere içi X / Y, Referans görsel, Alan kimliği (uygulama yapısı).</span></dd>
+            <dt>Pencere içi X <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan hedef seç ile otomatik doldurabilirsiniz.</dd>
+            <dt>Pencere içi Y <span class="guide-required">zorunlu</span></dt>
+            <dd>X ile birlikte, hedefi ekrandan seçtiğinizde otomatik dolar.</dd>
+            <dt>Alan kimliği <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekranda seç → Konum ile alınır. Alan, pencere boyutu veya ekran ölçeği değişse de uygulamanın kimliğiyle bulunur.</dd>
+            <dt>Referans görsel <span class="guide-required">zorunlu</span></dt>
+            <dd>Ekrandan seçerek kaydedin veya şablon dosya adını yazın.</dd>
+            <dt>Eşleşme eşiği</dt>
+            <dd>Görselin ne kadar benzemesi gerektiği (0,5–1). Bulunamıyorsa 0,8&#x27;e indirin; yanlış yeri buluyorsa yükseltin.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Bu süre içinde gerçekleşmezse adım durur.</dd>
+            <dt>Görsel merkezinden sağa / sola</dt>
+            <dd>Referans görselin merkezi ile hedef nokta arasındaki yatay fark.</dd>
+            <dt>Görsel merkezinden aşağı / yukarı</dt>
+            <dd>Görselin merkezinden kaç piksel aşağı (+) veya yukarı (−) tıklanacağı.</dd>
+            <dt>İşaretliyken görüntüsü <span class="guide-required">zorunlu</span></dt>
+            <dd>Kutu işaretliyken yalnız kutuyu kapsayan küçük bir görüntü. Uygulama yapısından durum okunamayan (ör. Java) uygulamalar için.</dd>
+            <dt>İşaretsizken görüntüsü <span class="guide-required">zorunlu</span></dt>
+            <dd>Aynı kutunun işaretsiz hali; iki görüntü yalnız hedefin çevresinde karşılaştırılır.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>İşaretliyse doğru, değilse yanlış: Koşul → Dolu / doğru ile kullanın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Onay kutusu olan bir pencerede (ör. bir ayar penceresi) Ekranda seç ile kutuyu gösterin; Durumunu oku ile işaretli olup olmadığını, İşaretle ile değiştirmeyi deneyin.</p>
+      </article>
+      <article class="guide-step" id="adim-13">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 13">13</span>
+          <h2>Pencereyi büyüt / küçült</h2>
+        </div>
+        <p class="guide-lead">Pencereyi tam ekran yapar, simge durumuna küçültür veya geri yükler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Büyüt, Küçült veya Geri yükle seçin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Koordinatla çalışan akışlarda başa Büyüt ekleyin; pencere her seferinde aynı boyutta olur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Büyüt, koordinatla çalışan adımların her seferinde aynı yere denk gelmesini sağlar. <span class="guide-options">Seçenekler: Büyüt (ekranı kapla), Küçült, Geri yükle.</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-14">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 14">14</span>
+          <h2>Pencereyi taşı ve boyutlandır</h2>
+        </div>
+        <p class="guide-lead">Pencereyi ana ekranda sabit bir konuma ve boyuta getirir; X/Y hedeflerini sabitlemek için kullanışlıdır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Sol, üst, genişlik ve yükseklik değerlerini piksel olarak yazın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Pencere büyütülemiyorsa X/Y hedeflerini sabitlemek için kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>Sol (X) <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin sol kenarının ekrandaki konumu (piksel).</dd>
+            <dt>Üst (Y) <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencerenin üst kenarının ekrandaki konumu (piksel).</dd>
+            <dt>Genişlik <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencere genişliği (piksel).</dd>
+            <dt>Yükseklik <span class="guide-required">zorunlu</span></dt>
+            <dd>Pencere yüksekliği (piksel).</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Güncel pencere bilgisi; çoğunlukla aynı pencere değişkenine yazılır.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-15">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 15">15</span>
+          <h2>Pencereyi kapat</h2>
+        </div>
+        <p class="guide-lead">Pencerenin kapat düğmesine basar; uygulama kaydetmek isterse sorusu görünür.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Kapatılacak pencerenin değişkenini seçin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Uygulama &#x27;kaydedilsin mi?&#x27; diye sorarsa ardından Pencerede tuşa bas ekleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-16">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 16">16</span>
+          <h2>Pencerenin kapanmasını bekle</h2>
+        </div>
+        <p class="guide-lead">Kayıt, yazdırma veya yükleme penceresi kapanana kadar bekler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Önce akışın başına Pencereyi tanı ekleyin; bu adımın Pencere alanından o pencereyi seçin.</li>
+          <li>Kapanması beklenen pencereyi ve en fazla süreyi yazın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Yazdırma, kayıt veya yükleme penceresi kapanmadan sonraki adıma geçmemek için.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Pencere <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu adımın çalışacağı pencere. Listede, önceki Pencereyi tanı adımlarında ad verdiğiniz pencereler görünür.</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Pencere bu süre içinde kapanmazsa adım durur.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/fare-ve-klavye/">Fare ve klavye →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

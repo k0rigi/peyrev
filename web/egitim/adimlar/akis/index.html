@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Akış kategorisindeki 12 adımın kullanımı.">
+<title>Akış adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/akis/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Akış</h1>
+      <p class="lead">12 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Akış adımları">
+        <ol>
+        <li><a href="#adim-59"><span>59</span> Her satır için</a></li>
+        <li><a href="#adim-60"><span>60</span> Koşul sürdükçe tekrarla</a></li>
+        <li><a href="#adim-61"><span>61</span> Bekle</a></li>
+        <li><a href="#adim-62"><span>62</span> Koşul</a></li>
+        <li><a href="#adim-63"><span>63</span> Tekrarla (N kez)</a></li>
+        <li><a href="#adim-64"><span>64</span> Hata olursa</a></li>
+        <li><a href="#adim-65"><span>65</span> Döngüden çık</a></li>
+        <li><a href="#adim-66"><span>66</span> Sonraki tura geç</a></li>
+        <li><a href="#adim-67"><span>67</span> Adıma git</a></li>
+        <li><a href="#adim-68"><span>68</span> Başka akışı çalıştır</a></li>
+        <li><a href="#adim-69"><span>69</span> Akışı bitir</a></li>
+        <li><a href="#adim-70"><span>70</span> Çalışma notu</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-59">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 59">59</span>
+          <h2>Her satır için</h2>
+        </div>
+        <p class="guide-lead">Listedeki her satır için içine eklediğiniz adımları sırayla çalıştırır; liste bitince sona erer.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Satır listesine okuma adımının çıktısını verin (ör. <code>${sheet_rows}</code>).</li>
+          <li>Her satırda yapılacak adımları bu adımın içine ekleyin veya sürükleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>İç adımlarda <code>${row}</code>: geçerli satır, <code>${row.form_id}</code>: satırın alanı, <code>${loop_index}</code>: 0&#x27;dan başlayan sıra.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Uzun listelerde Kaldığı yerden devam&#x27;ı açın: akış yarıda kalırsa sonraki çalışma işlenmiş satırları atlar. Bir satırın hatası bütün listeyi durdurmasın diye Bir satırda hata olursa: Satırı atla seçin; hatalı satırlar <code>${satir_hatalari}</code> listesinde toplanır. Satır atlanmadan önce ekranı başa döndürmek için iç adımları bir Hata olursa bloğuna alın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Satır listesi <span class="guide-required">zorunlu</span></dt>
+            <dd>Üzerinde dönülecek liste; genellikle okuma adımının çıktısı (<code>${sheet_rows}</code>).</dd>
+            <dt>Geçerli satır değişkeni <span class="guide-required">zorunlu</span></dt>
+            <dd>Satırın alanına <code>${row.alan_adi}</code> ile erişin. Sheets satırlarında <code>${row.row_number}</code> gerçek satır numarasıdır.</dd>
+            <dt>Kaçıncı satırdan başlasın?</dt>
+            <dd>Boş: ilk satırdan başlar. 1 listenin ilk kaydıdır; başlık satırını okuma adımı zaten atlar. Ör. 50 yazarsanız ilk 49 kayıt atlanır (yarıda kalan işi sürdürmek için).</dd>
+            <dt>Bir satırda hata olursa</dt>
+            <dd>Atla seçilirse hatalı satır günlüğe yazılır, sonraki satırla devam edilir ve döngü bitince kaç satırın başarılı, kaçının hatalı olduğu yazılır. <span class="guide-options">Seçenekler: Akışı durdur, Satırı atla, sonraki satıra geç.</span></dd>
+            <dt>Hatalı satırlar değişkeni</dt>
+            <dd>Döngü bitince <code>${satir_hatalari}</code> hatalı satırların listesidir: her biri sira, hata ve satir alanlarını taşır. Boşsa hata olmamıştır.</dd>
+            <dt>Kaldığı yerden devam</dt>
+            <dd>İşlenen satırlar bu bilgisayarda hatırlanır. Yarıda kalırsa: akış durur veya kapanırsa sonraki çalışma işlenmiş satırları atlar; liste hatasız bitince hatırlananlar silinir ve sonraki çalışma baştan başlar. Bir daha işleme: başarıyla işlenen satır sonraki çalışmalarda hep atlanır (her gün büyüyen bir listeden yalnız yenileri işlemek için). <span class="guide-options">Seçenekler: Kapalı: her çalışmada bütün liste, Yarıda kalırsa kaldığı yerden devam et, İşlenen satırı bir daha işleme.</span></dd>
+            <dt>Satırı tanıtan alan</dt>
+            <dd>Her satırda farklı olan alanın adı (ör. FaturaNo). Boş bırakılırsa satırın tamamı karşılaştırılır; satırdaki bir değer değişirse satır yeni sayılır.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-12-veritabani">Deneme 12 · Veritabanı: sorgula ve güncelle</a>, <a href="/egitim/deneme/#deneme-13-google-sheets">Deneme 13 · Google Sheets&#x27;e yaz ve oku</a></p>
+      </article>
+      <article class="guide-step" id="adim-60">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 60">60</span>
+          <h2>Koşul sürdükçe tekrarla</h2>
+        </div>
+        <p class="guide-lead">Koşulu her turda yeniden değerlendirir. Koşul yanlışsa çıkar; sınıra ulaşırsa hata ile durur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Koşulu yazın: sol değer, karşılaştırma, sağ değer.</li>
+          <li>İç adımlarda koşuldaki değeri değiştiren veya yeniden okuyan bir adım olmalı.</li>
+          <li>En fazla tekrar ve süre sınırını girin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Koşul hiç değişmezse sınıra ulaşıldığında akış hata ile durur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Sol değer</dt>
+            <dd>Karşılaştırılacak değer; genellikle bir değişken (ör. <code>${row.durum}</code>).</dd>
+            <dt>Karşılaştırma <span class="guide-required">zorunlu</span></dt>
+            <dd>Sol değerin sağ değerle nasıl karşılaştırılacağı. Eşittir büyük/küçük harfe duyarlıdır; İçerir duyarlı değildir. <span class="guide-options">Seçenekler: Eşittir, Eşit değildir, İçerir (harf duyarsız), Büyüktür, Büyük veya eşittir, Küçüktür, Küçük veya eşittir, Dolu / doğru, Boş, Boş değil, Boş veya eşittir, Listedeki değerlerden biri.</span></dd>
+            <dt>Sağ değer</dt>
+            <dd>Karşılaştırılacak sabit değer veya başka bir değişken.</dd>
+            <dt>En fazla tekrar <span class="guide-required">zorunlu</span></dt>
+            <dd>Koşul hiç değişmezse sonsuz döngüyü önler; sınıra ulaşılırsa akış hata ile durur.</dd>
+            <dt>Toplam süre sınırı (saniye) <span class="guide-required">zorunlu</span></dt>
+            <dd>Sınır adımlar arasında kontrol edilir. İç adımların kendi zaman aşımını da ayarlayın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-61">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 61">61</span>
+          <h2>Bekle</h2>
+        </div>
+        <p class="guide-lead">Adımlar arasında belirli bir süre bekler; ekranı kontrol etmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Beklenecek süreyi saniye olarak yazın.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Ekranın hazır olmasını beklemek için Pencerede görseli bekle daha güvenlidir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Saniye</dt>
+            <dd>Ondalık yazılabilir (0,5). Mümkünse sabit bekleme yerine Pencerede görseli bekle kullanın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a></p>
+      </article>
+      <article class="guide-step" id="adim-62">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 62">62</span>
+          <h2>Koşul</h2>
+        </div>
+        <p class="guide-lead">Koşula göre Evet veya Değilse dalını çalıştırır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Sol değere kontrol edilecek değişkeni yazın (ör. <code>${row.durum}</code>).</li>
+          <li>Karşılaştırmayı ve sağ değeri seçin (ör. Eşittir, BEKLIYOR).</li>
+          <li>Koşul doğruysa ve Değilse dallarına adım ekleyin; bir dal boş kalabilir.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Eşittir büyük/küçük harfe ve boşluğa duyarlıdır. OCR metninde İçerir kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Sol değer</dt>
+            <dd>Karşılaştırılacak değer; genellikle bir değişken (ör. <code>${row.durum}</code>).</dd>
+            <dt>Karşılaştırma <span class="guide-required">zorunlu</span></dt>
+            <dd>Sol değerin sağ değerle nasıl karşılaştırılacağı. Eşittir büyük/küçük harfe duyarlıdır; İçerir duyarlı değildir. <span class="guide-options">Seçenekler: Eşittir, Eşit değildir, İçerir (harf duyarsız), Büyüktür, Büyük veya eşittir, Küçüktür, Küçük veya eşittir, Dolu / doğru, Boş, Boş değil, Boş veya eşittir, Listedeki değerlerden biri.</span></dd>
+            <dt>Sağ değer</dt>
+            <dd>Karşılaştırılacak sabit değer veya başka bir değişken.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-12-veritabani">Deneme 12 · Veritabanı: sorgula ve güncelle</a>, <a href="/egitim/deneme/#deneme-13-google-sheets">Deneme 13 · Google Sheets&#x27;e yaz ve oku</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a>, <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+      <article class="guide-step" id="adim-63">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 63">63</span>
+          <h2>Tekrarla (N kez)</h2>
+        </div>
+        <p class="guide-lead">İç adımları belirtilen sayıda çalıştırır; <code>${loop_index}</code> 0&#x27;dan başlar.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Tekrar sayısını yazın.</li>
+          <li>Tekrarlanacak adımları içine ekleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>İç adımlarda <code>${loop_index}</code>: 0&#x27;dan başlayan tur sayısı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Erken bitirmek için içine Koşul + Döngüden çık ekleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Tekrar sayısı <span class="guide-required">zorunlu</span></dt>
+            <dd>İç adımların kaç kez çalışacağı.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-64">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 64">64</span>
+          <h2>Hata olursa</h2>
+        </div>
+        <p class="guide-lead">İç adımlarda hata olursa akışı durdurmak yerine Hata olursa dalını çalıştırır; mesaj <code>${error_message}</code>.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Hata verebilecek adımları Dene dalına ekleyin.</li>
+          <li>Hata olduğunda yapılacakları Hata olursa dalına ekleyin (ör. Sheets&#x27;e HATA yaz, mesajı kapat).</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Hata olursa dalında <code>${error_message}</code>: hatanın açıklaması.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Döngünün içinde kullanın: bir satır hata verse de akış sonraki satırla devam eder.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Hata mesajı değişkeni <span class="guide-required">zorunlu</span></dt>
+            <dd>Hata mesajının saklanacağı değişken; Hata olursa dalında <code>${error_message}</code> olarak kullanın.</dd>
+            <dt>Hata anında ekran görüntüsü kaydet</dt>
+            <dd>Hata yakalandığı andaki ekran, çalışmanın çıktılarına PNG olarak eklenir; dosya yolu <code>${error_message_ekran}</code> gibi hata değişkeninin adı + _ekran değişkenine yazılır.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-65">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 65">65</span>
+          <h2>Döngüden çık</h2>
+        </div>
+        <p class="guide-lead">İçinde bulunduğu döngüyü hemen bitirir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Bir döngünün içine, genellikle bir Koşul dalına ekleyin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Aranan şey bulununca döngüyü bitirmek için. Döngüden sonraki adımla devam edilir.</p>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-66">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 66">66</span>
+          <h2>Sonraki tura geç</h2>
+        </div>
+        <p class="guide-lead">Döngünün bu turunu atlayıp sonrakine geçer.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Bir döngünün içine, genellikle bir Koşul dalına ekleyin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Bu satırın kalan adımları atlanır, sonraki satıra geçilir (ör. durumu BEKLIYOR olmayanları atla).</p>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-67">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 67">67</span>
+          <h2>Adıma git</h2>
+        </div>
+        <p class="guide-lead">Akışı seçilen adımdan sürdürür: geri dönüp adımları tekrarlamak veya bir yolu başka bir adıma bağlamak için; adımları kopyalamanız gerekmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Gidilecek adımı listeden seçin; gerideki bir adım da olabilir.</li>
+          <li>Diyagramda bir kutunun sağındaki çıkış noktasını başka bir kutuya sürükleyerek de bağlayabilirsiniz.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Akış seçilen adımdan devam eder; bu adımla hedef arasındaki adımlar atlanır.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Geri dönüşler Her turda en fazla sayısıyla sınırlıdır; sınıra ulaşılırsa akış sonsuz döngüye girmeden durur. Bir döngünün içindeki adıma ancak aynı döngünün içinden gidilebilir; dışarıdan döngü kutusuna bağlayın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Gidilecek adım <span class="guide-required">zorunlu</span></dt>
+            <dd>Akışın bu adımdan sonra devam edeceği adım. Gerideki bir adımı seçerseniz o adımdan itibaren tekrar çalışılır.</dd>
+            <dt>Her turda en fazla <span class="guide-required">zorunlu</span></dt>
+            <dd>Bu bağlantı bir döngü turunda (döngü dışındaysa çalışma boyunca) en fazla bu kadar kullanılır; aşılırsa akış sonsuz döngüye girmeden durur.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a></p>
+      </article>
+      <article class="guide-step" id="adim-68">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 68">68</span>
+          <h2>Başka akışı çalıştır</h2>
+        </div>
+        <p class="guide-lead">Kayıtlı başka bir akışı bu noktada çalıştırır; değişkenleri paylaşır. Ortak giriş/çıkış işlemleri için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Çalıştırılacak akışı seçin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Değişkenler ortaktır: çağrılan akış bu akışın değişkenlerini görür ve değiştirebilir. Giriş yapma gibi ortak işleri ayrı bir akışta tutun.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Akış <span class="guide-required">zorunlu</span></dt>
+            <dd>Çalıştırılacak kayıtlı akış. Bir akış kendisini çağıramaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Alıştırma:</strong> Deneme 02&#x27;yi açın, sonuna Başka akışı çalıştır ekleyip Akış alanından Deneme 03&#x27;ü seçin; çalıştırınca ikisi art arda çalışır ve değişkenleri paylaşır. Akış dosyası başka bilgisayara aktarılınca bu seçim yeniden yapılır.</p>
+      </article>
+      <article class="guide-step" id="adim-69">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 69">69</span>
+          <h2>Akışı bitir</h2>
+        </div>
+        <p class="guide-lead">Akışı bu noktada başarıyla veya hata ile sonlandırır.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Sonucu (Başarılı / Hata) ve mesajı yazın.</li>
+          <li>Genellikle bir Koşul dalına ekleyin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Kalan adımlar çalışmaz. Mesaj çalışma geçmişinde görünür.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Sonuç</dt>
+            <dd>Hata seçilirse çalışma &#x27;Hata&#x27; olarak işaretlenir. <span class="guide-options">Seçenekler: Başarılı, Hata.</span></dd>
+            <dt>Mesaj</dt>
+            <dd>Çalışma geçmişinde görünecek açıklama.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-12-veritabani">Deneme 12 · Veritabanı: sorgula ve güncelle</a>, <a href="/egitim/deneme/#deneme-13-google-sheets">Deneme 13 · Google Sheets&#x27;e yaz ve oku</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a>, <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+      <article class="guide-step" id="adim-70">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 70">70</span>
+          <h2>Çalışma notu</h2>
+        </div>
+        <p class="guide-lead">Çalışma günlüğüne not yazar; değişken değerlerini izlemek için.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Notu yazın; değişken değerlerini görmek için <code>${ad}</code> ekleyin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Akış beklediğiniz gibi çalışmıyorsa değerleri görmek için araya ekleyin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (1)</summary>
+          <dl>
+            <dt>Not <span class="guide-required">zorunlu</span></dt>
+            <dd>Çalışma günlüğüne yazılacak metin; değişken değerlerini görmek için <code>${ad}</code> ekleyin.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-02-veri-ve-metin">Deneme 02 · Veri ve metin</a>, <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-08-api-ve-kur">Deneme 08 · Web servisi (API) ve TCMB kuru</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a>, <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/veritabani/">← Veritabanı</a> <a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/kullanici-etkilesimi/">Kullanıcı etkileşimi →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

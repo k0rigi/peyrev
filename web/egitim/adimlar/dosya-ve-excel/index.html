@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Peyrev adım rehberi: Dosya ve Excel kategorisindeki 18 adımın kullanımı.">
+<title>Dosya ve Excel adımları · Peyrev</title>
+<link rel="canonical" href="https://peyrev.com/egitim/adimlar/dosya-ve-excel/">
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=8f219974bf">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Sayfalar">
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/egitim/" aria-current="page">Eğitim</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#paketler">Fiyatlar</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
+      <a class="button button-gold button-small" href="/#basvuru">Başvuru</a>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
+      <h1 id="sayfa-baslik">Dosya ve Excel</h1>
+      <p class="lead">18 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.6.0.</p>
+    </div>
+  </section>
+  <section class="band band-tight">
+    <div class="wrap guide">
+      <nav class="guide-toc" aria-label="Dosya ve Excel adımları">
+        <ol>
+        <li><a href="#adim-36"><span>36</span> Excel / CSV oku</a></li>
+        <li><a href="#adim-37"><span>37</span> Excel / CSV&#x27;ye yaz</a></li>
+        <li><a href="#adim-38"><span>38</span> Excel hücresine yaz</a></li>
+        <li><a href="#adim-39"><span>39</span> Zip aç / oluştur</a></li>
+        <li><a href="#adim-40"><span>40</span> PDF&#x27;ten oku</a></li>
+        <li><a href="#adim-41"><span>41</span> Metin dosyası oku</a></li>
+        <li><a href="#adim-42"><span>42</span> Metin dosyasına yaz</a></li>
+        <li><a href="#adim-43"><span>43</span> Dosya / klasör var mı?</a></li>
+        <li><a href="#adim-44"><span>44</span> Klasördeki dosyaları listele</a></li>
+        <li><a href="#adim-45"><span>45</span> Dosya kopyala / taşı / sil</a></li>
+        <li><a href="#adim-46"><span>46</span> Dosyanın oluşmasını bekle</a></li>
+        <li><a href="#adim-47"><span>47</span> Çalışma raporu (CSV / Excel)</a></li>
+        <li><a href="#adim-93"><span>93</span> Dosya bilgisi ve uzantı kontrolü</a></li>
+        <li><a href="#adim-98"><span>98</span> XML / JSON dosyası oku (e-Fatura, e-İrsaliye)</a></li>
+        <li><a href="#adim-100"><span>100</span> Word şablonundan belge üret</a></li>
+        <li><a href="#adim-101"><span>101</span> PDF birleştir / böl / sayfa çıkar / şifrele</a></li>
+        <li><a href="#adim-102"><span>102</span> Dosyayı yazdır</a></li>
+        <li><a href="#adim-103"><span>103</span> Excel&#x27;de bul ve güncelle</a></li>
+        </ol>
+      </nav>
+      <div class="guide-steps">
+      <article class="guide-step" id="adim-36">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 36">36</span>
+          <h2>Excel / CSV oku</h2>
+        </div>
+        <p class="guide-lead">Excel (.xlsx) veya CSV tablosunu satır listesine çevirir. Başlıklar alan adı olur: <code>${row.Tutar}</code>.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Seç… ile .xlsx veya .csv dosyasını gösterin.</li>
+          <li>Ardından Her satır için ekleyip listeyi verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${rows}</code>: satır listesi. İlk satırdaki başlıklar alan adı olur: <code>${row.Tutar}</code>.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Excel&#x27;de yaptığınız değişiklikler kaydedilmeden okunmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Sayfa adı</dt>
+            <dd>Boş: ilk/aktif sayfa.</dd>
+            <dt>Başlık satırı</dt>
+            <dd>0: başlık yok (sutun_1, sutun_2…).</dd>
+            <dt>En fazla satır</dt>
+            <dd>Okunacak en fazla satır sayısı. İlk denemede 1–2 yapın.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a></p>
+      </article>
+      <article class="guide-step" id="adim-37">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 37">37</span>
+          <h2>Excel / CSV&#x27;ye yaz</h2>
+        </div>
+        <p class="guide-lead">Kayıt listesini .xlsx veya .csv dosyasına yazar ya da mevcut dosyanın sonuna ekler.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Kayıtlar alanına listeyi verin (ör. Listeye ekle ile toplanan <code>${results}</code>).</li>
+          <li>Seç… ile kaydedilecek dosyayı belirleyin; Sonuna ekle mevcut satırları korur.</li>
+          <li>Sonuna eklerken son satırı belirleyen sütunu yazın (ör. A); kayıtlar o sütundaki son dolu satırın altına gelir.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Her alan başlık satırında aynı adı taşıyan sütuna yazılır; yeni alanlar sona eklenir. Tek hücreye veya formül yazmak için Excel hücresine yaz adımını kullanın. Windows&#x27;ta dosya Excel&#x27;de açıksa yazılamaz; önce kapatın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (6)</summary>
+          <dl>
+            <dt>Kayıtlar <span class="guide-required">zorunlu</span></dt>
+            <dd>Yazılacak kayıt listesi; genellikle Listeye ekle ile toplanan <code>${results}</code>.</dd>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Sayfa adı (Excel)</dt>
+            <dd>Excel dosyasında yazılacak sayfanın adı; CSV&#x27;de kullanılmaz.</dd>
+            <dt>Yazma biçimi</dt>
+            <dd>Üzerine yaz mevcut dosyayı siler; Sonuna ekle korur. <span class="guide-options">Seçenekler: Yeni dosya / üzerine yaz, Sonuna ekle.</span></dd>
+            <dt>Son satırı belirleyen sütun (Excel)</dt>
+            <dd>Yeni kayıtlar bu sütundaki son dolu satırın altına yazılır (ör. A). Boşsa herhangi bir sütunda değer olan son satır esas alınır; yalnız biçimlendirilmiş boş satırlar sayılmaz.</dd>
+            <dt>= ile başlayan değerleri formül olarak yaz (Excel)</dt>
+            <dd>Açıkken = ile başlayan değerler formül olarak yazılır. Kapalıyken metin olarak saklanır; dışarıdan gelen veri formüle dönüşmez.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-38">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 38">38</span>
+          <h2>Excel hücresine yaz</h2>
+        </div>
+        <p class="guide-lead">Bir değeri veya formülü seçtiğiniz sütuna yazar: belirli bir satıra, son dolu satıra ya da son dolu satırın altına. Son satırı hangi sütunun belirleyeceğini siz seçersiniz.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Seç… ile .xlsx dosyasını gösterin ve sayfa adını yazın.</li>
+          <li>Yazılacak sütunun harfini girin (ör. D).</li>
+          <li>Satırı seçin: belirli satır numarası, son dolu satır veya son dolu satırın altı. Son satır için hangi sütunun esas alınacağını yazın (ör. kayıt numarasının olduğu A).</li>
+          <li>Değeri yazın; formül için Değer türünü Formül yapın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${excel_cell.cell}</code>: yazılan hücre (ör. D15). <code>${excel_cell.row}</code>: satır numarası.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Formüller İngilizce işlev adı ve virgülle yazılır: TOPLA yerine SUM, ; yerine virgül. Türkçe Excel dosyayı açınca kendi dilinde gösterir. Formülün sonucu dosya Excel&#x27;de açılıp kaydedilince hesaplanır; Excel / CSV oku o zamana kadar formül hücresini boş okur. Windows&#x27;ta dosya Excel&#x27;de açıksa yazılamaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (9)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Sayfa adı</dt>
+            <dd>Mevcut dosyada bu sayfa yoksa yazma yapılmaz. Boş: dosyanın etkin sayfası.</dd>
+            <dt>Sütun <span class="guide-required">zorunlu</span></dt>
+            <dd>Değerin yazılacağı sütun harfi (ör. A, D, AB).</dd>
+            <dt>Satır <span class="guide-required">zorunlu</span></dt>
+            <dd>Belirli satır: satır numarasını siz verirsiniz. Son dolu satırın altına: listeye yeni satır ekler. Son dolu satıra: son kaydın yanına değer yazar. <span class="guide-options">Seçenekler: Belirli satır numarası, Son dolu satırın altına (yeni satır), Son dolu satıra.</span></dd>
+            <dt>Satır numarası <span class="guide-required">zorunlu</span></dt>
+            <dd>1: ilk satır. Döngüde okunan satırın kendisine yazmak için <code>${row.row_number}</code>.</dd>
+            <dt>Son satırı belirleyen sütun</dt>
+            <dd>Son satırı hangi sütunun belirleyeceği (ör. kayıt numarasının olduğu A sütunu). Boşsa yazılan sütun esas alınır.</dd>
+            <dt>Değer türü <span class="guide-required">zorunlu</span></dt>
+            <dd>Metin / değer olduğu gibi yazar; = ile başlayan metin formüle dönüşmez. Sayı, 1250,50 gibi değerleri Excel&#x27;de sayı olarak saklar. Formül, değeri Excel formülü olarak yazar. <span class="guide-options">Seçenekler: Metin / değer, Sayı, Formül.</span></dd>
+            <dt>Yazılacak değer</dt>
+            <dd>Sabit değer veya <code>${değişken}</code>. Formülde İngilizce işlev adı ve virgül kullanın (ör. =SUM(B2:B{satir})); {satir} yazılan satırın numarası olur.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-39">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 39">39</span>
+          <h2>Zip aç / oluştur</h2>
+        </div>
+        <p class="guide-lead">Bir zip dosyasını klasöre açar veya dosya ve klasörlerden zip oluşturur. Türkçe dosya adları korunur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İşlemi seçin: Zip&#x27;i klasöre aç veya Zip oluştur.</li>
+          <li>Açarken zip dosyasını ve açılacak klasörü; oluştururken her satıra bir dosya/klasör ve zip dosyasının adını yazın.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${zip_result.files}</code>: açılan veya eklenen dosyalar; <code>${zip_result.count}</code>: sayısı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Aynı adlı dosya varsa, üzerine yazma açık değilse hiçbir dosya yazılmaz. Klasör dışına yazmaya çalışan zip&#x27;ler açılmaz. Windows&#x27;ta oluşturulmuş zip&#x27;lerdeki Türkçe adlar korunur.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Aç: zip&#x27;teki dosyalar klasöre çıkarılır. Oluştur: dosya ve klasörler tek zip olur. <span class="guide-options">Seçenekler: Zip&#x27;i klasöre aç, Zip oluştur.</span></dd>
+            <dt>Zip dosyası <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Açılacak klasör <span class="guide-required">zorunlu</span></dt>
+            <dd>Klasör yoksa oluşturulur. Zip&#x27;teki klasör yapısı korunur.</dd>
+            <dt>Eklenecek dosya ve klasörler <span class="guide-required">zorunlu</span></dt>
+            <dd>Her satıra bir dosya veya klasör yolu yazın; klasörler içindekilerle eklenir.</dd>
+            <dt>Oluşturulacak zip dosyası <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. C:\Raporlar\gunluk.zip</dd>
+            <dt>Aynı adlı dosyaların üzerine yaz</dt>
+            <dd>Kapalıyken aynı adlı dosya varsa hiçbir dosya yazılmaz.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Dosya listesi: <code>${zip_result.files}</code>, sayısı: <code>${zip_result.count}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-40">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 40">40</span>
+          <h2>PDF&#x27;ten oku</h2>
+        </div>
+        <p class="guide-lead">PDF&#x27;in metnini veya içindeki bir tabloyu okur. Taranmış (metni olmayan) sayfalar sistem OCR&#x27;ıyla okunur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>PDF dosyasını seçin.</li>
+          <li>Metin için Ne okunsun: Metin; çizgili bir tablo için Tablo seçin.</li>
+          <li>Gerekirse sayfaları yazın (ör. 1-2). Metinden fatura no veya tutar almak için ardından Metin işlemi → Desenle bilgi çıkar ekleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Metin modunda <code>${pdf_text}</code> metindir; tablo modunda Her satır için ile kullanılacak satır listesidir.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Taranmış sayfalar sistem OCR&#x27;ıyla okunur; kalite taramaya bağlıdır. Şifreli PDF okunmaz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>PDF dosyası <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Ne okunsun? <span class="guide-required">zorunlu</span></dt>
+            <dd>Üzerine yaz mevcut dosyayı siler; Sonuna ekle korur. <span class="guide-options">Seçenekler: Metin, Tablo (satır listesi).</span></dd>
+            <dt>Sayfalar</dt>
+            <dd>Boş: tüm sayfalar. Ör. 1 veya 1-3, 5.</dd>
+            <dt>Metni olmayan sayfaları OCR ile oku</dt>
+            <dd>Taranmış belge ve fotoğraf sayfaları için. Kapalıyken bu sayfalar boş gelir.</dd>
+            <dt>Kaçıncı tablo</dt>
+            <dd>Seçilen sayfalardaki tabloların sırası; 1 ilk tablodur. Tablolar çizgileriyle tanınır.</dd>
+            <dt>İlk satır sütun başlıklarıdır</dt>
+            <dd>Açıkken başlıklar alan adı olur: <code>${row.Tutar}</code>. Kapalıyken sutun_1, sutun_2…</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Metin modunda okunan metin; tablo modunda Her satır için ile kullanılacak satır listesi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-41">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 41">41</span>
+          <h2>Metin dosyası oku</h2>
+        </div>
+        <p class="guide-lead">Bir .txt, .json veya log dosyasının içeriğini okur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Seç… ile dosyayı gösterin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Dosyanın içeriği metin olarak değişkene alınır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (2)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-03-akis-kontrolu">Deneme 03 · Döngüler, koşullar ve hata yakalama</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-42">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 42">42</span>
+          <h2>Metin dosyasına yaz</h2>
+        </div>
+        <p class="guide-lead">Metni dosyaya yazar veya sonuna ekler (günlük tutma).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Dosyayı ve yazılacak metni girin.</li>
+          <li>Günlük tutmak için Sonuna ekle seçin.</li>
+        </ol>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Metin <span class="guide-required">zorunlu</span></dt>
+            <dd>Dosyaya yazılacak metin; <code>${değişken}</code> kullanılabilir.</dd>
+            <dt>Yazma biçimi</dt>
+            <dd>Üzerine yaz mevcut dosyayı siler; Sonuna ekle korur. <span class="guide-options">Seçenekler: Sonuna ekle, Üzerine yaz.</span></dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-43">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 43">43</span>
+          <h2>Dosya / klasör var mı?</h2>
+        </div>
+        <p class="guide-lead">Sonucu Koşul adımında kullanın: <code>${file_exists}</code>.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Kontrol edilecek yolu yazın veya seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${file_exists}</code>: var mı? Koşul adımında Dolu / doğru ile kontrol edin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Yol <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Tür</dt>
+            <dd>Yalnız dosya veya yalnız klasör aranacaksa seçin. <span class="guide-options">Seçenekler: Dosya veya klasör, Dosya, Klasör.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-07-web">Deneme 07 · Web sayfasında form, tablo ve sekmeler</a>, <a href="/egitim/deneme/#deneme-09-kullanici-pano-sistem">Deneme 09 · Kullanıcıya sor, pano ve komut</a>, <a href="/egitim/deneme/#deneme-11-eposta-ve-mesaj">Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a>, <a href="/egitim/deneme/#deneme-15-yapay-zeka-ve-onay">Deneme 15 · Yapay zekâ ve Telegram onayı</a></p>
+      </article>
+      <article class="guide-step" id="adim-44">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 44">44</span>
+          <h2>Klasördeki dosyaları listele</h2>
+        </div>
+        <p class="guide-lead">Klasördeki dosyaları listeler; Her satır için döngüsüyle tek tek işleyin (<code>${row.path}</code>).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Klasörü seçin; gerekiyorsa *.pdf gibi bir desen yazın.</li>
+          <li>Ardından Her satır için ile dosyaları tek tek işleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${files}</code>: dosya listesi. Döngüde <code>${row.path}</code> tam yol, <code>${row.name}</code> dosya adıdır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Klasör <span class="guide-required">zorunlu</span></dt>
+            <dd>Seç… ile klasörü gösterin. <code>${sistem.masaustu}</code> gibi hazır değişkenler de kullanılabilir.</dd>
+            <dt>Dosya deseni</dt>
+            <dd>Ör. *.xlsx, fatura_*.pdf</dd>
+            <dt>Alt klasörler dahil</dt>
+            <dd>Açıksa alt klasörlerdeki dosyalar da listelenir.</dd>
+            <dt>Sıralama</dt>
+            <dd>En yeni önce: son indirilen dosyayı bulmak için. <span class="guide-options">Seçenekler: Ada göre, En yeni önce, En eski önce.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-45">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 45">45</span>
+          <h2>Dosya kopyala / taşı / sil</h2>
+        </div>
+        <p class="guide-lead">Dosya veya klasörle işlem yapar.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İşlemi seçin: kopyala, taşı / yeniden adlandır, sil veya klasör oluştur.</li>
+          <li>Kaynağı ve gerekiyorsa hedefi girin.</li>
+        </ol>
+        <p class="guide-tip"><strong>İpucu.</strong> Sil geri alınamaz. Önce Dosya / klasör var mı? ile kontrol etmek güvenlidir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (4)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Sil geri alınamaz; dosya çöp kutusuna gitmez. <span class="guide-options">Seçenekler: Kopyala, Taşı / yeniden adlandır, Sil, Klasör oluştur.</span></dd>
+            <dt>Kaynak <span class="guide-required">zorunlu</span></dt>
+            <dd>İşlem yapılacak dosya veya klasör.</dd>
+            <dt>Hedef <span class="guide-required">zorunlu</span></dt>
+            <dd>Kopyalama ve taşımada yeni yol; Sil&#x27;de kullanılmaz.</dd>
+            <dt>Varsa üzerine yaz</dt>
+            <dd>Kapalıyken hedef zaten varsa adım durur.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-10-masaustu-not-defteri">Deneme 10 · Masaüstü programı: Not Defteri</a></p>
+      </article>
+      <article class="guide-step" id="adim-46">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 46">46</span>
+          <h2>Dosyanın oluşmasını bekle</h2>
+        </div>
+        <p class="guide-lead">İndirilen veya dışa aktarılan dosya hazır olana kadar bekler; yolunu kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Dosyanın oluşacağı klasörü ve adını (veya *.xlsx gibi deseni) yazın.</li>
+          <li>İndirmeyi veya dışa aktarmayı başlatan adımdan hemen sonra ekleyin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Hazır olan dosyanın tam yolu.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Dosya yolu / deseni <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. ~/Downloads/rapor*.xlsx</dd>
+            <dt>En fazla bekle (saniye)</dt>
+            <dd>Dosya bu süre içinde oluşmazsa adım durur.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-47">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 47">47</span>
+          <h2>Çalışma raporu (CSV / Excel)</h2>
+        </div>
+        <p class="guide-lead">Kayıtları çalışma çıktılarına indirilebilir CSV veya Excel (.xlsx) dosyası olarak yazar.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Kayıtlar alanına listeyi verin.</li>
+          <li>Biçimi seçin: CSV veya Excel (.xlsx).</li>
+          <li>Dosyaya bir ad verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>Dosya, çalışma ayrıntısından indirilebilir.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> = ile başlayan değerler formüle dönüşmez, metin olarak yazılır. Bilgisayarda bir klasöre yazmak için Excel / CSV&#x27;ye yaz adımını kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Kayıtlar <span class="guide-required">zorunlu</span></dt>
+            <dd>Yazılacak kayıt listesi; genellikle Listeye ekle ile toplanan <code>${results}</code>.</dd>
+            <dt>Biçim</dt>
+            <dd>CSV her programda açılır; Excel (.xlsx) sütunları ve Türkçe karakterleri doğrudan Excel&#x27;de doğru gösterir. <span class="guide-options">Seçenekler: CSV (Excel uyumlu), Excel (.xlsx).</span></dd>
+            <dt>Dosya adı <span class="guide-required">zorunlu</span></dt>
+            <dd>Çalışma çıktılarında görünecek ad. Uzantı seçilen biçime göre .csv veya .xlsx olur.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-93">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 93">93</span>
+          <h2>Dosya bilgisi ve uzantı kontrolü</h2>
+        </div>
+        <p class="guide-lead">Dosyanın adını, uzantısını, boyutunu ve içerik türünü okur; izin verilen uzantıları ve içeriğin uzantıyla uyuşmasını denetler (ör. .xlsx adıyla inen bir web sayfası).</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Dosya yolu alanına indirilen veya seçilen dosyanın değişkenini yazın (ör. <code>${web_file}</code>).</li>
+          <li>İzin verilen uzantıları virgülle yazın (ör. xlsx, csv); boş bırakırsanız her uzantı kabul edilir.</li>
+          <li>Uygun değilse akışın durmasını veya devam edip sonucu Koşul ile kontrol etmeyi seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${file_info}</code>: name (ad), extension (uzantı, noktasız), size (bayt), modified (değişme zamanı), type (içerik türü), ok (uygun mu), problem (neden uygun değil).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> İçerik denetimi dosyanın ilk baytlarına bakar: .xlsx adıyla inen web sayfası, boş dosya veya .pdf olmayan .pdf yakalanır. Koşul&#x27;da <code>${file_info.extension}</code> eşittir xlsx gibi karşılaştırabilirsiniz.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (5)</summary>
+          <dl>
+            <dt>Dosya yolu <span class="guide-required">zorunlu</span></dt>
+            <dd>İndirilen veya seçilen dosyanın değişkeni (<code>${web_file}</code>, <code>${chosen_file}</code>, <code>${row.path}</code>) ya da tam yol.</dd>
+            <dt>İzin verilen uzantılar</dt>
+            <dd>Virgülle ayırın (ör. xlsx, xls, csv). Boş: her uzantı kabul edilir.</dd>
+            <dt>İçeriğin uzantıyla uyuştuğunu denetle</dt>
+            <dd>Açıkken dosyanın içi okunur; .xlsx adıyla web sayfası veya boş dosya gibi durumlar yakalanır.</dd>
+            <dt>Uygun değilse <span class="guide-required">zorunlu</span></dt>
+            <dd>Dosya yoksa, uzantısı izinli değilse veya içeriği uyuşmuyorsa ne olacağı. Devam seçilirse <code>${file_info.ok}</code> yanlış olur ve neden <code>${file_info.problem}</code> içinde yazar. <span class="guide-options">Seçenekler: Akışı durdur, Devam et (sonucu Koşul ile kontrol et).</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonraki adımlarda <code>${file_info.extension}</code>, <code>${file_info.ok}</code>, <code>${file_info.size}</code> ve <code>${file_info.problem}</code> ile kullanın.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-01-hazirlik">Deneme 01 · Hazırlık: deneme dosyalarını indir</a>, <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a>, <a href="/egitim/deneme/#deneme-14-ftp-sftp">Deneme 14 · FTP / SFTP ile dosya gönder ve al</a></p>
+      </article>
+      <article class="guide-step" id="adim-98">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 98">98</span>
+          <h2>XML / JSON dosyası oku (e-Fatura, e-İrsaliye)</h2>
+        </div>
+        <p class="guide-lead">e-Fatura / e-Arşiv ve e-İrsaliye XML&#x27;inden belge no, ETTN, tarih, taraflar, tutarlar ve kalemleri okur; başka XML ve JSON dosyalarını alanlarıyla değişkene alır. Zip verilirse içindeki her dosyayı okur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Seç… ile .xml, .json veya içinde bunlar olan .zip dosyasını gösterin.</li>
+          <li>Okuma biçimini seçin: Otomatik, e-Fatura, e-İrsaliye, genel XML veya JSON.</li>
+          <li>Bir klasördeki faturaların hepsi için Klasördeki dosyaları listele (*.xml) ve Her satır için ekleyin; Dosya alanına <code>${row.path}</code> yazın. Zip&#x27;te Her satır için&#x27;e <code>${fatura.kayitlar}</code> verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p>e-Fatura&#x27;da <code>${fatura.fatura_no}</code>, ettn, tarih, tip, senaryo, para_birimi; satici ve alici (unvan, vkn_tckn, vergi_dairesi, adres); ara_toplam, iskonto, vergiler_haric, kdv_toplam, vergiler_dahil, odenecek; kalemler (sira, aciklama, miktar, birim, birim_fiyat, iskonto, kdv_orani, kdv_tutari, tutar). Tutarlar sayıdır. XML&#x27;de öznitelikler @ad, metin #text olur; tekrar eden öğeler liste olur. e-İrsaliye&#x27;de irsaliye_no, sevk_tarihi, gonderen, alici, tasiyici, plaka, sofor ve kalemler. Zip&#x27;te kayitlar (her biri dosya ve alanları) ve atlananlar (dosya, neden).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Dosya en fazla 20 MB olabilir. Güvenlik için DOCTYPE içeren XML okunmaz. Seçilen biçime uymayan XML okunmaz; zip&#x27;te böyle dosyalar atlanıp atlananlar listesine yazılır.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (3)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir. .zip verilirse içindeki bütün .xml (JSON&#x27;da .json) dosyaları okunur.</dd>
+            <dt>Okuma biçimi <span class="guide-required">zorunlu</span></dt>
+            <dd>Otomatik: e-Fatura ve e-İrsaliye kendiliğinden tanınır (<code>${fatura.belge_turu}</code>). e-Fatura / e-İrsaliye: GİB&#x27;in UBL-TR belgesi alanlarına ayrılır. XML: her XML alan adlarıyla okunur. JSON: .json dosyası. <span class="guide-options">Seçenekler: Otomatik (e-Fatura veya e-İrsaliye), e-Fatura / e-Arşiv (UBL-TR XML), e-İrsaliye (UBL-TR XML), XML (alanlarıyla), JSON.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>e-Fatura&#x27;da <code>${fatura.fatura_no}</code>, <code>${fatura.odenecek}</code>, <code>${fatura.satici.unvan}</code>; kalemler <code>${fatura.kalemler}</code> (Her satır için ile). Zip&#x27;te <code>${fatura.kayitlar}</code> ve <code>${fatura.atlananlar}</code>.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-100">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 100">100</span>
+          <h2>Word şablonundan belge üret</h2>
+        </div>
+        <p class="guide-lead">Teklif, sözleşme, mektup veya sevk belgesi: Word şablonundaki <code>{{musteri_adi}}</code> gibi alanları doldurup yeni bir .docx kaydeder; tablo satırlarını listeden çoğaltır, isterseniz PDF&#x27;ini de kaydeder.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Word&#x27;de belgeyi hazırlayın; değişecek yerlere <code>{{musteri_adi}}</code>, <code>{{tutar}}</code> gibi alanlar yazıp .docx olarak kaydedin.</li>
+          <li>Şablonu, kaydedilecek belgenin yolunu ve değerleri seçin (ör. Excel&#x27;den okunan satır için <code>${row}</code>).</li>
+          <li>Kalem tablosu için tablonun bir satırına <code>{{satir.urun}}</code>, <code>{{satir.miktar}}</code> yazın ve Tablo satırları alanına listeyi verin (ör. <code>${kalemler}</code>).</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${olusan_belge.docx}</code>: kaydedilen belge; <code>${olusan_belge.pdf}</code>: PDF&#x27;in yolu (istenmediyse boş).</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Değeri olmayan bir alan varsa belge kaydedilmez ve eksik alanlar yazılır. Alanın biçimi (yazı tipi, kalınlık) korunur. PDF için Windows&#x27;ta Microsoft Word, macOS&#x27;ta LibreOffice veya Microsoft Word gerekir.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (7)</summary>
+          <dl>
+            <dt>Word şablonu (.docx) <span class="guide-required">zorunlu</span></dt>
+            <dd>Alanları <code>{{musteri_adi}}</code>, <code>{{tutar}}</code> biçiminde yazılmış belge. Şablon değişmez.</dd>
+            <dt>Kaydedilecek belge (.docx) <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. C:\Teklifler\teklif_<code>${row.no}</code>.docx; klasör yoksa oluşturulur.</dd>
+            <dt>Değerler <span class="guide-required">zorunlu</span></dt>
+            <dd>Alan adları şablondakilerle aynı olan kayıt: <code>${row}</code> veya {&quot;musteri_adi&quot;: &quot;<code>${musteri}</code>&quot;}. <code>{{musteri.adres}}</code> gibi iç alanlar da kullanılabilir.</dd>
+            <dt>Tablo satırları (isteğe bağlı)</dt>
+            <dd>Liste değişkeni (ör. <code>${kalemler}</code>). Şablonda <code>{{satir.urun}}</code>, <code>{{satir.tutar}}</code> içeren tablo satırı her öğe için biçimiyle birlikte tekrarlanır.</dd>
+            <dt>Varsa üzerine yaz</dt>
+            <dd>Kapalıyken aynı adlı belge veya PDF varsa hiçbir dosya yazılmaz.</dd>
+            <dt>PDF olarak da kaydet</dt>
+            <dd>Aynı ada .pdf uzantılı kopya kaydedilir. Windows&#x27;ta Microsoft Word, macOS&#x27;ta LibreOffice veya Microsoft Word kurulu olmalıdır.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Belgenin yolu <code>${olusan_belge.docx}</code>; PDF&#x27;in yolu <code>${olusan_belge.pdf}</code> (PDF istenmediyse boş).</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a>, <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a></p>
+      </article>
+      <article class="guide-step" id="adim-101">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 101">101</span>
+          <h2>PDF birleştir / böl / sayfa çıkar / şifrele</h2>
+        </div>
+        <p class="guide-lead">PDF dosyalarını birleştirir, sayfalara böler, seçilen sayfaları yeni PDF&#x27;e çıkarır, şifreler veya sayfa sayısını okur. Kaynak dosyalar değişmez.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>İşlemi seçin: birleştir, böl, sayfa çıkar, şifrele veya sayfa sayısını oku.</li>
+          <li>Kaynak PDF&#x27;i (birleştirmede her satıra bir PDF) ve kaydedilecek dosyayı ya da klasörü yazın.</li>
+          <li>Şifrelerken şifreyi Ayarlar → Kayıtlı şifreler&#x27;e kaydedip <code>${sifre.ad}</code> ile verin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${pdf_result.path}</code>: oluşan PDF; bölmede <code>${pdf_result.files}</code> dosya listesi; <code>${pdf_result.pages}</code> sayfa sayısı.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Kaynak dosyalar değişmez. Aynı adlı dosya varsa, üzerine yazma açık değilse hiçbir dosya yazılmaz. Şifreli PDF birleştirilemez veya bölünemez; şifresiz kopyasını kullanın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>İşlem <span class="guide-required">zorunlu</span></dt>
+            <dd>Birleştir: birden çok PDF tek dosya olur. Böl: her sayfa (veya N sayfa) ayrı dosya. Sayfa çıkar: seçilen sayfalar yeni PDF olur. Şifrele: açmak için şifre ister. Kaynak dosyalar değişmez. <span class="guide-options">Seçenekler: Birleştir, Böl (sayfa sayfa), Sayfa çıkar, Şifrele, Sayfa sayısını oku.</span></dd>
+            <dt>Birleştirilecek PDF&#x27;ler <span class="guide-required">zorunlu</span></dt>
+            <dd>Her satıra bir PDF yolu veya bir liste değişkeni (ör. Klasördeki dosyaları listele&#x27;nin <code>${files}</code> sonucu). Sırayla birleştirilir.</dd>
+            <dt>PDF dosyası <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Çıkarılacak sayfalar <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. 1-3, 5. Sayfalar yazdığınız sırayla yeni PDF&#x27;e eklenir.</dd>
+            <dt>Kaç sayfada bir bölünsün?</dt>
+            <dd>1: her sayfa ayrı dosya. 2: iki sayfada bir. Dosyalar ad_001.pdf, ad_002.pdf… olur.</dd>
+            <dt>Kaydedilecek klasör <span class="guide-required">zorunlu</span></dt>
+            <dd>Klasör yoksa oluşturulur.</dd>
+            <dt>Kaydedilecek PDF <span class="guide-required">zorunlu</span></dt>
+            <dd>Ör. C:\Raporlar\birlesik.pdf</dd>
+            <dt>PDF şifresi <span class="guide-required">zorunlu</span></dt>
+            <dd>Kayıtlı şifre için <code>${sifre.ad}</code> yazın; şifre akış dosyasında açık durmaz ve günlüğe yazılmaz. PDF AES-256 ile şifrelenir.</dd>
+            <dt>Varsa üzerine yaz</dt>
+            <dd>Kapalıyken aynı adlı dosya varsa hiçbir dosya yazılmaz.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd><code>${pdf_result.path}</code>: oluşan PDF, <code>${pdf_result.files}</code>: bölünen dosyalar, <code>${pdf_result.pages}</code>: sayfa sayısı.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-05-pdf-xml-word">Deneme 05 · PDF, e-Fatura ve Word belgeleri</a></p>
+      </article>
+      <article class="guide-step" id="adim-102">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 102">102</span>
+          <h2>Dosyayı yazdır</h2>
+        </div>
+        <p class="guide-lead">PDF, resim, metin veya (Windows&#x27;ta) Word ve Excel belgesini varsayılan ya da seçilen yazıcıya gönderir.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Yazdırılacak dosyayı seçin (ör. <code>${olusan_belge.pdf}</code>).</li>
+          <li>Belirli bir yazıcı gerekiyorsa adını yazın; boşsa varsayılan yazıcı kullanılır.</li>
+          <li>Kopya sayısını girin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${print_result.job}</code>: Mac&#x27;te yazdırma işinin numarası; Windows&#x27;ta boştur.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Windows&#x27;ta dosyayı türünün programı (PDF için Acrobat Reader gibi) yazdırır; o program kısa süre açılabilir. Mac&#x27;te PDF, resim ve metin doğrudan yazdırılır; Word ve Excel belgelerini önce PDF&#x27;e çevirin.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (4)</summary>
+          <dl>
+            <dt>Yazdırılacak dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Yazıcı adı</dt>
+            <dd>Boş: varsayılan yazıcı. Windows&#x27;ta Yazıcılar ve tarayıcılar listesindeki ad; Mac&#x27;te Terminal&#x27;de lpstat -p ile görünen ad.</dd>
+            <dt>Kopya sayısı</dt>
+            <dd>1–99.</dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd>Sonuca vereceğiniz ad. Yalnız adı yazın; <code>${ }</code> işaretleri burada yazılmaz.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-06-office-ve-yazici">Deneme 06 · Word&#x27;den PDF, Excel ve yazıcı</a></p>
+      </article>
+      <article class="guide-step" id="adim-103">
+        <div class="guide-step-head">
+          <span class="guide-no" aria-label="Adım 103">103</span>
+          <h2>Excel&#x27;de bul ve güncelle</h2>
+        </div>
+        <p class="guide-lead">Aranacak sütunda değeri bulur ve o satırın başka sütunlarına yazar: fatura no&#x27;su 1042 olan satırın Durum sütununa İşlendi gibi. Bulunamazsa isterseniz yeni satır ekler. Dosyanın diğer içeriği ve biçimi korunur.</p>
+        <h3>Nasıl kullanılır?</h3>
+        <ol>
+          <li>Seç… ile .xlsx veya .xlsm dosyasını gösterin; gerekirse sayfa adını yazın.</li>
+          <li>Aranacak sütunun başlığını (ör. Fatura No) ve aranan değeri (ör. <code>${row.no}</code>) yazın.</li>
+          <li>Yazılacak değerleri sütun başlığıyla girin: {&quot;Durum&quot;: &quot;İşlendi&quot;}.</li>
+          <li>Bulunamazsa ve birden fazla eşleşirse ne olacağını seçin.</li>
+        </ol>
+        <h3>Sonuç</h3>
+        <p><code>${excel_satir.bulundu}</code>: bulundu mu, <code>${excel_satir.satirlar}</code>: yazılan satır numaraları, <code>${excel_satir.eklendi}</code>: yeni satır eklendi mi.</p>
+        <p class="guide-tip"><strong>İpucu.</strong> Dosyanın diğer hücreleri, biçimleri ve formülleri korunur; .xlsm&#x27;deki makrolar kalır. Excel olmadan kaydedildiği için grafikler, resimler ve bazı gelişmiş öğeler kaybolabilir. Windows&#x27;ta dosya Excel&#x27;de açıksa yazılamaz; önce kapatın.</p>
+        <details class="guide-fields">
+          <summary>Alanlar (10)</summary>
+          <dl>
+            <dt>Dosya <span class="guide-required">zorunlu</span></dt>
+            <dd>Tam yol: C:\Raporlar\liste.xlsx veya ~/Desktop/liste.xlsx. %USERPROFILE% ve ~ kullanılabilir.</dd>
+            <dt>Sayfa adı</dt>
+            <dd>Boş: ilk/aktif sayfa.</dd>
+            <dt>Başlık satırı</dt>
+            <dd>Sütun başlıklarının bulunduğu satır; arama bunun altındaki satırlarda yapılır.</dd>
+            <dt>Aranacak sütun <span class="guide-required">zorunlu</span></dt>
+            <dd>Aranacak değerin bulunduğu sütunun başlığı (ör. Fatura No). Başlık yoksa sütun harfi (B) veya Excel / CSV oku&#x27;daki gibi sutun_2 yazılabilir.</dd>
+            <dt>Aranacak değer <span class="guide-required">zorunlu</span></dt>
+            <dd>Aranan değer; döngüde genellikle <code>${row.no}</code> gibi bir değişken.</dd>
+            <dt>Karşılaştırma <span class="guide-required">zorunlu</span></dt>
+            <dd>Birebir: yazıldığı gibi. Harf ve boşluk fark etmez: İ/i, I/ı dahil büyük/küçük harf ve boşluklar yok sayılır. Sayı: 1.250,00 ile 1250 aynı kabul edilir. <span class="guide-options">Seçenekler: Birebir aynı, Büyük/küçük harf ve boşluk fark etmez, Sayı olarak (1.250,00 = 1250).</span></dd>
+            <dt>Yazılacak değerler <span class="guide-required">zorunlu</span></dt>
+            <dd>Sütun başlığı ve yazılacak değer: {&quot;Durum&quot;: &quot;İşlendi&quot;, &quot;Tarih&quot;: &quot;<code>${bugun}</code>&quot;}. = ile başlayan değer formül olarak yazılır (ör. &quot;=B{satir}*C{satir}&quot;; {satir} satırın numarası olur). Değişkenden gelen = ile başlayan metin formüle dönüşmez.</dd>
+            <dt>Bulunamazsa <span class="guide-required">zorunlu</span></dt>
+            <dd>Durdur: adım hata verir. Yeni satır: aranan değer ve yazılacak değerler son dolu satırın altına eklenir. Devam et: hiçbir şey yazılmaz, <code>${excel_satir.bulundu}</code> yanlış olur. <span class="guide-options">Seçenekler: Akışı durdur, Yeni satır olarak ekle, Devam et (sonucu Koşul ile kontrol et).</span></dd>
+            <dt>Birden fazla satır eşleşirse <span class="guide-required">zorunlu</span></dt>
+            <dd>Aynı değer birden fazla satırda varsa ne yapılacağı. Durdur seçiliyken hiçbir satır değişmez. <span class="guide-options">Seçenekler: Akışı durdur, Yalnız ilk satırı güncelle, Hepsini güncelle.</span></dd>
+            <dt>Sonucu değişkene kaydet <span class="guide-required">zorunlu</span></dt>
+            <dd><code>${excel_satir.bulundu}</code>: bulundu mu, <code>${excel_satir.satirlar}</code>: güncellenen satır numaraları, <code>${excel_satir.eklendi}</code>: yeni satır eklendi mi.</dd>
+          </dl>
+        </details>
+        <p class="guide-try"><strong>Uygulamalı deneme:</strong> <a href="/egitim/deneme/#deneme-04-excel-ve-dosyalar">Deneme 04 · Excel ve dosya işlemleri</a></p>
+      </article>
+        <nav class="guide-pager" aria-label="Kategoriler"><a href="/egitim/adimlar/uygulama-ve-sistem/">← Uygulama ve sistem</a> <a href="/egitim/adimlar/">Bütün kategoriler</a> <a href="/egitim/adimlar/veri-ve-metin/">Veri ve metin →</a></nav>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Windows ve macOS için masaüstü akış stüdyosu.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Ürün">
+      <p>Ürün</p>
+      <a href="/#ozellikler">Özellikler</a>
+      <a href="/#ajanlar">Ajanlar</a>
+      <a href="/cozumler/">Çözümler</a>
+      <a href="/sablonlar/">Şablonlar</a>
+      <a href="/#paketler">Fiyatlar</a>
+      <a href="/yenilikler/">Yenilikler</a>
+    </nav>
+    <nav aria-label="Kaynaklar">
+      <p>Kaynaklar</p>
+      <a href="/egitim/">Eğitim videoları</a>
+      <a href="/egitim/adimlar/">Adım rehberi</a>
+      <a href="/egitim/deneme/">Deneme akışları</a>
+      <a href="/topluluk/">Topluluk</a>
+      <a href="/#indir">Peyrev'i nasıl alırım?</a>
+      <a href="/#sss">Sık sorulanlar</a>
+    </nav>
+    <nav aria-label="Hesap">
+      <p>Hesap</p>
+      <a href="/hesabim/">Hesabım</a>
+      <a href="/#basvuru">Hesap başvurusu</a>
+      <a href="/iletisim/">İletişim</a>
+    </nav>
+    <nav aria-label="Yasal">
+      <p>Yasal</p>
+      <a href="/yasal/kvkk/">KVKK aydınlatma metni</a>
+      <a href="/yasal/gizlilik/">Gizlilik ve çerezler</a>
+      <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a>
+      <a href="/yasal/iade/">İade ve iptal</a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+</footer>
+</body>
+</html>

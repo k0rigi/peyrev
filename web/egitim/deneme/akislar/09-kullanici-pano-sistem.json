@@ -1,0 +1,293 @@
+{
+ "name": "Deneme 09 · Kullanıcıya sor, pano ve komut",
+ "description": "Mesaj kutusu gösterir, kullanıcıdan değer ve dosya ister, panoya yazıp okur, sistem komutu çalıştırır ve deneme klasörünü açar.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Bilgi",
+   "action": "ui.message",
+   "params": {
+    "title": "Peyrev deneme",
+    "text": "Bu deneme size birkaç soru soracak ve panoyu kullanacak.",
+    "buttons": "ok",
+    "timeout": 30,
+    "output": "bilgi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Adınız",
+   "action": "ui.input",
+   "params": {
+    "title": "Peyrev deneme",
+    "prompt": "Adınızı yazın:",
+    "default": "Deneme",
+    "on_cancel": "stop",
+    "timeout": 120,
+    "on_timeout": "default",
+    "output": "ad"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Devam edelim mi?",
+   "action": "ui.message",
+   "params": {
+    "title": "Peyrev deneme",
+    "text": "Merhaba ${ad}, devam edelim mi?",
+    "buttons": "yes_no",
+    "timeout": 0,
+    "output": "devam"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Evet dendi",
+   "action": "control.if",
+   "params": {
+    "left": "${devam}",
+    "operator": "eq",
+    "right": "yes"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a008",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme 'Hayır' yanıtıyla durduruldu."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a010",
+   "title": "Bir PDF seçin",
+   "action": "ui.choose_file",
+   "params": {
+    "title": "fatura.pdf'i seçin",
+    "extensions": "pdf",
+    "folder": "${klasor}",
+    "on_cancel": "continue",
+    "output": "secilen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Seçilen dosya",
+   "action": "core.log",
+   "params": {
+    "message": "Seçilen: ${secilen}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a012",
+   "title": "Panoya yaz",
+   "action": "clipboard.set",
+   "params": {
+    "value": "Peyrev pano denemesi: ${ad}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Panoyu oku",
+   "action": "clipboard.get",
+   "params": {
+    "output": "pano"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a015",
+   "title": "Pano doğru",
+   "action": "control.if",
+   "params": {
+    "left": "${pano}",
+    "operator": "eq",
+    "right": "Peyrev pano denemesi: ${ad}"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a014",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Panodan yazılan metin okunmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a016",
+   "title": "Komut çalıştır",
+   "action": "system.command",
+   "params": {
+    "run": "command",
+    "shell": "system",
+    "command": "echo Peyrev",
+    "timeout": 30,
+    "fail_on_error": true,
+    "output": "komut"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a018",
+   "title": "Komut çıktısı",
+   "action": "control.if",
+   "params": {
+    "left": "${komut.output}",
+    "operator": "contains",
+    "right": "Peyrev"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a017",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "echo komutu Peyrev yazmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a019",
+   "title": "Deneme klasörünü aç",
+   "action": "system.open",
+   "params": {
+    "target": "${klasor}",
+    "wait": 2
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a020",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Kullanıcı ve sistem adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Kullanıcıya sor",
+   "text": "Kullanıcıdan değer iste süre dolunca varsayılan değerle devam edebilir; Mesaj kutusu Evet / Hayır yanıtını verir.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a009",
+    "a010",
+    "a011"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Pano",
+   "text": "Panoya kopyala ve Panodaki metni oku; masaüstü programlarına uzun metin yapıştırmak için.",
+   "color": "yellow",
+   "steps": [
+    "a012",
+    "a013",
+    "a015"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Komut ve aç",
+   "text": "Komut / script çalıştır çıktısını verir; Uygulama, dosya veya adres aç klasörü Dosya Gezgini / Finder'da açar.",
+   "color": "yellow",
+   "steps": [
+    "a016",
+    "a018",
+    "a019",
+    "a020"
+   ]
+  }
+ ]
+}

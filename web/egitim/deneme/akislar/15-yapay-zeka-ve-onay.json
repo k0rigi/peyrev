@@ -1,0 +1,213 @@
+{
+ "name": "Deneme 15 · Yapay zekâ ve Telegram onayı",
+ "description": "Yapay zekâya bir müşteri notunu özetletir, deneme faturasından bilgi çıkarır ve sonucu Telegram'dan ofis yetkilisinin onayına sunar.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Müşteri notu",
+   "action": "core.set",
+   "params": {
+    "name": "not_metni",
+    "value": "Müşteri Akın Ltd. 3 Kasım'da aradı; faturadaki eğitim saatinin 4 değil 3 olması gerektiğini, düzeltilmiş faturayı hafta içinde beklediğini söyledi."
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Notu özetle",
+   "action": "ai.ask",
+   "params": {
+    "connection": "",
+    "instructions": "Müşteri notunu tek cümleyle özetle; yapılacak işi ve son tarihi belirt.",
+    "input": "${not_metni}",
+    "timeout": 60,
+    "max_tokens": 500,
+    "output": "ozet"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Özeti yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Özet: ${ozet}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "Faturadan bilgi çıkar",
+   "action": "ai.extract",
+   "params": {
+    "connection": "",
+    "path": "${klasor}/fatura.pdf",
+    "document_type": "fatura",
+    "timeout": 90,
+    "review": false,
+    "output": "belge"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "Fatura numarası çıkarıldı",
+   "action": "control.if",
+   "params": {
+    "left": "${belge.fatura_no}",
+    "operator": "contains",
+    "right": "PEY2026"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a009",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yapay zekâ fatura numarasını çıkarmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a011",
+   "title": "Bilgileri yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Fatura ${belge.fatura_no}, tarih ${belge.tarih}, toplam ${belge.genel_toplam}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a012",
+   "title": "Onay iste",
+   "action": "notify.approval",
+   "params": {
+    "question": "Deneme: ${belge.fatura_no} numaralı fatura (${belge.genel_toplam} TL) işlensin mi?",
+    "answer": "yes_no",
+    "stop_on_no": false,
+    "timeout": 10,
+    "on_timeout": "continue",
+    "output": "onay"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Yanıtı yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Telegram yanıtı: ${onay}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a014",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Yapay zekâ ve onay adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Yapay zekâya sor",
+   "text": "KVKK kalkanı açıkken TCKN, VKN ve IBAN buluta gitmeden gizlenir.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Belgeden bilgi çıkar",
+   "text": "Belgenin metni bu bilgisayarda okunur, sağlayıcıya dosya değil metin gider; sonuç fatura alanlarıyla doğrulanır.",
+   "color": "yellow",
+   "steps": [
+    "a008",
+    "a010",
+    "a011"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Telegram onayı",
+   "text": "Soru ofis yetkilisinin Telegram'ına ve Peyrev'in çalışma sayfasına gider; ilk gelen yanıt geçer. Süre dakikadır.",
+   "color": "yellow",
+   "steps": [
+    "a012",
+    "a013",
+    "a014"
+   ]
+  }
+ ]
+}

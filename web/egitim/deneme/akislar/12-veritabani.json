@@ -1,0 +1,191 @@
+{
+ "name": "Deneme 12 · Veritabanı: sorgula ve güncelle",
+ "description": "Deneme SQLite veritabanındaki bekleyen siparişleri sorgular, her birini İşlendi yapar, sonucu sayar ve akış tekrar çalışabilsin diye siparişleri eski durumuna döndürür.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Aranan durum",
+   "action": "core.set",
+   "params": {
+    "name": "durum",
+    "value": "Bekliyor"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Bekleyen siparişler",
+   "action": "database.query",
+   "params": {
+    "query": "SELECT no, musteri, tutar FROM siparisler WHERE durum = ${durum} ORDER BY no",
+    "max_rows": 100,
+    "output": "bekleyenler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Bekleyenleri say",
+   "action": "data.list",
+   "params": {
+    "list": "${bekleyenler}",
+    "operation": "length",
+    "output": "bekleyen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "İki bekleyen",
+   "action": "control.if",
+   "params": {
+    "left": "${bekleyen}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a004",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme veritabanında iki bekleyen sipariş olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a007",
+   "title": "Her bekleyen sipariş",
+   "action": "control.for_each",
+   "params": {
+    "items": "${bekleyenler}",
+    "item_name": "row"
+   },
+   "children": [
+    {
+     "id": "a006",
+     "title": "İşlendi yap",
+     "action": "database.execute",
+     "params": {
+      "query": "UPDATE siparisler SET durum = 'İşlendi' WHERE no = ${row.no}",
+      "max_rows": 1,
+      "on_zero": "error",
+      "output": "guncelleme"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "İşlenenleri say",
+   "action": "database.query",
+   "params": {
+    "query": "SELECT COUNT(*) AS adet FROM siparisler WHERE durum = 'İşlendi'",
+    "max_rows": 1,
+    "output": "sayim"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Sayım satırı",
+   "action": "data.list",
+   "params": {
+    "list": "${sayim}",
+    "operation": "first",
+    "output": "sayim_satiri"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "İki işlendi",
+   "action": "control.if",
+   "params": {
+    "left": "${sayim_satiri.adet}",
+    "operator": "eq",
+    "right": 2
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a010",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "İki sipariş İşlendi olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a012",
+   "title": "Eski durumuna döndür",
+   "action": "database.execute",
+   "params": {
+    "query": "UPDATE siparisler SET durum = 'Bekliyor' WHERE durum = 'İşlendi'",
+    "max_rows": 2,
+    "on_zero": "continue",
+    "output": "geri_alma"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Veritabanı adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Sorgula",
+   "text": "${durum} sorguya güvenli parametre olarak girer; değer SQL'e yapıştırılmaz.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a003",
+    "a005"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Güncelle",
+   "text": "Veritabanında değişiklik yap yalnız bağlantıda izin verilen tabloya yazar; En fazla satır aşılırsa değişiklik geri alınır.",
+   "color": "yellow",
+   "steps": [
+    "a007",
+    "a008",
+    "a009",
+    "a011",
+    "a012",
+    "a013"
+   ]
+  }
+ ]
+}

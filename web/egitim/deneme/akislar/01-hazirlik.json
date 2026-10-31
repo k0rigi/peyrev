@@ -1,0 +1,237 @@
+{
+ "name": "Deneme 01 · Hazırlık: deneme dosyalarını indir",
+ "description": "Peyrev deneme sayfasını görünmez tarayıcıda açar, deneme dosyalarını indirir, türünü denetler ve masaüstündeki Peyrev Deneme klasörüne açar.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Peyrev Deneme klasörünü oluştur",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${klasor}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a003",
+   "title": "Deneme sayfasını aç",
+   "action": "web.open",
+   "params": {
+    "url": "https://peyrev.com/egitim/deneme/web/",
+    "headless": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyalarını indir",
+   "action": "web.download",
+   "params": {
+    "by": "text",
+    "target": "Deneme dosyalarını indir",
+    "folder": "${klasor}",
+    "overwrite": true,
+    "extensions": "zip",
+    "output": "indirilen"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a005",
+   "title": "İnen dosyayı denetle",
+   "action": "file.info",
+   "params": {
+    "path": "${indirilen}",
+    "extensions": "zip",
+    "check_content": true,
+    "on_problem": "stop",
+    "output": "zip_bilgi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Dosya bilgisini yaz",
+   "action": "core.log",
+   "params": {
+    "message": "İndirildi: ${zip_bilgi.name} (${zip_bilgi.size} bayt, tür: ${zip_bilgi.type})"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Zip'i klasöre aç",
+   "action": "file.zip",
+   "params": {
+    "operation": "extract",
+    "source": "${indirilen}",
+    "folder": "${klasor}",
+    "overwrite": true
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "Klasördeki dosyaları listele",
+   "action": "file.list",
+   "params": {
+    "folder": "${klasor}",
+    "pattern": "*",
+    "output": "dosyalar"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Dosyaları say",
+   "action": "data.list",
+   "params": {
+    "list": "${dosyalar}",
+    "operation": "length",
+    "output": "dosya_sayisi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "En az 8 dosya açıldı",
+   "action": "control.if",
+   "params": {
+    "left": "${dosya_sayisi}",
+    "operator": "gte",
+    "right": 8
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a010",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Zip'ten beklenen dosyalar çıkmadı; Peyrev Deneme klasörünü kontrol edin."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a012",
+   "title": "Fatura PDF'i var mı?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "pdf_var"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a014",
+   "title": "Fatura PDF'i hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${pdf_var}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a013",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "fatura.pdf zip'ten çıkmadı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a015",
+   "title": "Sonucu yaz",
+   "action": "core.log",
+   "params": {
+    "message": "Deneme klasörü hazır: ${klasor} (${dosya_sayisi} dosya)"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Deneme dosyaları hazır. Sıradaki denemelere geçebilirsiniz."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Klasör",
+   "text": "Hazır değişken ${sistem.masaustu} her bilgisayarda masaüstünün yoludur. Klasör varsa Klasör oluştur bir şey değiştirmez.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "İndirme",
+   "text": "Görünmez tarayıcı deneme sayfasını açar; Web'den dosya indir bağlantıya tıklar ve inen dosyayı klasöre kaydeder. Dosya bilgisi adımı adı .zip olan ama içi zip olmayan dosyayı yakalar.",
+   "color": "yellow",
+   "steps": [
+    "a003",
+    "a004",
+    "a005",
+    "a006"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Açma ve denetim",
+   "text": "Zip klasöre açılır; Klasördeki dosyaları listele sonucu Liste işlemiyle sayılır.",
+   "color": "yellow",
+   "steps": [
+    "a007",
+    "a008",
+    "a009",
+    "a011",
+    "a012",
+    "a014",
+    "a015",
+    "a016"
+   ]
+  }
+ ]
+}

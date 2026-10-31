@@ -1,0 +1,280 @@
+{
+ "name": "Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı",
+ "description": "Kendinize ekli ve tablolu bir HTML e-posta gönderir, gelen kutusunda bulur, işaretler ve okunmadı yapar; mesaj kanalınıza (Telegram, Teams, WhatsApp…) deneme mesajı gönderir.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Alıcı",
+   "action": "ui.input",
+   "params": {
+    "title": "Peyrev deneme",
+    "prompt": "Deneme e-postası hangi adrese gitsin? (IMAP bağlantınızın adresi)",
+    "default": "",
+    "on_cancel": "stop",
+    "timeout": 0,
+    "output": "alici"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Konu",
+   "action": "core.set",
+   "params": {
+    "name": "konu",
+    "value": "Peyrev deneme ${sistem.baslangic}"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "Tablo",
+   "action": "core.set",
+   "params": {
+    "name": "tablo",
+    "value": [
+     {
+      "Fatura": "1001",
+      "Tutar": "500,00"
+     },
+     {
+      "Fatura": "1002",
+      "Tutar": "350,00"
+     }
+    ]
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "E-posta gönder",
+   "action": "mail.send",
+   "params": {
+    "to": "${alici}",
+    "subject": "${konu}",
+    "body_format": "html",
+    "html_body": "<p>Merhaba,</p><p>Bu bir <b>Peyrev</b> deneme e-postasıdır.</p>",
+    "table": "${tablo}",
+    "attachments": "${klasor}/fatura.pdf",
+    "output": "gonderim"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "E-postanın ulaşmasını bekle",
+   "action": "core.wait",
+   "params": {
+    "seconds": 15
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "Deneme e-postasını bul",
+   "action": "mail.read",
+   "params": {
+    "folder": "",
+    "unread_only": false,
+    "subject_contains": "${konu}",
+    "since_days": 1,
+    "max_messages": 5,
+    "mark_read": true,
+    "attachment_folder": "${klasor}/Ekler",
+    "output": "epostalar"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Bulunanlar",
+   "action": "data.list",
+   "params": {
+    "list": "${epostalar}",
+    "operation": "length",
+    "output": "bulunan"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "E-posta geldi",
+   "action": "control.if",
+   "params": {
+    "left": "${bulunan}",
+    "operator": "gte",
+    "right": 1
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a012",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Gönderilen e-posta 15 saniyede gelmedi; alıcı IMAP posta kutusu olmalı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a014",
+   "title": "İlk e-posta",
+   "action": "data.list",
+   "params": {
+    "list": "${epostalar}",
+    "operation": "first",
+    "output": "email"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a015",
+   "title": "Bayrak koy",
+   "action": "mail.manage",
+   "params": {
+    "uids": "${email.uid}",
+    "operation": "flag",
+    "output": "bayrak"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Okunmadı yap",
+   "action": "mail.manage",
+   "params": {
+    "uids": "${email.uid}",
+    "operation": "unread",
+    "output": "okunmadi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "Mesaj gönder",
+   "action": "notify.send",
+   "params": {
+    "title": "Peyrev deneme",
+    "text": "Deneme e-postası gönderildi ve okundu: ${konu}",
+    "output": "mesaj"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a018",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "E-posta ve mesaj adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Gönder",
+   "text": "HTML gövde, tablo (liste değişkeni) ve ek; konu her çalışmada farklıdır.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007",
+    "a008",
+    "a009"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Oku ve işaretle",
+   "text": "E-postaları oku konuyla süzer ve ekleri klasöre kaydeder; E-postayı taşı / işaretle ${email.uid} ile çalışır.",
+   "color": "yellow",
+   "steps": [
+    "a010",
+    "a011",
+    "a013",
+    "a014",
+    "a015",
+    "a016"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Mesaj kanalı",
+   "text": "Ayarlar'daki mesajlaşma bağlantısına (Telegram, Teams, Slack, WhatsApp…) gönderir.",
+   "color": "yellow",
+   "steps": [
+    "a017",
+    "a018"
+   ]
+  }
+ ]
+}

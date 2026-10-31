@@ -1,0 +1,499 @@
+[
+ {
+  "slug": "01-hazirlik",
+  "ad": "Deneme 01 · Hazırlık: deneme dosyalarını indir",
+  "aciklama": "Peyrev deneme sayfasını görünmez tarayıcıda açar, deneme dosyalarını indirir, türünü denetler ve masaüstündeki Peyrev Deneme klasörüne açar.",
+  "bolum": "Başlangıç",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "İnternet bağlantısı",
+   "Edge veya Chrome"
+  ],
+  "nasil": [
+   "Akışı içe aktarın ve Çalıştır'a basın; tarayıcı görünmez çalışır.",
+   "Bittiğinde masaüstünüzde Peyrev Deneme klasörü oluşur. Diğer denemeler bu klasörü kullanır."
+  ],
+  "beklenen": "Akış başarıyla biter; çalışma notunda klasördeki dosya sayısı yazar.",
+  "onceki": null,
+  "adim_sayisi": 16,
+  "turler": [
+   48,
+   45,
+   73,
+   83,
+   93,
+   70,
+   39,
+   44,
+   52,
+   62,
+   69,
+   43
+  ]
+ },
+ {
+  "slug": "02-veri-ve-metin",
+  "ad": "Deneme 02 · Veri ve metin",
+  "aciklama": "Değişken, hesap, metin, tarih ve iş günü, liste, gruplama, iki listeyi eşleştirme ve TCKN / VKN / IBAN doğrulama adımlarını bilinen değerlerle çalıştırır ve sonuçları denetler.",
+  "bolum": "Veri",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Hiçbir şey; dosya veya bağlantı kullanmaz."
+  ],
+  "nasil": [
+   "Çalıştır'a basın.",
+   "Çalışma notunda her adımın sonucunu görün; bir adıma tıklayıp Bu adımı test et ile tek tek de deneyebilirsiniz."
+  ],
+  "beklenen": "Akış 'Veri ve metin adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": null,
+  "adim_sayisi": 78,
+  "turler": [
+   48,
+   50,
+   62,
+   69,
+   52,
+   49,
+   97,
+   51,
+   70,
+   96,
+   53,
+   95
+  ]
+ },
+ {
+  "slug": "03-akis-kontrolu",
+  "ad": "Deneme 03 · Döngüler, koşullar ve hata yakalama",
+  "aciklama": "Tekrarla, Koşul sürdükçe tekrarla, Her satır için (atla ve devam et), Sonraki tura geç, Döngüden çık, Hata olursa ve Adıma git adımlarını sayaçlarla çalıştırır ve sonuçları denetler.",
+  "bolum": "Akış",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Hiçbir şey; dosya veya bağlantı kullanmaz."
+  ],
+  "nasil": [
+   "Çalıştır'a basın.",
+   "Diyagram görünümünde döngülerin iç adımlarını ve Adıma git bağlantısını inceleyin."
+  ],
+  "beklenen": "Akış 'Döngü ve koşul adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": null,
+  "adim_sayisi": 40,
+  "turler": [
+   48,
+   63,
+   49,
+   62,
+   69,
+   60,
+   61,
+   59,
+   66,
+   65,
+   53,
+   52,
+   50,
+   64,
+   41,
+   70,
+   67
+  ]
+ },
+ {
+  "slug": "04-excel-ve-dosyalar",
+  "ad": "Deneme 04 · Excel ve dosya işlemleri",
+  "aciklama": "Excel dosyası oluşturur, okur, hücre yazar, satır bulup günceller ve ekler; metin dosyası yazar, kopyalar, taşır, siler, zip'ler ve çalışma raporu çıkarır.",
+  "bolum": "Dosya",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Hiçbir şey; Excel kurulu olması gerekmez."
+  ],
+  "nasil": [
+   "Çalıştır'a basın.",
+   "Peyrev Deneme/Excel klasöründe musteriler.xlsx'i açıp sonucu görün; çalışma raporu çalışmanın çıktılarındadır."
+  ],
+  "beklenen": "Akış 'Excel ve dosya adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": null,
+  "adim_sayisi": 46,
+  "turler": [
+   48,
+   45,
+   37,
+   36,
+   52,
+   62,
+   69,
+   38,
+   103,
+   47,
+   42,
+   41,
+   46,
+   39,
+   93,
+   44,
+   43
+  ]
+ },
+ {
+  "slug": "05-pdf-xml-word",
+  "ad": "Deneme 05 · PDF, e-Fatura ve Word belgeleri",
+  "aciklama": "Fatura PDF'inin metnini ve kalem tablosunu okur; PDF'i böler, birleştirir, sayfa çıkarır ve şifreler; e-Fatura, e-İrsaliye ve zip içindeki XML'leri okur; Word şablonundan teklif belgesi üretir.",
+  "bolum": "Belge",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Deneme 01'in indirdiği Peyrev Deneme klasörü"
+  ],
+  "nasil": [
+   "Önce Deneme 01'i çalıştırın.",
+   "Çalıştır'a basın; Peyrev Deneme/Belgeler klasöründe oluşan dosyaları açın."
+  ],
+  "beklenen": "Akış 'Belge adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 49,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   45,
+   40,
+   52,
+   101,
+   98,
+   70,
+   59,
+   100
+  ]
+ },
+ {
+  "slug": "06-office-ve-yazici",
+  "ad": "Deneme 06 · Word'den PDF, Excel ve yazıcı",
+  "aciklama": "Word şablonundan PDF üretir (Word veya LibreOffice ile), Excel'de formülleri yeniden hesaplatıp veri bağlantılarını yeniler ve izin verirseniz deneme faturasını yazıcıya gönderir.",
+  "bolum": "Office",
+  "platform": "Windows (Microsoft Office); macOS'ta LibreOffice ile PDF",
+  "gerekenler": [
+   "Deneme 01'in indirdiği Peyrev Deneme klasörü",
+   "Microsoft Word ve Excel (Windows)",
+   "Yazıcı (isteğe bağlı)"
+  ],
+  "nasil": [
+   "Önce Deneme 01'i çalıştırın.",
+   "Çalıştır'a basın; Excel arka planda açılıp kapanır.",
+   "Yazıcı sorusuna Evet derseniz fatura varsayılan yazıcıdan çıkar; Hayır derseniz yazdırma atlanır."
+  ],
+  "beklenen": "Akış 'Office adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter; Belgeler klasöründe teklif-akin-pdf.pdf oluşur.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 17,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   45,
+   100,
+   93,
+   104,
+   36,
+   52,
+   71,
+   102
+  ]
+ },
+ {
+  "slug": "07-web",
+  "ad": "Deneme 07 · Web sayfasında form, tablo ve sekmeler",
+  "aciklama": "Deneme sayfasını açar; Excel'deki müşterileri forma tek tek girer, açılır listeden seçer, dosya yükler, tabloyu okur, gecikmeli sonucu bekler, yeni sekmeye geçer, geri gider ve sayfanın görüntüsünü alır.",
+  "bolum": "Web",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Deneme 01'in indirdiği Peyrev Deneme klasörü",
+   "İnternet bağlantısı",
+   "Edge veya Chrome"
+  ],
+  "nasil": [
+   "Önce Deneme 01'i çalıştırın.",
+   "Çalıştır'a basın; tarayıcı açılır ve adımları gözünüzün önünde yapar. Fareye ve klavyeye dokunmayın."
+  ],
+  "beklenen": "Akış 'Web adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 51,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   36,
+   73,
+   59,
+   75,
+   77,
+   74,
+   78,
+   76,
+   84,
+   79,
+   82,
+   52,
+   96,
+   86,
+   81,
+   80,
+   85
+  ]
+ },
+ {
+  "slug": "08-api-ve-kur",
+  "ad": "Deneme 08 · Web servisi (API) ve TCMB kuru",
+  "aciklama": "peyrev.com'un herkese açık eğitim listesini HTTP isteğiyle alır, TCMB'den bugünün ve geçmiş bir günün kurunu çeker ve dolar tutarını TL'ye çevirir.",
+  "bolum": "Web",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "İnternet bağlantısı"
+  ],
+  "nasil": [
+   "Çalıştır'a basın.",
+   "Çalışma notunda kurları ve TL karşılığını görün."
+  ],
+  "beklenen": "Akış 'API ve kur adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": null,
+  "adim_sayisi": 12,
+  "turler": [
+   88,
+   62,
+   69,
+   70,
+   99,
+   49,
+   97
+  ]
+ },
+ {
+  "slug": "09-kullanici-pano-sistem",
+  "ad": "Deneme 09 · Kullanıcıya sor, pano ve komut",
+  "aciklama": "Mesaj kutusu gösterir, kullanıcıdan değer ve dosya ister, panoya yazıp okur, sistem komutu çalıştırır ve deneme klasörünü açar.",
+  "bolum": "Sistem",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Deneme 01'in indirdiği Peyrev Deneme klasörü",
+   "Bilgisayarın başında biri"
+  ],
+  "nasil": [
+   "Çalıştır'a basın ve açılan pencereleri yanıtlayın.",
+   "Dosya seçme penceresinde fatura.pdf'i seçin."
+  ],
+  "beklenen": "Akış 'Kullanıcı ve sistem adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter; Peyrev Deneme klasörü açılır.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 20,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   71,
+   72,
+   94,
+   70,
+   34,
+   35,
+   33,
+   31
+  ]
+ },
+ {
+  "slug": "10-masaustu-not-defteri",
+  "ad": "Deneme 10 · Masaüstü programı: Not Defteri",
+  "aciklama": "Not Defteri'ni açar, penceresini tanır, taşır ve boyutlandırır; fareyle tıklar, klavyeyle yazar, kısayol gönderir, metni panoya kopyalar, ekrandan OCR ile okur ve programı kapatır.",
+  "bolum": "Masaüstü",
+  "platform": "Windows",
+  "gerekenler": [
+   "Windows (Not Defteri)",
+   "Kilitli olmayan ekran"
+  ],
+  "nasil": [
+   "Windows'u İngilizce kullanıyorsanız ilk adımda başlığı Notepad yapın.",
+   "Çalıştır'a basın ve akış bitene kadar fareye ve klavyeye dokunmayın."
+  ],
+  "beklenen": "Akış 'Masaüstü adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter ve Not Defteri kapanır.",
+  "onceki": null,
+  "adim_sayisi": 47,
+  "turler": [
+   48,
+   45,
+   31,
+   1,
+   7,
+   13,
+   14,
+   2,
+   21,
+   23,
+   24,
+   22,
+   35,
+   62,
+   69,
+   4,
+   5,
+   3,
+   8,
+   28,
+   27,
+   30,
+   18,
+   25,
+   29,
+   17,
+   20,
+   19,
+   70,
+   64,
+   15,
+   16,
+   32
+  ]
+ },
+ {
+  "slug": "11-eposta-ve-mesaj",
+  "ad": "Deneme 11 · E-posta gönder, oku, işaretle ve mesaj kanalı",
+  "aciklama": "Kendinize ekli ve tablolu bir HTML e-posta gönderir, gelen kutusunda bulur, işaretler ve okunmadı yapar; mesaj kanalınıza (Telegram, Teams, WhatsApp…) deneme mesajı gönderir.",
+  "bolum": "Bağlantı",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Ayarlar → Bağlantılar'da e-posta gönderme (SMTP) ve okuma (IMAP) bağlantısı",
+   "Ayarlar → Bağlantılar'da mesajlaşma bağlantısı",
+   "Deneme 01'in indirdiği klasör"
+  ],
+  "nasil": [
+   "Bağlantıları ekleyin; bu akıştaki adımlar varsayılan bağlantıyı kullanır.",
+   "Çalıştır'a basın; sorulan adrese IMAP bağlantısının posta kutusunu yazın."
+  ],
+  "beklenen": "Akış 'E-posta ve mesaj adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter; posta kutunuzda bayraklı deneme e-postası ve mesaj kanalınızda deneme mesajı olur.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 18,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   72,
+   87,
+   61,
+   90,
+   52,
+   105,
+   92
+  ]
+ },
+ {
+  "slug": "12-veritabani",
+  "ad": "Deneme 12 · Veritabanı: sorgula ve güncelle",
+  "aciklama": "Deneme SQLite veritabanındaki bekleyen siparişleri sorgular, her birini İşlendi yapar, sonucu sayar ve akış tekrar çalışabilsin diye siparişleri eski durumuna döndürür.",
+  "bolum": "Bağlantı",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Deneme 01'in indirdiği deneme.db",
+   "Ayarlar → Bağlantılar'da SQLite bağlantısı: dosya Peyrev Deneme/deneme.db, yazma izni verilen tablo: siparisler"
+  ],
+  "nasil": [
+   "Bağlantıyı varsayılan veritabanı bağlantısı olarak ekleyin.",
+   "Çalıştır'a basın."
+  ],
+  "beklenen": "Akış 'Veritabanı adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 13,
+  "turler": [
+   48,
+   58,
+   52,
+   62,
+   69,
+   59,
+   89
+  ]
+ },
+ {
+  "slug": "13-google-sheets",
+  "ad": "Deneme 13 · Google Sheets'e yaz ve oku",
+  "aciklama": "Sizin seçtiğiniz bir Google Sheets tablosunun Peyrev sekmesine başlık ve iki satır yazar, hücreyi ve satırları geri okur.",
+  "bolum": "Bağlantı",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Ayarlar → Bağlantılar'da Google Sheets bağlantısı (servis hesabı)",
+   "Servis hesabıyla düzenleyici olarak paylaşılmış, Peyrev adlı sekmesi olan boş bir tablo"
+  ],
+  "nasil": [
+   "Tabloda Peyrev adlı bir sekme açın ve servis hesabının e-postasıyla paylaşın.",
+   "Çalıştır'a basın; tablonun adresini yapıştırın."
+  ],
+  "beklenen": "Akış 'Google Sheets adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter; tabloda Peyrev sekmesine üç satır yazılır.",
+  "onceki": null,
+  "adim_sayisi": 16,
+  "turler": [
+   72,
+   57,
+   59,
+   55,
+   62,
+   69,
+   56,
+   52
+  ]
+ },
+ {
+  "slug": "14-ftp-sftp",
+  "ad": "Deneme 14 · FTP / SFTP ile dosya gönder ve al",
+  "aciklama": "Deneme faturasını sunucunuza yükler, klasörü listeler, dosyayı geri indirir ve indirilenin gerçekten PDF olduğunu denetler.",
+  "bolum": "Bağlantı",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Ayarlar → Bağlantılar'da FTP, FTPS veya SFTP bağlantısı",
+   "Deneme 01'in indirdiği klasör"
+  ],
+  "nasil": [
+   "Bağlantıyı varsayılan FTP bağlantısı olarak ekleyin.",
+   "Çalıştır'a basın."
+  ],
+  "beklenen": "Akış 'FTP adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 10,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   91,
+   70,
+   93
+  ]
+ },
+ {
+  "slug": "15-yapay-zeka-ve-onay",
+  "ad": "Deneme 15 · Yapay zekâ ve Telegram onayı",
+  "aciklama": "Yapay zekâya bir müşteri notunu özetletir, deneme faturasından bilgi çıkarır ve sonucu Telegram'dan ofis yetkilisinin onayına sunar.",
+  "bolum": "Ajan",
+  "platform": "Windows ve macOS",
+  "gerekenler": [
+   "Ajanlar hakkı",
+   "Ajanlar → Bağlantılar'da yapay zekâ sağlayıcı bağlantısı",
+   "Ajanlar → Telegram'da bağlanmış ofis sohbeti",
+   "Deneme 01'in indirdiği klasör"
+  ],
+  "nasil": [
+   "İki yapay zekâ adımında Bağlantı alanından sağlayıcınızı seçip akışı kaydedin.",
+   "Çalıştır'a basın; Telegram'a gelen soruyu Evet veya Hayır ile yanıtlayın."
+  ],
+  "beklenen": "Akış 'Yapay zekâ ve onay adımlarının hepsi beklenen sonucu verdi.' mesajıyla biter; çalışma notunda özet, fatura bilgileri ve verilen yanıt yazar.",
+  "onceki": "01-hazirlik",
+  "adim_sayisi": 14,
+  "turler": [
+   48,
+   43,
+   62,
+   69,
+   54,
+   70,
+   106,
+   107
+  ]
+ }
+]

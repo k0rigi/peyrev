@@ -1,0 +1,276 @@
+{
+ "name": "Deneme 06 · Word'den PDF, Excel ve yazıcı",
+ "description": "Word şablonundan PDF üretir (Word veya LibreOffice ile), Excel'de formülleri yeniden hesaplatıp veri bağlantılarını yeniler ve izin verirseniz deneme faturasını yazıcıya gönderir.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Belgeler klasörü",
+   "action": "file.operation",
+   "params": {
+    "operation": "create_folder",
+    "source": "${klasor}/Belgeler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Teklifi PDF olarak üret",
+   "action": "file.word_template",
+   "params": {
+    "template": "${klasor}/teklif-sablonu.docx",
+    "destination": "${klasor}/Belgeler/teklif-akin-pdf.docx",
+    "values": {
+     "musteri_adi": "Akın Ltd.",
+     "tarih": "${sistem.bugun}",
+     "toplam": "4.100,00 TL"
+    },
+    "rows": [
+     {
+      "urun": "Kurulum",
+      "miktar": 1,
+      "tutar": "2.500,00"
+     }
+    ],
+    "overwrite": true,
+    "pdf": true,
+    "output": "teklif"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a007",
+   "title": "PDF'i denetle",
+   "action": "file.info",
+   "params": {
+    "path": "${teklif.pdf}",
+    "extensions": "pdf",
+    "check_content": true,
+    "on_problem": "stop",
+    "output": "pdf_bilgi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a008",
+   "title": "Formülleri yeniden hesapla",
+   "action": "system.excel_macro",
+   "params": {
+    "path": "${klasor}/hesap.xlsx",
+    "operation": "recalculate",
+    "save": true,
+    "close": true,
+    "visible": false,
+    "timeout": 120,
+    "output": "hesap"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a009",
+   "title": "Verileri yenile",
+   "action": "system.excel_macro",
+   "params": {
+    "path": "${klasor}/hesap.xlsx",
+    "operation": "refresh",
+    "save": true,
+    "close": true,
+    "visible": false,
+    "timeout": 120,
+    "output": "yenileme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a010",
+   "title": "Hesaplanan toplamı oku",
+   "action": "file.read_table",
+   "params": {
+    "path": "${klasor}/hesap.xlsx",
+    "sheet": "Hesap",
+    "output": "hesap_satirlari"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a011",
+   "title": "Son satır",
+   "action": "data.list",
+   "params": {
+    "list": "${hesap_satirlari}",
+    "operation": "last",
+    "output": "toplam_satiri"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a013",
+   "title": "Toplam hesaplandı",
+   "action": "control.if",
+   "params": {
+    "left": "${toplam_satiri.Tutar}",
+    "operator": "eq",
+    "right": 4150
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a012",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Excel toplam satırı 4150 olarak hesaplamalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a014",
+   "title": "Yazdırılsın mı?",
+   "action": "ui.message",
+   "params": {
+    "title": "Peyrev deneme",
+    "text": "Deneme faturası (2 sayfa) varsayılan yazıcıya gönderilsin mi?",
+    "buttons": "yes_no",
+    "timeout": 60,
+    "output": "yanit"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Evet dendiyse",
+   "action": "control.if",
+   "params": {
+    "left": "${yanit}",
+    "operator": "eq",
+    "right": "yes"
+   },
+   "children": [
+    {
+     "id": "a015",
+     "title": "Faturayı yazdır",
+     "action": "file.print",
+     "params": {
+      "path": "${klasor}/fatura.pdf",
+      "printer": "",
+      "copies": 1,
+      "output": "yazdirma"
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Office adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Word'den PDF",
+   "text": "PDF seçeneği açıkken belge Word (Windows) veya LibreOffice / Word (macOS) ile PDF'e çevrilir.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a007"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Excel",
+   "text": "Excel arka planda açılır; formüller yeniden hesaplanır ve veri bağlantıları yenilenir, dosya kaydedilip kapanır. Makro çalıştırmak için kendi .xlsm dosyanızda İşlem: Makro çalıştır seçin.",
+   "color": "yellow",
+   "steps": [
+    "a008",
+    "a009",
+    "a010",
+    "a011",
+    "a013"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Yazıcı",
+   "text": "Mesaj kutusu Evet / Hayır sorar; yanıt ${yanit} değişkenine yazılır.",
+   "color": "yellow",
+   "steps": [
+    "a014",
+    "a016",
+    "a017"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,683 @@
+{
+ "name": "Deneme 07 · Web sayfasında form, tablo ve sekmeler",
+ "description": "Deneme sayfasını açar; Excel'deki müşterileri forma tek tek girer, açılır listeden seçer, dosya yükler, tabloyu okur, gecikmeli sonucu bekler, yeni sekmeye geçer, geri gider ve sayfanın görüntüsünü alır.",
+ "department": "Peyrev eğitim",
+ "steps": [
+  {
+   "id": "a001",
+   "title": "Deneme klasörü",
+   "action": "core.set",
+   "params": {
+    "name": "klasor",
+    "value": "${sistem.masaustu}/Peyrev Deneme"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a002",
+   "title": "Deneme dosyaları indirilmiş mi?",
+   "action": "file.exists",
+   "params": {
+    "path": "${klasor}/fatura.pdf",
+    "kind": "file",
+    "output": "hazir"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a004",
+   "title": "Deneme dosyaları hazır",
+   "action": "control.if",
+   "params": {
+    "left": "${hazir}",
+    "operator": "truthy",
+    "right": true
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a003",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Deneme dosyaları bulunamadı: önce Deneme 01'i çalıştırın (masaüstünde Peyrev Deneme klasörünü oluşturur)."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a005",
+   "title": "Müşteri listesi",
+   "action": "file.read_table",
+   "params": {
+    "path": "${klasor}/musteriler.xlsx",
+    "output": "musteriler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a006",
+   "title": "Deneme sayfasını aç",
+   "action": "web.open",
+   "params": {
+    "url": "https://peyrev.com/egitim/deneme/web/",
+    "headless": false
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a015",
+   "title": "Her müşteri için",
+   "action": "control.for_each",
+   "params": {
+    "items": "${musteriler}",
+    "item_name": "row"
+   },
+   "children": [
+    {
+     "id": "a007",
+     "title": "Ad Soyad",
+     "action": "web.fill",
+     "params": {
+      "by": "label",
+      "target": "Ad Soyad",
+      "text": "${row.Ad}"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a008",
+     "title": "E-posta",
+     "action": "web.fill",
+     "params": {
+      "by": "placeholder",
+      "target": "ornek@firma.com",
+      "text": "${row.Eposta}"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a009",
+     "title": "Şehir",
+     "action": "web.select",
+     "params": {
+      "by": "label",
+      "target": "Şehir",
+      "option": "${row.Sehir}",
+      "output": "secilen"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a010",
+     "title": "Kaydet",
+     "action": "web.click",
+     "params": {
+      "by": "button",
+      "target": "Kaydet",
+      "click": "single"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a011",
+     "title": "Kaydın bitmesini bekle",
+     "action": "web.wait",
+     "params": {
+      "condition": "visible",
+      "by": "text",
+      "target": "Kaydedildi: ${row.Ad}",
+      "wait": 10,
+      "on_missing": "stop"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a012",
+     "title": "Sonucu oku",
+     "action": "web.read",
+     "params": {
+      "by": "css",
+      "target": "#sonuc",
+      "output": "sonuc"
+     },
+     "children": [],
+     "otherwise": []
+    },
+    {
+     "id": "a014",
+     "title": "Kayıt doğru",
+     "action": "control.if",
+     "params": {
+      "left": "${sonuc}",
+      "operator": "contains",
+      "right": "${row.Sehir}"
+     },
+     "children": [],
+     "otherwise": [
+      {
+       "id": "a013",
+       "title": "Beklenen sonuç çıkmadı",
+       "action": "control.stop",
+       "params": {
+        "status": "failure",
+        "message": "Sonuç seçilen şehri göstermeliydi."
+       },
+       "children": [],
+       "otherwise": []
+      }
+     ]
+    }
+   ],
+   "otherwise": []
+  },
+  {
+   "id": "a016",
+   "title": "Faturayı yükle",
+   "action": "web.upload",
+   "params": {
+    "by": "label",
+    "target": "Belge",
+    "files": "${klasor}/fatura.pdf"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a017",
+   "title": "Seçilen dosya",
+   "action": "web.read",
+   "params": {
+    "by": "css",
+    "target": "#dosya-adi",
+    "output": "dosya_adi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a019",
+   "title": "Dosya seçildi",
+   "action": "control.if",
+   "params": {
+    "left": "${dosya_adi}",
+    "operator": "contains",
+    "right": "fatura.pdf"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a018",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yüklenen dosyanın adı görünmeliydi."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a020",
+   "title": "Arama",
+   "action": "web.fill",
+   "params": {
+    "by": "placeholder",
+    "target": "Sipariş ara",
+    "text": "Akın"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a021",
+   "title": "Enter",
+   "action": "web.press",
+   "params": {
+    "key": "Enter",
+    "by": "placeholder",
+    "target": "Sipariş ara"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a022",
+   "title": "Arama sonucu",
+   "action": "web.read",
+   "params": {
+    "by": "css",
+    "target": "#arama-sonuc",
+    "output": "arama"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a024",
+   "title": "Bir sipariş bulundu",
+   "action": "control.if",
+   "params": {
+    "left": "${arama}",
+    "operator": "contains",
+    "right": "1 sipariş"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a023",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Aramada 1 sipariş kalmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a025",
+   "title": "Aramayı temizle",
+   "action": "web.fill",
+   "params": {
+    "by": "placeholder",
+    "target": "Sipariş ara",
+    "text": ""
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a026",
+   "title": "Enter",
+   "action": "web.press",
+   "params": {
+    "key": "Enter",
+    "by": "placeholder",
+    "target": "Sipariş ara"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a027",
+   "title": "Siparişleri oku",
+   "action": "web.read_table",
+   "params": {
+    "by": "css",
+    "target": "#siparisler",
+    "header": true,
+    "output": "siparisler"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a028",
+   "title": "Siparişleri say",
+   "action": "data.list",
+   "params": {
+    "list": "${siparisler}",
+    "operation": "length",
+    "output": "siparis"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a030",
+   "title": "Dört sipariş",
+   "action": "control.if",
+   "params": {
+    "left": "${siparis}",
+    "operator": "eq",
+    "right": 4
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a029",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Tabloda dört sipariş olmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a031",
+   "title": "Duruma göre",
+   "action": "data.group",
+   "params": {
+    "list": "${siparisler}",
+    "group_by": "Durum",
+    "field_1": "Tutar",
+    "operation_1": "toplam",
+    "output": "durumlar"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a032",
+   "title": "Raporu hazırla",
+   "action": "web.click",
+   "params": {
+    "by": "button",
+    "target": "Raporu hazırla"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a033",
+   "title": "Raporu bekle",
+   "action": "web.wait",
+   "params": {
+    "condition": "visible",
+    "by": "text",
+    "target": "Rapor hazır",
+    "wait": 15,
+    "on_missing": "stop",
+    "output": "rapor"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a034",
+   "title": "Satırları JavaScript ile say",
+   "action": "web.script",
+   "params": {
+    "code": "return document.querySelectorAll('#siparisler tbody tr').length;",
+    "output": "js_sayi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a036",
+   "title": "JavaScript sonucu",
+   "action": "control.if",
+   "params": {
+    "left": "${js_sayi}",
+    "operator": "eq",
+    "right": 4
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a035",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "JavaScript dört satır saymalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a037",
+   "title": "Yardımı yeni sekmede aç",
+   "action": "web.click",
+   "params": {
+    "by": "text",
+    "target": "Yardım sayfasını yeni sekmede aç"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a038",
+   "title": "Yeni sekmeye geç",
+   "action": "web.tab",
+   "params": {
+    "action": "last",
+    "output": "yardim_adresi"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a039",
+   "title": "Sayfa başlığı",
+   "action": "web.script",
+   "params": {
+    "code": "return document.title;",
+    "output": "baslik"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a041",
+   "title": "Yardım sekmesi",
+   "action": "control.if",
+   "params": {
+    "left": "${baslik}",
+    "operator": "contains",
+    "right": "yardım"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a040",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Yeni sekmede yardım sayfası açılmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a042",
+   "title": "Sekmeyi kapat",
+   "action": "web.tab",
+   "params": {
+    "action": "close"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a043",
+   "title": "Deneme sayfasına dön",
+   "action": "web.tab",
+   "params": {
+    "action": "url",
+    "match": "/egitim/deneme/web/"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a044",
+   "title": "Yardıma git",
+   "action": "web.click",
+   "params": {
+    "by": "text",
+    "target": "Yardım sayfasına git"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a045",
+   "title": "Adresin değişmesini bekle",
+   "action": "web.wait",
+   "params": {
+    "condition": "url",
+    "url_text": "/yardim/",
+    "wait": 15,
+    "on_missing": "stop"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a046",
+   "title": "Geri",
+   "action": "web.navigate",
+   "params": {
+    "action": "back",
+    "output": "adres"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a048",
+   "title": "Deneme sayfasına dönüldü",
+   "action": "control.if",
+   "params": {
+    "left": "${adres}",
+    "operator": "contains",
+    "right": "/egitim/deneme/web/"
+   },
+   "children": [],
+   "otherwise": [
+    {
+     "id": "a047",
+     "title": "Beklenen sonuç çıkmadı",
+     "action": "control.stop",
+     "params": {
+      "status": "failure",
+      "message": "Geri gidince deneme sayfası açılmalıydı."
+     },
+     "children": [],
+     "otherwise": []
+    }
+   ]
+  },
+  {
+   "id": "a049",
+   "title": "Yenile",
+   "action": "web.navigate",
+   "params": {
+    "action": "reload"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a050",
+   "title": "Sayfanın görüntüsü",
+   "action": "web.screenshot",
+   "params": {
+    "filename": "deneme-sayfasi.png",
+    "full_page": true,
+    "output": "goruntu"
+   },
+   "children": [],
+   "otherwise": []
+  },
+  {
+   "id": "a051",
+   "title": "Bitti",
+   "action": "control.stop",
+   "params": {
+    "status": "success",
+    "message": "Web adımlarının hepsi beklenen sonucu verdi."
+   },
+   "children": [],
+   "otherwise": []
+  }
+ ],
+ "notes": [
+  {
+   "id": "n1",
+   "title": "Formu doldur",
+   "text": "Excel'deki her müşteri için: alanı etiketiyle veya silik yazısıyla bul, yaz, listeden seç, Kaydet'e bas ve sonucun görünmesini bekle.",
+   "color": "yellow",
+   "steps": [
+    "a001",
+    "a002",
+    "a004",
+    "a005",
+    "a006",
+    "a015"
+   ]
+  },
+  {
+   "id": "n2",
+   "title": "Dosya yükle ve ara",
+   "text": "Web'e dosya yükle gizli dosya alanına da dosya verir; Web'de tuşa bas alana Enter gönderir.",
+   "color": "yellow",
+   "steps": [
+    "a016",
+    "a017",
+    "a019",
+    "a020",
+    "a021",
+    "a022",
+    "a024",
+    "a025",
+    "a026"
+   ]
+  },
+  {
+   "id": "n3",
+   "title": "Tablo ve bekleme",
+   "text": "Web tablosunu oku satırları başlık adlarıyla verir; Web'de bekle sabit süre yerine yazı görünene kadar bekler.",
+   "color": "yellow",
+   "steps": [
+    "a027",
+    "a028",
+    "a030",
+    "a031",
+    "a032",
+    "a033",
+    "a034",
+    "a036"
+   ]
+  },
+  {
+   "id": "n4",
+   "title": "Sekmeler ve gezinme",
+   "text": "Yeni sekmede açılan sayfaya Web sekmesine geç ile geçilir, işi bitince kapatılır; Geri / ileri / yenile tarayıcı düğmeleri gibidir.",
+   "color": "yellow",
+   "steps": [
+    "a037",
+    "a038",
+    "a039",
+    "a041",
+    "a042",
+    "a043",
+    "a044",
+    "a045",
+    "a046",
+    "a048",
+    "a049",
+    "a050",
+    "a051"
+   ]
+  }
+ ]
+}
