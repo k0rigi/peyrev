@@ -288,7 +288,7 @@ def test_every_package_has_a_card_with_its_price_and_the_twin_card_links_the_liv
     assert prices == ["10 $ / ay + KDV", "20 $ / ay + KDV", "100 $ / ay + KDV"]
     twin = cards[2]
     links = {node.attrs["href"]: node.text() for node in twin.walk() if node.tag == "a"}
-    assert links == {"#basvuru": "Başvur", "/ikiz/": "Canlı demoyu gör"}
+    assert links == {"#basvuru": "Başvur", "https://ikiz.peyrev.com/?demo=1": "Canlı demoyu gör"}
     points = " ".join(node.text() for node in twin.walk() if node.tag == "li" and node is not twin)
     for words in ("Peyrev + Ajanlar", "3B ve 2B", "rampa", "doluluk", "kabulden rafa", "toplama hızı", "eksik oranı",
                   "ERP", "Tesis başına"):

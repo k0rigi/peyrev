@@ -44,6 +44,7 @@ def issue(core, user: dict[str, Any]) -> str:
     """İmzalı, 720 saniye geçerli giriş belirteci (hakkı çağıran denetler)."""
     issued = int(core.clock.now().timestamp())
     payload = {"aud": AUDIENCE, "sub": int(user["id"]), "ad": name(user), "iat": issued,
-               "exp": issued + LIFETIME_SECONDS, "jti": secrets.token_hex(16)}
+               "exp": issued + LIFETIME_SECONDS, "jti": secrets.token_hex(16),
+               "yonetici": user.get("rol") == "yonetici"}  # danışman: bütün firma adreslerine girebilir
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     return _b64(body) + "." + _b64(core.keys.ikiz_sign(body))

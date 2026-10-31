@@ -27,7 +27,7 @@ from peyrev.accounts import admin, ikiz, licensing
 from peyrev.keys import Keys
 
 PART = re.compile(r"[A-Za-z0-9_-]+")
-CLAIMS = ["aud", "sub", "ad", "iat", "exp", "jti"]
+CLAIMS = ["aud", "sub", "ad", "iat", "exp", "jti", "yonetici"]
 
 
 def _unpad(text: str) -> bytes:
@@ -84,7 +84,7 @@ def test_the_token_has_the_exact_format_and_only_the_twin_key_signs_it(core):
     token = ikiz.issue(core, user)
     claims = verify_twin(token, core.keys.ikiz_public_key, now(core))
     assert claims == {"aud": "ikiz", "sub": user["id"], "ad": "Ayşe Çınar", "iat": int(START.timestamp()),
-                      "exp": int(START.timestamp()) + 720, "jti": claims["jti"]}
+                      "exp": int(START.timestamp()) + 720, "jti": claims["jti"], "yonetici": False}
     assert "Ayşe Çınar".encode() in _unpad(token.split(".")[0])  # UTF-8, not \\u escapes
     assert ikiz.issue(core, user).split(".")[0] != token.split(".")[0]  # a new jti every time
     with pytest.raises(InvalidSignature):
@@ -169,8 +169,8 @@ def test_the_account_link_opens_the_twin_with_a_fresh_token(app, client, core):
     opened = ali.get("/api/uye/ikiz")
     assert opened.status_code == 303 and opened.headers["Cache-Control"] == "no-store"
     location = opened.headers["Location"]
-    assert location.startswith("/ikiz/giris?b=")
-    claims = verify_twin(location.removeprefix("/ikiz/giris?b="), core.keys.ikiz_public_key, now(core))
+    assert location.startswith("https://ikiz.peyrev.com/giris?b=")
+    claims = verify_twin(location.removeprefix("https://ikiz.peyrev.com/giris?b="), core.keys.ikiz_public_key, now(core))
     assert claims["ad"] == "Ali Veli" and opened.headers["Referrer-Policy"] == "no-referrer"
     # After the last day the link explains instead.
     core.clock.at = START + timedelta(days=2)
@@ -189,7 +189,8 @@ def test_an_account_without_the_twin_is_sent_back_and_the_owner_goes_in(app, cor
     owner = make_user(core, "yonetici@peyrev.test", rol="yonetici")
     browser = member(app, "yonetici@peyrev.test")
     location = browser.get("/api/uye/ikiz").headers["Location"]
-    assert verify_twin(location.split("b=", 1)[1], core.keys.ikiz_public_key, now(core))["sub"] == owner["id"]
+    claims = verify_twin(location.split("b=", 1)[1], core.keys.ikiz_public_key, now(core))
+    assert claims["sub"] == owner["id"] and claims["yonetici"] is True
 
 
 def test_renewal_from_the_account_page_accepts_the_twin_package(app, core):
@@ -258,3 +259,46 @@ def test_the_database_accepts_the_twin_right_and_package_and_nothing_else(core):
     with pytest.raises(psycopg.errors.CheckViolation), core.db.transaction() as cur:
         cur.execute("INSERT INTO basvurular (id, ad_soyad, eposta, paket, aydinlatma_surumu, olusturma) "
                     "VALUES (%s, 'A', 'a@ornek.test', 'yok', '2026-10-26', now())", ("f" * 32,))
+
+
+def twin_form(client, origin, kullanici="ali@ornek.test", sifre="Gizli12345"):
+    return client.post("/api/uye/ikiz-giris", data={"kullanici": kullanici, "sifre": sifre},
+                       headers={"Origin": origin})
+
+
+def test_the_twin_sign_in_screen_signs_in_with_the_peyrev_password(client, core):
+    make_user(core, "ali@ornek.test", ad_soyad="Ali Veli", modules={users.RPA: None, users.IKIZ: None})
+    make_user(core, "veli@ornek.test", modules={users.RPA: None})
+    opened = twin_form(client, "https://ikiz.peyrev.com")
+    assert opened.status_code == 303 and opened.headers["Cache-Control"] == "no-store"
+    location = opened.headers["Location"]
+    assert location.startswith("https://ikiz.peyrev.com/giris?b=")
+    assert verify_twin(location.split("b=", 1)[1], core.keys.ikiz_public_key, now(core))["ad"] == "Ali Veli"
+    assert "peyrev_hesap" not in opened.headers.get("Set-Cookie", "")  # no peyrev.com session is opened
+    # A firm's own address gets the user back to that address.
+    firm = twin_form(client, "https://basbug.peyrev.com").headers["Location"]
+    assert firm.startswith("https://basbug.peyrev.com/giris?b=")
+    assert twin_form(client, "https://ikiz.peyrev.com", sifre="yanlis").headers["Location"] == \
+        "https://ikiz.peyrev.com/?giris=hata"
+    assert twin_form(client, "https://ikiz.peyrev.com", kullanici="veli@ornek.test").headers["Location"] == \
+        "https://ikiz.peyrev.com/?giris=hak"
+    assert twin_form(client, "https://ikiz.peyrev.com", sifre="").headers["Location"] == \
+        "https://ikiz.peyrev.com/?giris=hata"
+
+
+@pytest.mark.parametrize("origin", ["", "https://peyrev.com", "https://www.peyrev.com", "https://mail.peyrev.com",
+                                    "https://kotu.example", "http://ikiz.peyrev.com", "https://a.b.peyrev.com",
+                                    "https://ikiz.peyrev.com.kotu.example"])
+def test_the_twin_sign_in_accepts_only_twin_addresses(client, core, origin):
+    make_user(core, "ali@ornek.test", modules={users.IKIZ: None})
+    answer = twin_form(client, origin)
+    assert answer.status_code == 403 and "Location" not in answer.headers
+
+
+def test_the_twin_sign_in_shares_the_attempt_limit(client, core):
+    make_user(core, "ali@ornek.test", modules={users.IKIZ: None})
+    places = [twin_form(client, "https://ikiz.peyrev.com", sifre="yanlis").headers["Location"] for _ in range(12)]
+    assert places[0] == "https://ikiz.peyrev.com/?giris=hata"
+    assert places[-1] == "https://ikiz.peyrev.com/?giris=cok"
+    # The right password is refused too while the limit holds.
+    assert twin_form(client, "https://ikiz.peyrev.com").headers["Location"] == "https://ikiz.peyrev.com/?giris=cok"

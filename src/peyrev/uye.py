@@ -60,9 +60,14 @@ NO_SUBSCRIPTION = ("Topluluk, aboneliği devam eden Peyrev hesaplarına açıkt�
                    "peyrev.com/#basvuru formunu kullanın.")
 SESSION_REQUIRED = "Peyrev hesabınızla giriş yapın."
 SESSION_CLOSED = "Oturumunuz kapandı. Yeniden giriş yapın."
-TWIN_SIGN_IN = "/ikiz/giris?b="
+TWIN_HOME = "https://ikiz.peyrev.com"
+TWIN_SIGN_IN = TWIN_HOME + "/giris?b="
 TWIN_REFUSED = "/hesabim/?ikiz=yok"
 TWIN_NO_SESSION = "/hesabim/?ikiz=giris"
+# Dijital İkiz'in giriş ekranı (ikiz.peyrev.com ve firma adresleri <ad>.peyrev.com) kullanıcı adı ve şifreyi bu uca
+# form olarak gönderir; şifre ikiz servisine hiç uğramaz. Yalnız bu adreslerden gelen istek kabul edilir.
+TWIN_ORIGIN = re.compile(r"^https://([a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?)\.peyrev\.com$")
+TWIN_LOGIN_ERRORS = {"HATALI_GIRIS": "hata", "BELIRSIZ": "hata", "COK_DENEME": "cok", "EKSIK": "hata"}
 
 
 def digest(token: str) -> str:
@@ -101,8 +106,8 @@ def subscribed(core, cur: Cursor, user: dict[str, Any]) -> bool:
     return user["durum"] == "aktif" and license_refusal(cur, user, core.clock.today_tr())[0] is None
 
 
-def sign_in(core, cur: Cursor, login: str, password: str, address: str, agent: str | None) -> Any:
-    """(belirteç, hesap) ya da kaydedilip sonra fırlatılacak ret."""
+def authenticate(core, cur: Cursor, login: str, password: str, address: str) -> dict[str, Any] | ApiError:
+    """Hesap ya da kaydedilip sonra fırlatılacak ret; deneme sınırı Studio ve Hesabım girişiyle ortaktır."""
     moment = core.clock.now()
     candidates = users.find_by_login(cur, login)
     rules.login_attempts_left(cur, login, address, moment, candidates)
@@ -113,7 +118,15 @@ def sign_in(core, cur: Cursor, login: str, password: str, address: str, agent: s
         rules.equalize([user["sifre_hash"] for user in candidates], password)
         rules.login_failed(cur, rules.failed_name(login, candidates), address, moment)
         return ApiError(WRONG_LOGIN, 401, "HATALI_GIRIS")
-    user = matched[0]  # find_by_login returns active accounts only: a passive one is a wrong login, as in Studio
+    return matched[0]  # find_by_login returns active accounts only: a passive one is a wrong login, as in Studio
+
+
+def sign_in(core, cur: Cursor, login: str, password: str, address: str, agent: str | None) -> Any:
+    """(belirteç, hesap) ya da kaydedilip sonra fırlatılacak ret."""
+    moment = core.clock.now()
+    user = authenticate(core, cur, login, password, address)
+    if isinstance(user, ApiError):
+        return user
     cur.execute("DELETE FROM uye_oturumlari WHERE bitis <= %s OR son_gorulme <= %s", (moment, moment - IDLE))
     token = secrets.token_urlsafe(32)
     cur.execute("INSERT INTO uye_oturumlari (id, kullanici_id, belirtec_ozeti, sifre_izi, ip, tarayici, olusturma, "
@@ -195,8 +208,10 @@ def create_blueprint(core) -> Blueprint:
 
     @blueprint.before_request
     def guard():
-        check_request()
         g.member = None
+        if request.endpoint == "uye.twin_sign_in_route":
+            return None  # a cross-site form from the twin's sign-in screen: it checks its own origin
+        check_request()
         if request.endpoint not in ("uye.sign_in_route", "uye.sign_out_route"):
             try:
                 g.member = _committed(core, lambda cur: verify(core, cur, request.cookies.get(COOKIE)))
@@ -288,6 +303,26 @@ def create_blueprint(core) -> Blueprint:
         with core.db.transaction() as cur:
             allowed = ikiz.allowed(cur, g.member, core.clock.today_tr())
         return _go(TWIN_SIGN_IN + ikiz.issue(core, g.member) if allowed else TWIN_REFUSED)
+
+    @blueprint.post("/ikiz-giris")
+    def twin_sign_in_route():
+        """İkizin giriş ekranındaki form: doğruysa geldiği adrese tek kullanımlık giriş bağlantısıyla döner."""
+        origin = TWIN_ORIGIN.fullmatch(request.headers.get("Origin", ""))
+        if origin is None or origin.group(1) in ("www", "mail"):
+            raise ApiError("İstek doğrulanamadı.", 403, "CSRF")
+        home = f"https://{origin.group(1)}.peyrev.com"
+        login, password = request.form.get("kullanici", ""), request.form.get("sifre", "")
+        if not login.strip() or len(login) > 150 or not password or len(password) > 256:
+            return _go(home + "/?giris=hata")
+        try:
+            user = _committed(core, lambda cur: authenticate(core, cur, login.strip(), password, client_ip()))
+        except ApiError as error:
+            return _go(home + "/?giris=" + TWIN_LOGIN_ERRORS.get(error.kod, "hata"))
+        with core.db.transaction() as cur:
+            allowed = ikiz.allowed(cur, user, core.clock.today_tr())
+        if not allowed:
+            return _go(home + "/?giris=hak")
+        return _go(home + "/giris?b=" + ikiz.issue(core, user))
 
     @blueprint.get("/robotlar")
     def robots_route():
