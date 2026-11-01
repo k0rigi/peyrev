@@ -23,3 +23,9 @@ def test_private_code_is_fetched_read_only_and_never_tested_here():
 def test_inputs_never_reach_a_shell_command():
     for blok in re.findall(r"run: \|\n((?:\s{10}.*\n)+)", AKIS) + re.findall(r"run: (.+)", AKIS):
         assert "${{ inputs" not in blok and "${{ github.event" not in blok
+
+
+def test_firm_twins_ship_in_the_archive():
+    # Firmaya özel ikizler gizli depoda firmalar/<kod>/ altındadır; adları bu açık depoya yazılmaz.
+    satir = next(s for s in AKIS.splitlines() if "git -C ikiz-kaynak archive" in s)
+    assert "deploy/firma.sh" in satir and satir.split()[-1] == "firmalar"

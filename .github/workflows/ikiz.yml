@@ -42,7 +42,7 @@ jobs:
         id: arsiv
         run: |
           sha=$(git -C ikiz-kaynak rev-parse HEAD)
-          git -C ikiz-kaynak archive --format=tar.gz -o "$PWD/ikiz.tar.gz" HEAD src deploy/requirements.lock deploy/alan.sh pyproject.toml
+          git -C ikiz-kaynak archive --format=tar.gz -o "$PWD/ikiz.tar.gz" HEAD src deploy/requirements.lock deploy/alan.sh deploy/firma.sh pyproject.toml firmalar
           cp ikiz-kaynak/deploy/dagit.sh deploy/ikiz-dagit.sh
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
           echo "arsiv=$(sha256sum ikiz.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
