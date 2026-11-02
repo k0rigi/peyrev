@@ -1,5 +1,5 @@
 {
- "surum": "1.7.0",
+ "surum": "1.8.0",
  "kategoriler": [
   "Pencere",
   "Fare ve klavye",
@@ -6695,7 +6695,7 @@
    "tur": "ikiz.send",
    "ad": "İkize gönder (Dijital İkiz)",
    "kategori": "Web, e-posta ve API",
-   "aciklama": "Bir listenin satırlarını (ör. veritabanı sorgusunun veya Excel'in satırları) depo olaylarına çevirip peyrev.com Dijital İkiz'deki tesisinize gönderir ya da bir kaynak sistemden son gönderilen kaydın anahtarını alır. Dijital İkiz hakkı olan hesapta çalışır.",
+   "aciklama": "Bir listenin satırlarını (ör. veritabanı sorgusunun veya Excel'in satırları) depo olaylarına çevirip peyrev.com Dijital İkiz'deki tesisinize (ya da firmanıza özel ikize) gönderir veya bir kaynak sistemden son gönderilen kaydın anahtarını alır. Dijital İkiz hakkı olan hesapta çalışır.",
    "nasil": [
     "Önce satırları okuyun: ör. Veritabanı sorgusu ile depo hareketleri (son anahtardan sonrakiler) veya Excel / CSV oku.",
     "Tesis numarasını yazın ve Satırlar alanına listeyi verin (ör. ${rows}).",
@@ -6707,8 +6707,14 @@
    "alanlar": [
     {
      "ad": "Tesis numarası",
-     "yardim": "Dijital İkiz'deki tesisinizin numarası (peyrev.com/ikiz'de tesis bilgilerinde görünür). ${tesis_no} de yazılabilir.",
+     "yardim": "Dijital İkiz'deki tesisinizin numarası (ikiz.peyrev.com'da tesis bilgilerinde görünür). ${tesis_no} de yazılabilir.",
      "zorunlu": true,
+     "secenekler": []
+    },
+    {
+     "ad": "İkiz adresi (isteğe bağlı)",
+     "yardim": "Firmanıza özel bir ikiz varsa adresi (ör. https://firmaniz.peyrev.com); olay türlerine o ikiz karar verir. Boş: ikiz.peyrev.com.",
+     "zorunlu": false,
      "secenekler": []
     },
     {

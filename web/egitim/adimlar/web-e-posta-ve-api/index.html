@@ -42,7 +42,7 @@
     <div class="wrap">
       <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Adım rehberi</p>
       <h1 id="sayfa-baslik">Web, e-posta ve API</h1>
-      <p class="lead">22 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.7.0.</p>
+      <p class="lead">22 adım: ne yaptığı, nasıl kullanıldığı, ne sonuç verdiği ve hangi deneme akışında denendiği. Peyrev 1.8.0.</p>
     </div>
   </section>
   <section class="band band-tight">
@@ -783,7 +783,7 @@
           <span class="guide-no" aria-label="Adım 108">108</span>
           <h2>İkize gönder (Dijital İkiz)</h2>
         </div>
-        <p class="guide-lead">Bir listenin satırlarını (ör. veritabanı sorgusunun veya Excel&#x27;in satırları) depo olaylarına çevirip peyrev.com Dijital İkiz&#x27;deki tesisinize gönderir ya da bir kaynak sistemden son gönderilen kaydın anahtarını alır. Dijital İkiz hakkı olan hesapta çalışır.</p>
+        <p class="guide-lead">Bir listenin satırlarını (ör. veritabanı sorgusunun veya Excel&#x27;in satırları) depo olaylarına çevirip peyrev.com Dijital İkiz&#x27;deki tesisinize (ya da firmanıza özel ikize) gönderir veya bir kaynak sistemden son gönderilen kaydın anahtarını alır. Dijital İkiz hakkı olan hesapta çalışır.</p>
         <h3>Nasıl kullanılır?</h3>
         <ol>
           <li>Önce satırları okuyun: ör. Veritabanı sorgusu ile depo hareketleri (son anahtardan sonrakiler) veya Excel / CSV oku.</li>
@@ -795,10 +795,12 @@
         <p><code>${ikiz.alindi}</code>: kaydedilen, <code>${ikiz.tekrar}</code>: daha önce gelmiş, <code>${ikiz.hata_sayisi}</code> ve <code>${ikiz.hatalar}</code>: kabul edilmeyen olaylar (her biri satir ve neden). Son anahtarda <code>${ikiz.son_anahtar}</code> (yoksa boş) ve <code>${ikiz.bulundu}</code>.</p>
         <p class="guide-tip"><strong>İpucu.</strong> Olaylar 1.000&#x27;erli paketlerle gider; veri bilgisayardan peyrev.com&#x27;a çıkar. kaynak_anahtar verin: adım yeniden çalışırsa aynı kayıt ikinci kez sayılmaz. Önizleme bu adımı atlar. Yalnız Dijital İkiz hakkı olan hesapta çalışır.</p>
         <details class="guide-fields">
-          <summary>Alanlar (8)</summary>
+          <summary>Alanlar (9)</summary>
           <dl>
             <dt>Tesis numarası <span class="guide-required">zorunlu</span></dt>
-            <dd>Dijital İkiz&#x27;deki tesisinizin numarası (peyrev.com/ikiz&#x27;de tesis bilgilerinde görünür). <code>${tesis_no}</code> de yazılabilir.</dd>
+            <dd>Dijital İkiz&#x27;deki tesisinizin numarası (ikiz.peyrev.com&#x27;da tesis bilgilerinde görünür). <code>${tesis_no}</code> de yazılabilir.</dd>
+            <dt>İkiz adresi (isteğe bağlı)</dt>
+            <dd>Firmanıza özel bir ikiz varsa adresi (ör. https://firmaniz.peyrev.com); olay türlerine o ikiz karar verir. Boş: ikiz.peyrev.com.</dd>
             <dt>İşlem <span class="guide-required">zorunlu</span></dt>
             <dd>Olayları gönder: listedeki her satır bir olay olur. Son gönderilen anahtarı al: bu kaynak sistemden en son hangi kayda kadar gönderildiğini öğrenir; sorguyu oradan sürdürmek için. <span class="guide-options">Seçenekler: Olayları gönder, Son gönderilen anahtarı al.</span></dd>
             <dt>Satırlar <span class="guide-required">zorunlu</span></dt>
