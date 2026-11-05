@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Plantillas de flujos listas para importar en Peyrev y adaptar a su propio trabajo.">
+<title>Plantillas · Peyrev</title>
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=65946c8013">
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+<link rel="alternate" hreflang="tr" href="https://peyrev.com/sablonlar/">
+<link rel="alternate" hreflang="en" href="https://peyrev.com/en/sablonlar/">
+<link rel="alternate" hreflang="fr" href="https://peyrev.com/fr/sablonlar/">
+<link rel="alternate" hreflang="es" href="https://peyrev.com/es/sablonlar/">
+<link rel="alternate" hreflang="ar" href="https://peyrev.com/ar/sablonlar/">
+<link rel="alternate" hreflang="fa" href="https://peyrev.com/fa/sablonlar/">
+<link rel="alternate" hreflang="x-default" href="https://peyrev.com/sablonlar/">
+</head>
+<body>
+<a class="skip" href="#icerik">Ir al contenido</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/es/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Páginas">
+      <a href="/es/#ozellikler">Funciones</a>
+      <a href="/es/cozumler/">Soluciones</a>
+      <a href="/es/sablonlar/" aria-current="page">Plantillas</a>
+      <a href="/egitim/">Formación <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/topluluk/">Comunidad <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/es/#paketler">Precios</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Mi cuenta</a>
+      <a class="button button-gold button-small" href="/es/#basvuru">Solicitar</a>
+      <details class="dil-secici">
+        <summary aria-label="Idioma: Español"><svg class="dil-ikon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.6 3.6 5.6 3.6 9s-1.2 6.4-3.6 9c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3z"/></svg><span class="dil-kodu">ES</span></summary>
+        <ul>
+          <li><a href="/es/sablonlar/" hreflang="tr" lang="tr">Türkçe</a></li>
+          <li><a href="/en/sablonlar/" hreflang="en" lang="en">English</a></li>
+          <li><a href="/fr/sablonlar/" hreflang="fr" lang="fr">Français</a></li>
+          <li><a href="/es/sablonlar/" hreflang="es" lang="es" aria-current="true">Español</a></li>
+          <li><a href="/ar/sablonlar/" hreflang="ar" lang="ar">العربية</a></li>
+          <li><a href="/fa/sablonlar/" hreflang="fa" lang="fa">فارسی</a></li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Biblioteca de plantillas</p>
+      <h1 id="sayfa-baslik">Empiece con flujos listos.</h1>
+      <p class="lead">Cada plantilla es un flujo funcional creado en Peyrev. Descárguela, impórtela en Peyrev y adapte las rutas de archivo, las direcciones y las conexiones a su trabajo.</p>
+    </div>
+  </section>
+
+  <section class="band band-tight">
+    <div class="wrap">
+      <ol class="steps steps-compact" aria-label="Cómo usar una plantilla">
+        <li><h3>Descárguela</h3><p>Pulse Descargar plantilla; se descargará en su equipo un pequeño archivo .json.</p></li>
+        <li><h3>Impórtela en Peyrev</h3><p>En Peyrev, pulse <strong>Akışlar → İçe aktar</strong> (Flujos → Importar) y
+          elija el archivo. El flujo se añade a su lista; no se ejecuta por sí solo.</p></li>
+        <li><h3>Adáptela</h3><p>Cambie las rutas de archivo, las direcciones y las conexiones según su entorno; pruébela
+          primero paso a paso y después prográmela.</p></li>
+      </ol>
+      <ul class="examples templates">
+        <li class="example template" id="fatura">
+          <div class="example-text">
+            <p class="example-dept">Contabilidad</p>
+            <h2>Registro de facturas: de Excel al ERP</h2>
+            <p>Introduce fila a fila las facturas de Excel en la pantalla de facturas del ERP; anota las que no puede registrar, informa de las procesadas y avisa a contabilidad por correo electrónico.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/fatura.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Registro de facturas: de Excel al ERP">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/fatura-koyu.webp">
+              <img src="/assets/ekran/akis/fatura.webp" width="2400" height="249" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Registro de facturas: de Excel al ERP.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>11 pasos.</strong> Necesita: lista de facturas (Excel), la pantalla de facturas del ERP, una conexión de correo electrónico.</p>
+            <a class="button button-small button-dark" href="/sablonlar/fatura.json" download="peyrev-fatura.json">Descargar plantilla</a>
+          </div>
+        </li>
+        <li class="example template" id="kur">
+          <div class="example-text">
+            <p class="example-dept">Finanzas</p>
+            <h2>Tipos de cambio diarios</h2>
+            <p>Lee la tabla de la página de tipos de cambio, la escribe en Excel y avisa al equipo. Con el programador puede ejecutarse automáticamente cada mañana laborable.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/kur.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Tipos de cambio diarios">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/kur-koyu.webp">
+              <img src="/assets/ekran/akis/kur.webp" width="2400" height="262" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Tipos de cambio diarios.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>4 pasos.</strong> Necesita: el archivo de Excel donde se escribirán los tipos de cambio, un canal de notificación configurado en los ajustes (p. ej., Telegram).</p>
+            <a class="button button-small button-dark" href="/sablonlar/kur.json" download="peyrev-kur.json">Descargar plantilla</a>
+          </div>
+        </li>
+        <li class="example template" id="pdf">
+          <div class="example-text">
+            <p class="example-dept">Contabilidad</p>
+            <h2>Archivar facturas en PDF</h2>
+            <p>Lee el PDF de las facturas de la bandeja de entrada; si encuentra el importe, lo mueve a la carpeta del mes y, si no, lo deja pendiente de revisión.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/pdf.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Archivar facturas en PDF">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/pdf-koyu.webp">
+              <img src="/assets/ekran/akis/pdf.webp" width="2400" height="393" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Archivar facturas en PDF.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>6 pasos.</strong> Necesita: una conexión de lectura de correo (IMAP), una carpeta de archivo.</p>
+            <a class="button button-small button-dark" href="/sablonlar/pdf.json" download="peyrev-pdf.json">Descargar plantilla</a>
+          </div>
+        </li>
+        <li class="example template" id="stok">
+          <div class="example-text">
+            <p class="example-dept">Almacén</p>
+            <h2>Aviso de stock crítico</h2>
+            <p>Revisa el stock de la base de datos; enumera los productos por debajo del umbral y avisa a compras.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/stok.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Aviso de stock crítico">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/stok-koyu.webp">
+              <img src="/assets/ekran/akis/stok.webp" width="2400" height="392" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Aviso de stock crítico.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>6 pasos.</strong> Necesita: una conexión a la base de datos (tabla de stock), un canal de notificación.</p>
+            <a class="button button-small button-dark" href="/sablonlar/stok.json" download="peyrev-stok.json">Descargar plantilla</a>
+          </div>
+        </li>
+        <li class="example template" id="web">
+          <div class="example-text">
+            <p class="example-dept">Ventas</p>
+            <h2>Alta masiva en un formulario web</h2>
+            <p>Introduce uno a uno en un panel web los clientes de una lista de Google Sheets y escribe el resultado de cada fila de vuelta en la hoja.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/web.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Alta masiva en un formulario web">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/web-koyu.webp">
+              <img src="/assets/ekran/akis/web.webp" width="2400" height="214" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Alta masiva en un formulario web.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>7 pasos.</strong> Necesita: una conexión de Google Sheets, la dirección del panel web donde se harán las altas.</p>
+            <a class="button button-small button-dark" href="/sablonlar/web.json" download="peyrev-web.json">Descargar plantilla</a>
+          </div>
+        </li>
+        <li class="example template" id="bordro">
+          <div class="example-text">
+            <p class="example-dept">Recursos humanos</p>
+            <h2>Distribuir las nóminas</h2>
+            <p>Enumera los PDF de nóminas de una carpeta, identifica al empleado por el número de personal del nombre del archivo y le envía su nómina por correo electrónico.</p>
+          </div>
+          <a class="example-diagram" href="/assets/ekran/akis/bordro.webp" target="_blank" rel="noopener"
+            aria-label="Abrir ampliado el diagrama Distribuir las nóminas">
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcset="/assets/ekran/akis/bordro-koyu.webp">
+              <img src="/assets/ekran/akis/bordro.webp" width="2400" height="344" loading="lazy" decoding="async"
+                alt="Diagrama en Peyrev del flujo Distribuir las nóminas.">
+            </picture>
+          </a>
+          <div class="template-foot">
+            <p><strong>7 pasos.</strong> Necesita: la carpeta de nóminas, una base de datos con la lista de empleados, una conexión de envío de correo (SMTP).</p>
+            <a class="button button-small button-dark" href="/sablonlar/bordro.json" download="peyrev-bordro.json">Descargar plantilla</a>
+          </div>
+        </li>
+      </ul>
+      <p class="templates-more">Los flujos que comparten los miembros están en la <a href="/topluluk/">Comunidad (en turco)</a>.
+        Solo quienes tienen una cuenta de Peyrev pueden ejecutar las plantillas; si aún no la tiene, <a href="/es/#basvuru">solicítela</a>.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Estudio de flujos de escritorio para Windows y macOS.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Producto">
+      <p>Producto</p>
+      <a href="/es/#ozellikler">Funciones</a>
+      <a href="/es/#ajanlar">Agentes</a>
+      <a href="/es/cozumler/">Soluciones</a>
+      <a href="/es/sablonlar/">Plantillas</a>
+      <a href="/es/#paketler">Precios</a>
+      <a href="/yenilikler/">Novedades <small class="tr-isareti" title="Página en turco">TR</small></a>
+    </nav>
+    <nav aria-label="Recursos">
+      <p>Recursos</p>
+      <a href="/egitim/">Vídeos de formación <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/egitim/adimlar/">Guía de pasos <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/egitim/deneme/">Flujos de práctica <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/topluluk/">Comunidad <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/es/#indir">¿Cómo consigo Peyrev?</a>
+      <a href="/es/#sss">Preguntas frecuentes</a>
+    </nav>
+    <nav aria-label="Cuenta">
+      <p>Cuenta</p>
+      <a href="/hesabim/">Mi cuenta <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/es/#basvuru">Solicitud de cuenta</a>
+      <a href="/es/iletisim/">Contacto</a>
+    </nav>
+    <nav aria-label="Legal">
+      <p>Legal</p>
+      <a href="/yasal/kvkk/">Aviso de datos personales (KVKK) <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/yasal/gizlilik/">Privacidad y cookies <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/yasal/mesafeli-satis/">Contrato de venta a distancia <small class="tr-isareti" title="Página en turco">TR</small></a>
+      <a href="/yasal/iade/">Reembolsos y cancelación <small class="tr-isareti" title="Página en turco">TR</small></a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Los precios no incluyen IVA.</div>
+</footer>
+</body>
+</html>

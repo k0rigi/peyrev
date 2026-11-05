@@ -9,6 +9,8 @@
   const ENDPOINT = '/api/iletisim';
   const SENT = ['ad', 'eposta', 'konu', 'mesaj', 'web_sitesi'];
   const FAILED = 'Mesaj gönderilemedi. Daha sonra tekrar deneyin ya da info@peyrev.com adresine yazın.';
+  // Çeviri sayfasında (assets/ceviri.js) metinler sayfanın diline çevrilir; Türkçe sayfada olduğu gibi kalır.
+  const t = window.peyrevCeviri || ((metin) => metin);
   const OFFLINE = 'Mesaj gönderilemedi. İnternet bağlantınızı kontrol edin.';
 
   const form = document.getElementById('iletisim');
@@ -45,7 +47,7 @@
     if (found) {
       const control = form.elements[found[0]];
       control.setAttribute('aria-invalid', 'true');
-      show(found[1], 'error');
+      show(t(found[1]), 'error');
       control.focus();
       return;
     }
@@ -54,7 +56,7 @@
       if (value(name) || name !== 'web_sitesi') body[name] = value(name);
     }
     submit.disabled = true;
-    submit.textContent = 'Gönderiliyor…';
+    submit.textContent = t('Gönderiliyor…');
     form.setAttribute('aria-busy', 'true');
     show('');
     try {
@@ -66,7 +68,7 @@
           body: JSON.stringify(body),
         });
       } catch (error) {
-        show(OFFLINE, 'error');
+        show(t(OFFLINE), 'error');
         return;
       }
       let answer = {};
@@ -76,11 +78,11 @@
         answer = {};
       }
       if (!response.ok || answer.success !== true) {
-        show(answer.message || FAILED, 'error');
+        show(t(answer.message || FAILED, FAILED), 'error');
         return;
       }
       form.reset();
-      show(answer.message || 'Mesajınız bize ulaştı.', 'ok');
+      show(t(answer.message || 'Mesajınız bize ulaştı.', 'Mesajınız bize ulaştı.'), 'ok');
       status.focus();
     } finally {
       submit.disabled = false;

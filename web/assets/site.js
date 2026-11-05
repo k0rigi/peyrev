@@ -12,6 +12,8 @@
   const SENT = ['ad_soyad', 'eposta', 'telefon', 'sifre', 'paket', 'web_sitesi'];
   const OPTIONAL = ['telefon', 'web_sitesi'];
   const FAILED = 'Başvuru gönderilemedi. Daha sonra tekrar deneyin.';
+  // Çeviri sayfasında (assets/ceviri.js) metinler sayfanın diline çevrilir; Türkçe sayfada olduğu gibi kalır.
+  const t = window.peyrevCeviri || ((metin) => metin);
   const OFFLINE = 'Başvuru gönderilemedi. İnternet bağlantınızı kontrol edin.';
 
   const form = document.getElementById('basvuru');
@@ -70,7 +72,7 @@
     if (found) {
       const control = form.elements[found[0]];
       control.setAttribute('aria-invalid', 'true');
-      show(found[1], 'error');
+      show(t(found[1]), 'error');
       control.focus();
       return;
     }
@@ -80,7 +82,7 @@
       if (text || !OPTIONAL.includes(name)) body[name] = text;
     }
     submit.disabled = true;
-    submit.textContent = 'Gönderiliyor…';
+    submit.textContent = t('Gönderiliyor…');
     form.setAttribute('aria-busy', 'true');
     show('');
     try {
@@ -92,7 +94,7 @@
           body: JSON.stringify(body),
         });
       } catch (error) {
-        show(OFFLINE, 'error');
+        show(t(OFFLINE), 'error');
         return;
       }
       let answer = {};
@@ -102,10 +104,10 @@
         answer = {};
       }
       if (!response.ok || answer.success !== true) {
-        show(answer.message || FAILED, 'error');
+        show(t(answer.message || FAILED, FAILED), 'error');
         return;
       }
-      done(answer.message || 'Başvurunuz alındı.', body.eposta);
+      done(t(answer.message || 'Başvurunuz alındı.', 'Başvurunuz alındı.'), body.eposta);
     } finally {
       submit.disabled = false;
       submit.textContent = submitText;

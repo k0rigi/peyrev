@@ -82,7 +82,6 @@ def test_the_page_is_strict_and_self_contained(page):
 @pytest.mark.parametrize("page", PAGES, ids=name)
 def test_internal_links_reach_pages_and_anchors(page):
     tags = parsed(page)
-    home_ids = parsed(WEB / "index.html").ids
     for tag, attrs in tags.tags:
         href = attrs.get("href") if tag == "a" else None
         if not href or href.startswith(("mailto:", "tel:", "https://peyrev.com/indir/")):
@@ -99,8 +98,8 @@ def test_internal_links_reach_pages_and_anchors(page):
         target = WEB / path.removeprefix("/")
         exists = (target / "index.html").is_file() if path.endswith("/") else target.is_file()
         assert exists, (name(page), href)
-        if anchor and path == "/":
-            assert anchor in home_ids, (name(page), href)
+        if anchor and path.endswith("/"):
+            assert anchor in parsed(target / "index.html").ids, (name(page), href)  # ana sayfa ve çevirileri
 
 
 def script(name: str) -> str:

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; object-src 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Écrivez à l'équipe Peyrev pour toute question commerciale, tarifaire ou technique.">
+<title>Contact · Peyrev</title>
+<link rel="icon" href="/assets/peyrev-mark-32.png">
+<link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
+<link rel="stylesheet" href="/assets/site.css?v=65946c8013">
+<script src="/assets/ceviri.js?v=9ce53e4702" defer></script>
+<script src="/assets/iletisim.js?v=780f7b2998" defer></script>
+<script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
+<link rel="alternate" hreflang="tr" href="https://peyrev.com/iletisim/">
+<link rel="alternate" hreflang="en" href="https://peyrev.com/en/iletisim/">
+<link rel="alternate" hreflang="fr" href="https://peyrev.com/fr/iletisim/">
+<link rel="alternate" hreflang="es" href="https://peyrev.com/es/iletisim/">
+<link rel="alternate" hreflang="ar" href="https://peyrev.com/ar/iletisim/">
+<link rel="alternate" hreflang="fa" href="https://peyrev.com/fa/iletisim/">
+<link rel="alternate" hreflang="x-default" href="https://peyrev.com/iletisim/">
+</head>
+<body>
+<a class="skip" href="#icerik">Aller au contenu</a>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="/fr/">
+      <img src="/assets/peyrev-mark-192.png" alt="" width="34" height="34">
+      <span>Peyrev</span>
+    </a>
+    <nav class="site-nav" aria-label="Pages">
+      <a href="/fr/#ozellikler">Fonctionnalités</a>
+      <a href="/fr/cozumler/">Solutions</a>
+      <a href="/fr/sablonlar/">Modèles</a>
+      <a href="/egitim/">Formation <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/topluluk/">Communauté <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/fr/#paketler">Tarifs</a>
+    </nav>
+    <div class="header-actions">
+      <a class="button button-quiet button-small" href="/hesabim/">Mon compte</a>
+      <a class="button button-gold button-small" href="/fr/#basvuru">Demande</a>
+      <details class="dil-secici">
+        <summary aria-label="Langue: Français"><svg class="dil-ikon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.6 3.6 5.6 3.6 9s-1.2 6.4-3.6 9c-2.4-2.6-3.6-5.6-3.6-9S9.6 5.6 12 3z"/></svg><span class="dil-kodu">FR</span></summary>
+        <ul>
+          <li><a href="/fr/iletisim/" hreflang="tr" lang="tr">Türkçe</a></li>
+          <li><a href="/en/iletisim/" hreflang="en" lang="en">English</a></li>
+          <li><a href="/fr/iletisim/" hreflang="fr" lang="fr" aria-current="true">Français</a></li>
+          <li><a href="/es/iletisim/" hreflang="es" lang="es">Español</a></li>
+          <li><a href="/ar/iletisim/" hreflang="ar" lang="ar">العربية</a></li>
+          <li><a href="/fa/iletisim/" hreflang="fa" lang="fa">فارسی</a></li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</header>
+
+<main id="icerik" tabindex="-1">
+  <section class="page-hero page-hero-small" aria-labelledby="sayfa-baslik">
+    <div class="wrap">
+      <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Contact</p>
+      <h1 id="sayfa-baslik">Écrivez-nous.</h1>
+      <p class="lead">Une question commerciale, tarifaire ou technique&nbsp;? Remplissez le formulaire ou écrivez à info@peyrev.com&nbsp;; nous vous répondrons par e-mail.</p>
+    </div>
+  </section>
+
+  <section class="band band-tight">
+    <div class="wrap apply-grid">
+      <form class="card contact" id="iletisim" novalidate aria-labelledby="iletisim-baslik">
+        <h2 id="iletisim-baslik">Envoyez un message</h2>
+        <div class="fields">
+          <label class="field" for="i-ad">Nom et prénom
+            <input id="i-ad" name="ad" type="text" autocomplete="name" required minlength="2" maxlength="120">
+          </label>
+          <label class="field" for="i-eposta">E-mail
+            <input id="i-eposta" name="eposta" type="email" autocomplete="email" autocapitalize="none" spellcheck="false"
+              required maxlength="150">
+          </label>
+          <label class="field field-wide" for="i-konu">Objet
+            <select id="i-konu" name="konu" required>
+              <option value="satis">Ventes et tarifs</option>
+              <option value="teknik">Question technique</option>
+              <option value="diger">Autre</option>
+            </select>
+          </label>
+          <label class="field field-wide" for="i-mesaj">Votre message
+            <textarea id="i-mesaj" name="mesaj" rows="7" required minlength="10" maxlength="3000"
+              aria-describedby="i-mesaj-ipucu"></textarea>
+            <span class="hint" id="i-mesaj-ipucu">10 à 3000 caractères. N'indiquez ni mot de passe ni données de carte bancaire.</span>
+          </label>
+        </div>
+        <label class="trap" aria-hidden="true">Site web
+          <input name="web_sitesi" type="text" tabindex="-1" autocomplete="off">
+        </label>
+        <p class="consent-links">Votre nom, votre adresse e-mail, votre message et l'adresse IP depuis laquelle il a été
+          envoyé sont conservés pour vous répondre et prévenir les abus&nbsp;; les messages sont supprimés au bout d'un an.
+          Détails&nbsp;: <a href="/yasal/kvkk/">Note d'information KVKK, la loi turque sur la protection des données personnelles (en turc)</a>.</p>
+        <p class="form-status" id="iletisim-durumu" role="status" aria-live="polite" tabindex="-1" hidden></p>
+        <button class="button button-gold" type="submit">Envoyer</button>
+      </form>
+      <aside class="card account" aria-labelledby="yol-baslik">
+        <h2 id="yol-baslik">Adressez-vous au bon endroit</h2>
+        <p><strong>E-mail&nbsp;:</strong> <a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+        <p><strong>Si vous utilisez Peyrev</strong>, signalez le problème avec le bouton <strong>Öneri ve destek</strong>
+          (suggestions et assistance) de l'application&nbsp;: vous pouvez joindre à la demande la structure du flux et le
+          journal d'erreurs, et la réponse s'affiche dans Taleplerim (mes demandes).</p>
+        <p>Pour les questions de <strong>licence, de téléchargement et de mot de passe</strong>, rendez-vous sur la page
+          <a href="/hesabim/">Mon compte (en turc)</a>.</p>
+        <p>Pour <strong>ouvrir un compte</strong>, remplissez le <a href="/fr/#basvuru">formulaire de demande</a>&nbsp;; nous
+          vous communiquerons les modalités de paiement.</p>
+        <p>Pour poser vos questions aux autres utilisateurs et partager des flux&nbsp;: la
+          <a href="/topluluk/">Communauté (en turc)</a>.</p>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <span class="brand brand-small"><img src="/assets/peyrev-mark-32.png" alt="" width="22" height="22">Peyrev</span>
+      <p>Studio de flux de bureau pour Windows et macOS.</p>
+      <p><a href="mailto:info@peyrev.com">info@peyrev.com</a></p>
+    </div>
+    <nav aria-label="Produit">
+      <p>Produit</p>
+      <a href="/fr/#ozellikler">Fonctionnalités</a>
+      <a href="/fr/#ajanlar">Agents</a>
+      <a href="/fr/cozumler/">Solutions</a>
+      <a href="/fr/sablonlar/">Modèles</a>
+      <a href="/fr/#paketler">Tarifs</a>
+      <a href="/yenilikler/">Nouveautés <small class="tr-isareti" title="Page en turc">TR</small></a>
+    </nav>
+    <nav aria-label="Ressources">
+      <p>Ressources</p>
+      <a href="/egitim/">Vidéos de formation <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/egitim/adimlar/">Guide des étapes <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/egitim/deneme/">Flux d'exercice <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/topluluk/">Communauté <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/fr/#indir">Comment obtenir Peyrev ?</a>
+      <a href="/fr/#sss">Questions fréquentes</a>
+    </nav>
+    <nav aria-label="Compte">
+      <p>Compte</p>
+      <a href="/hesabim/">Mon compte <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/fr/#basvuru">Demande de compte</a>
+      <a href="/fr/iletisim/">Contact</a>
+    </nav>
+    <nav aria-label="Mentions légales">
+      <p>Mentions légales</p>
+      <a href="/yasal/kvkk/">Information sur les données personnelles (KVKK) <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/yasal/gizlilik/">Confidentialité et cookies <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/yasal/mesafeli-satis/">Contrat de vente à distance <small class="tr-isareti" title="Page en turc">TR</small></a>
+      <a href="/yasal/iade/">Remboursement et annulation <small class="tr-isareti" title="Page en turc">TR</small></a>
+    </nav>
+  </div>
+  <div class="wrap footer-note">© 2026 Peyrev · Prix hors TVA.</div>
+</footer>
+</body>
+</html>

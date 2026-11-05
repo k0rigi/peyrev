@@ -161,7 +161,7 @@ def test_the_form_controls_follow_the_server_rules():
     assert (trap.attrs["tabindex"], trap.attrs["autocomplete"]) == ("-1", "off")
     [label] = [node for node in trap.ancestors() if node.tag == "label"]
     assert label.attrs["class"] == "trap" and label.attrs["aria-hidden"] == "true"
-    assert re.search(r"\.trap \{[^}]*position: absolute; left: -10000px;", STYLE)
+    assert re.search(r"\.trap \{[^}]*position: absolute; inset-inline-start: -10000px;", STYLE)
     assert "novalidate" in FORM.attrs and "action" not in FORM.attrs and "method" not in FORM.attrs
 
 
@@ -221,7 +221,7 @@ def test_the_page_loads_nothing_from_another_origin():
         for name in ("src", "srcset", "poster", "data"):
             if name in node.attrs:
                 loaded.append((node.tag, node.attrs[name]))
-        if node.tag == "link" and "href" in node.attrs:
+        if node.tag == "link" and "href" in node.attrs and node.attrs.get("rel") != "alternate":  # dil adresleri
             loaded.append((node.tag, node.attrs["href"]))
         assert node.tag not in ("iframe", "object", "embed", "base"), node.tag
     assert loaded and all(value.startswith("/") and not value.startswith("//") for _tag, value in loaded), loaded
@@ -269,7 +269,7 @@ def test_the_links_inside_the_page_have_their_targets():
 
 def test_a_received_application_replaces_the_form_with_a_confirmation():
     code = re.sub(r"/\*.*?\*/", "", SCRIPT, flags=re.DOTALL)
-    assert "done(answer.message || 'Başvurunuz alındı.', body.eposta);" in code
+    assert "done(t(answer.message || 'Başvurunuz alındı.', 'Başvurunuz alındı.'), body.eposta);" in code
     assert "getElementById('basvuru-tamam-metni').textContent = text;" in code
     assert "getElementById('basvuru-tamam-eposta').textContent = email;" in code
     assert "form.classList.add('is-done');" in code
