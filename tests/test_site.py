@@ -278,25 +278,42 @@ def test_a_received_application_replaces_the_form_with_a_confirmation():
     assert ".apply.is-done > :not(.apply-done) { display: none; }" in (WEB / "assets" / "site.css").read_text(encoding="utf-8")
 
 
-# ----- fiyatlar ve adım sayısı ----------------------------------------------------------------------------------
-def test_every_package_has_a_card_with_its_price_and_the_twin_card_links_the_live_demo():
+# ----- paketler (tutar yazılmaz) ve adım sayısı ------------------------------------------------------------------
+TUTAR = re.compile(r"\d\s?(\$|€|₺|TL\b|USD\b|dolar)|(\$|€|₺)\s?\d|ABD doları|/\s?(ay|month|mois|mes|ماه)\b|شهريًا")
+
+
+def test_every_package_has_a_card_that_asks_to_contact_for_the_price_and_the_twin_card_links_the_live_demo():
     [section] = PAGE.all("section", id="paketler")
     cards = [node for node in section.walk() if node.tag == "li" and "package" in node.attrs.get("class", "").split()]
     titles = [next(child.text() for child in card.walk() if child.tag == "h3") for card in cards]
     assert titles == list(applications.PACKAGES.values()) == ["Peyrev", "Peyrev + Ajanlar", "Peyrev Dijital İkiz"]
-    prices = [next(child.text() for child in card.walk() if child.attrs.get("class") == "price") for card in cards]
-    assert prices == ["10 $ / ay + KDV", "20 $ / ay + KDV", "100 $ / ay + KDV"]
+    for card in cards:
+        [ask] = [child for child in card.walk() if child.attrs.get("class") == "price-ask"]
+        [link] = [node for node in ask.walk() if node.tag == "a"]
+        assert (link.attrs["href"], link.text()) == ("/iletisim/", "Fiyat için iletişime geçin")
     twin = cards[2]
     links = {node.attrs["href"]: node.text() for node in twin.walk() if node.tag == "a"}
-    assert links == {"#basvuru": "Başvur", "https://ikiz.peyrev.com/?demo=1": "Canlı demoyu gör"}
+    assert links == {"/iletisim/": "Fiyat için iletişime geçin", "#basvuru": "Başvur",
+                     "https://ikiz.peyrev.com/?demo=1": "Canlı demoyu gör"}
     points = " ".join(node.text() for node in twin.walk() if node.tag == "li" and node is not twin)
     for words in ("Peyrev + Ajanlar", "3B ve 2B", "rampa", "doluluk", "kabulden rafa", "toplama hızı", "eksik oranı",
                   "ERP", "Tesis başına"):
         assert words in points, words
-    # The form and the frequently asked question name the same price.
     [option] = [node for node in control("paket") if node.attrs["value"] == "ikiz"]
-    assert "Peyrev Dijital İkiz · 100 $/ay + KDV" in option.parent.text()
-    assert "Peyrev Dijital İkiz tesis başına aylık 100 $" in " ".join(HTML.split())
+    assert option.parent.text().startswith("Peyrev Dijital İkiz Peyrev + Ajanlar")
+
+
+@pytest.mark.parametrize("page", sorted(p.relative_to(WEB).as_posix() for p in WEB.rglob("*.html")
+                                         if not p.relative_to(WEB).as_posix().startswith("egitim/")))
+def test_no_page_states_a_price(page):
+    """Fiyat sitede yazmaz; ziyaretçi iletişime geçer. Eğitim sayfaları dışarıda: adım örnekleri "$1", "KDV" içerir."""
+    text = " ".join(re.sub(r"<[^>]+>", " ", (WEB / page).read_text(encoding="utf-8")).split())
+    assert not TUTAR.search(text), TUTAR.search(text)
+
+
+def test_the_account_page_offers_renewal_without_a_price():
+    script = (WEB / "assets" / "hesabim.js").read_text(encoding="utf-8")
+    assert "const PACKAGES" in script and not TUTAR.search(script)
 
 
 def test_the_step_counts_add_up():

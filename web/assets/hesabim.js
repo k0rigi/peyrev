@@ -14,8 +14,10 @@
   const ROOT = document.getElementById('hesabim');
   if (!ROOT) return;
   const UNREACHABLE = 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.';
-  const PACKAGES = [['rpa', 'Peyrev', '10 $ / ay + KDV'], ['rpa_ajan', 'Peyrev + Ajanlar', '20 $ / ay + KDV'],
-    ['ikiz', 'Peyrev Dijital İkiz', '100 $ / ay + KDV']];
+  // Fiyat sitede yazmaz: uzatma isteğinden sonra e-postayla iletilir.
+  const PACKAGES = [['rpa', 'Peyrev', 'Masaüstü ve web otomasyon akışları'],
+    ['rpa_ajan', 'Peyrev + Ajanlar', 'Akışlarınızı kullanan yapay zekâ ajanlarıyla'],
+    ['ikiz', 'Peyrev Dijital İkiz', 'Peyrev + Ajanlar ve deponuzun canlı dijital ikizi (tesis başına)']];
   const TWIN = '/api/uye/ikiz';
   // Set by the server's redirect from /api/uye/ikiz: "yok" = no Dijital İkiz right, "giris" = sign in first.
   const TWIN_STATE = new URLSearchParams(window.location.search).get('ikiz');
@@ -169,9 +171,9 @@
 
   function renewCard(account) {
     const current = account.lisans.ikiz.durum === 'aktif' ? 'ikiz' : account.lisans.ajanlar.durum === 'aktif' ? 'rpa_ajan' : 'rpa';
-    const choices = PACKAGES.map(([value, label, price]) => {
+    const choices = PACKAGES.map(([value, label, about]) => {
       const radio = el('input', { type: 'radio', name: 'paket', value, checked: value === current });
-      return { radio, node: el('label', { class: 'option' }, [radio, el('span', null, [el('strong', { text: label }), price])]) };
+      return { radio, node: el('label', { class: 'option' }, [radio, el('span', null, [el('strong', { text: label }), about])]) };
     });
     const submit = el('button', { class: 'button button-gold', type: 'submit', text: 'Uzatma iste' });
     const form = el('form', { class: 'account-renew', novalidate: true }, [

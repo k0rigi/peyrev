@@ -9,7 +9,7 @@
 <title>Peyrev · Studio de flux pour ordinateur</title>
 <link rel="icon" href="/assets/peyrev-mark-32.png">
 <link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
-<link rel="stylesheet" href="/assets/site.css?v=65946c8013">
+<link rel="stylesheet" href="/assets/site.css?v=187561b851">
 <script src="/assets/ceviri.js?v=9ce53e4702" defer></script>
 <script src="/assets/site.js?v=41ddfc4b1f" defer></script>
 <script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
@@ -36,7 +36,7 @@
       <a href="/fr/sablonlar/">Modèles</a>
       <a href="/egitim/">Formation <small class="tr-isareti" title="Page en turc">TR</small></a>
       <a href="/topluluk/">Communauté <small class="tr-isareti" title="Page en turc">TR</small></a>
-      <a href="/fr/#paketler">Tarifs</a>
+      <a href="/fr/#paketler">Formules</a>
     </nav>
     <div class="header-actions">
       <a class="button button-quiet button-small" href="/hesabim/">Mon compte</a>
@@ -417,15 +417,16 @@
   <section class="band" id="paketler" aria-labelledby="paket-baslik">
     <div class="wrap">
       <div class="section-head center">
-        <p class="kicker">Tarifs</p>
-        <h2 id="paket-baslik">Un prix mensuel simple.</h2>
-        <p class="section-lead">Abonnement mensuel&nbsp;; vous pouvez arrêter quand vous le souhaitez. Les prix s'entendent hors TVA.</p>
+        <p class="kicker">Formules</p>
+        <h2 id="paket-baslik">Une formule pour chaque besoin.</h2>
+        <p class="section-lead">Abonnement mensuel&nbsp;; vous pouvez arrêter quand vous le souhaitez. Pour connaître nos tarifs, <a
+          href="/fr/iletisim/">contactez-nous</a>.</p>
       </div>
       <ul class="packages">
         <li class="package">
           <p class="package-badge package-badge-plain">Standard</p>
           <h3>Peyrev</h3>
-          <p class="price"><strong>10 $</strong><span>/ mois + TVA</span></p>
+          <p class="price-ask"><a href="/fr/iletisim/">Contactez-nous pour le tarif</a></p>
           <p>Flux d'automatisation de bureau et web, planificateur et connexions.</p>
           <ul class="checks">
             <li>Bibliothèque de 108 étapes</li>
@@ -438,7 +439,7 @@
         <li class="package package-featured">
           <p class="package-badge">Avec agents</p>
           <h3>Peyrev + Agents</h3>
-          <p class="price"><strong>20 $</strong><span>/ mois + TVA</span></p>
+          <p class="price-ask"><a href="/fr/iletisim/">Contactez-nous pour le tarif</a></p>
           <p>Tout Peyrev, plus des agents d'IA qui utilisent vos flux.</p>
           <ul class="checks">
             <li>Toutes les fonctionnalités de Peyrev</li>
@@ -451,7 +452,7 @@
         <li class="package" id="dijital-ikiz">
           <p class="package-badge package-badge-plain">Entrepôt · par site</p>
           <h3>Peyrev Dijital İkiz</h3>
-          <p class="price"><strong>100 $</strong><span>/ mois + TVA</span></p>
+          <p class="price-ask"><a href="/fr/iletisim/">Contactez-nous pour le tarif</a></p>
           <p>Tout Peyrev et Agents, plus un modèle vivant de votre entrepôt qui fonctionne sur le web.</p>
           <ul class="checks">
             <li>Peyrev + Agents inclus</li>
@@ -467,9 +468,10 @@
           </div>
         </li>
       </ul>
-      <p class="price-note">Nous vous communiquons les modalités de paiement après votre demande&nbsp;; une fois le
-        paiement confirmé, votre compte est ouvert et votre lien de téléchargement vous parvient par e-mail.
-        Détails&nbsp;: <a href="/yasal/mesafeli-satis/">Contrat de vente à distance (en turc)</a> ·
+      <p class="price-note">Pour obtenir un tarif, remplissez le <a href="/fr/iletisim/">formulaire de contact</a> ou écrivez à
+        info@peyrev.com. Après votre demande, nous vous communiquons le tarif et les modalités de paiement par
+        e-mail&nbsp;; une fois le paiement confirmé, votre compte est ouvert et votre lien de téléchargement vous
+        parvient par e-mail. Détails&nbsp;: <a href="/yasal/mesafeli-satis/">Contrat de vente à distance (en turc)</a> ·
         <a href="/yasal/iade/">Remboursement et annulation (en turc)</a>.</p>
     </div>
   </section>
@@ -545,15 +547,15 @@
           <legend>Formule</legend>
           <label class="option">
             <input type="radio" name="paket" value="rpa" checked>
-            <span><strong>Peyrev · 10 $/mois + TVA</strong> Flux d'automatisation de bureau et web</span>
+            <span><strong>Peyrev</strong> Flux d'automatisation de bureau et web</span>
           </label>
           <label class="option">
             <input type="radio" name="paket" value="rpa_ajan">
-            <span><strong>Peyrev + Agents · 20 $/mois + TVA</strong> Avec des agents d'IA qui utilisent vos flux</span>
+            <span><strong>Peyrev + Agents</strong> Avec des agents d'IA qui utilisent vos flux</span>
           </label>
           <label class="option">
             <input type="radio" name="paket" value="ikiz">
-            <span><strong>Peyrev Dijital İkiz · 100 $/mois + TVA</strong> Peyrev + Agents et le jumeau numérique vivant de
+            <span><strong>Peyrev Dijital İkiz</strong> Peyrev + Agents et le jumeau numérique vivant de
               votre entrepôt (par site)</span>
           </label>
         </fieldset>
@@ -607,9 +609,10 @@
         </details>
         <details>
           <summary>Combien ça coûte&nbsp;?</summary>
-          <p>Peyrev coûte 10 $ par mois, Peyrev + Agents 20 $ par mois et Peyrev Dijital İkiz 100 $ par mois et par site,
-            hors TVA. L'abonnement est mensuel et vous pouvez arrêter quand vous le souhaitez&nbsp;; vous continuez
-            d'utiliser Peyrev jusqu'à la fin de la période payée.</p>
+          <p>Pour connaître nos tarifs, écrivez-nous via le <a href="/fr/iletisim/">formulaire de contact</a> ou à
+            <a href="mailto:info@peyrev.com">info@peyrev.com</a>&nbsp;: nous vous enverrons par e-mail le prix de
+            la formule qui vous convient. L'abonnement est mensuel et vous pouvez arrêter quand vous le
+            souhaitez&nbsp;; vous continuez d'utiliser Peyrev jusqu'à la fin de la période payée.</p>
         </details>
         <details>
           <summary>Où télécharger Peyrev&nbsp;?</summary>
@@ -678,7 +681,7 @@
       <a href="/fr/#ajanlar">Agents</a>
       <a href="/fr/cozumler/">Solutions</a>
       <a href="/fr/sablonlar/">Modèles</a>
-      <a href="/fr/#paketler">Tarifs</a>
+      <a href="/fr/#paketler">Formules</a>
       <a href="/yenilikler/">Nouveautés <small class="tr-isareti" title="Page en turc">TR</small></a>
     </nav>
     <nav aria-label="Ressources">
@@ -704,7 +707,7 @@
       <a href="/yasal/iade/">Remboursement et annulation <small class="tr-isareti" title="Page en turc">TR</small></a>
     </nav>
   </div>
-  <div class="wrap footer-note">© 2026 Peyrev · Prix hors TVA.</div>
+  <div class="wrap footer-note">© 2026 Peyrev</div>
 </footer>
 </body>
 </html>

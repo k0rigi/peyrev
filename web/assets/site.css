@@ -310,10 +310,11 @@ main:focus { outline: none; }
 .package-featured { background: linear-gradient(165deg, #1b1e26, #0c0e13); color: var(--on-night); border-color: #2c303b; }
 .package-featured > p { color: var(--on-night-muted); }
 .package-featured .checks li::before { color: var(--gold-on-night); }
-.price { display: flex; align-items: baseline; gap: 6px; }
-.price strong { font-size: 2.75rem; letter-spacing: -0.04em; line-height: 1; }
-.price span { color: var(--muted); font-weight: 600; }
-.package-featured .price span { color: var(--on-night-muted); }
+.package > .price-ask { color: var(--text); font-size: 1.125rem; font-weight: 700; }
+.price-ask a { color: inherit; text-decoration-color: var(--gold); text-underline-offset: 4px; }
+.price-ask a:hover { text-decoration-thickness: 2px; }
+.package-featured > .price-ask { color: var(--on-night); }
+.package-featured .price-ask a { text-decoration-color: var(--gold-on-night); }
 .package-badge-plain { background: var(--surface-2); color: var(--muted); }
 .price-note { margin: 24px auto 0; max-width: 760px; text-align: center; color: var(--muted); font-size: 0.9375rem; }
 .consent-links { font-size: 0.875rem; color: var(--muted); }

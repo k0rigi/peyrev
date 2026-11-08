@@ -9,7 +9,7 @@
 <title>Peyrev · Masaüstü akış stüdyosu</title>
 <link rel="icon" href="/assets/peyrev-mark-32.png">
 <link rel="apple-touch-icon" href="/assets/peyrev-mark-180.png">
-<link rel="stylesheet" href="/assets/site.css?v=65946c8013">
+<link rel="stylesheet" href="/assets/site.css?v=187561b851">
 <script src="/assets/site.js?v=41ddfc4b1f" defer></script>
 <script src="/assets/ziyaret.js?v=0e7083596d" defer></script>
 <link rel="alternate" hreflang="tr" href="https://peyrev.com/">
@@ -35,7 +35,7 @@
       <a href="/sablonlar/">Şablonlar</a>
       <a href="/egitim/">Eğitim</a>
       <a href="/topluluk/">Topluluk</a>
-      <a href="/#paketler">Fiyatlar</a>
+      <a href="/#paketler">Paketler</a>
     </nav>
     <div class="header-actions">
       <a class="button button-quiet button-small" href="/hesabim/">Hesabım</a>
@@ -412,15 +412,16 @@
   <section class="band" id="paketler" aria-labelledby="paket-baslik">
     <div class="wrap">
       <div class="section-head center">
-        <p class="kicker">Fiyatlar</p>
-        <h2 id="paket-baslik">Basit, aylık fiyat.</h2>
-        <p class="section-lead">Aylık abonelik; istediğiniz zaman bırakabilirsiniz. Fiyatlara KDV dahil değildir.</p>
+        <p class="kicker">Paketler</p>
+        <h2 id="paket-baslik">İhtiyacınıza uygun paket.</h2>
+        <p class="section-lead">Aylık abonelik; istediğiniz zaman bırakabilirsiniz. Fiyat bilgisi için <a href="/iletisim/">bizimle
+          iletişime geçin</a>.</p>
       </div>
       <ul class="packages">
         <li class="package">
           <p class="package-badge package-badge-plain">Standart</p>
           <h3>Peyrev</h3>
-          <p class="price"><strong>10 $</strong><span>/ ay + KDV</span></p>
+          <p class="price-ask"><a href="/iletisim/">Fiyat için iletişime geçin</a></p>
           <p>Masaüstü ve web otomasyon akışları, zamanlayıcı ve bağlantılar.</p>
           <ul class="checks">
             <li>108 adımlık kütüphane</li>
@@ -433,7 +434,7 @@
         <li class="package package-featured">
           <p class="package-badge">Ajanlı</p>
           <h3>Peyrev + Ajanlar</h3>
-          <p class="price"><strong>20 $</strong><span>/ ay + KDV</span></p>
+          <p class="price-ask"><a href="/iletisim/">Fiyat için iletişime geçin</a></p>
           <p>Peyrev'in tamamı ve akışlarınızı kullanan yapay zekâ ajanları.</p>
           <ul class="checks">
             <li>Peyrev'in bütün özellikleri</li>
@@ -446,7 +447,7 @@
         <li class="package" id="dijital-ikiz">
           <p class="package-badge package-badge-plain">Depo · tesis başına</p>
           <h3>Peyrev Dijital İkiz</h3>
-          <p class="price"><strong>100 $</strong><span>/ ay + KDV</span></p>
+          <p class="price-ask"><a href="/iletisim/">Fiyat için iletişime geçin</a></p>
           <p>Peyrev ve Ajanlar'ın tamamı ve deponuzun web'de çalışan canlı modeli.</p>
           <ul class="checks">
             <li>Peyrev + Ajanlar dahil</li>
@@ -462,8 +463,9 @@
           </div>
         </li>
       </ul>
-      <p class="price-note">Ödeme bilgisini başvurunuzdan sonra iletiriz; ödeme onaylanınca hesabınız açılır ve indirme
-        bağlantınız e-postanıza gelir. Ayrıntılar: <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a> ·
+      <p class="price-note">Fiyat sormak için <a href="/iletisim/">iletişim formunu</a> doldurun ya da info@peyrev.com adresine yazın.
+        Başvurunuzdan sonra fiyat ve ödeme bilgisini e-postayla iletiriz; ödeme onaylanınca hesabınız açılır ve
+        indirme bağlantınız e-postanıza gelir. Ayrıntılar: <a href="/yasal/mesafeli-satis/">Mesafeli satış sözleşmesi</a> ·
         <a href="/yasal/iade/">İade ve iptal</a>.</p>
     </div>
   </section>
@@ -537,15 +539,15 @@
           <legend>Paket</legend>
           <label class="option">
             <input type="radio" name="paket" value="rpa" checked>
-            <span><strong>Peyrev · 10 $/ay + KDV</strong> Masaüstü ve web otomasyon akışları</span>
+            <span><strong>Peyrev</strong> Masaüstü ve web otomasyon akışları</span>
           </label>
           <label class="option">
             <input type="radio" name="paket" value="rpa_ajan">
-            <span><strong>Peyrev + Ajanlar · 20 $/ay + KDV</strong> Akışlarınızı kullanan yapay zekâ ajanlarıyla</span>
+            <span><strong>Peyrev + Ajanlar</strong> Akışlarınızı kullanan yapay zekâ ajanlarıyla</span>
           </label>
           <label class="option">
             <input type="radio" name="paket" value="ikiz">
-            <span><strong>Peyrev Dijital İkiz · 100 $/ay + KDV</strong> Peyrev + Ajanlar ve deponuzun canlı dijital ikizi
+            <span><strong>Peyrev Dijital İkiz</strong> Peyrev + Ajanlar ve deponuzun canlı dijital ikizi
               (tesis başına)</span>
           </label>
         </fieldset>
@@ -596,10 +598,11 @@
             yazar. Tıklama ve yazma adımlarında hedefi ekranda gösterirsiniz.</p>
         </details>
         <details>
-          <summary>Fiyatı ne kadar?</summary>
-          <p>Peyrev aylık 10 $, Peyrev + Ajanlar aylık 20 $, Peyrev Dijital İkiz tesis başına aylık 100 $; fiyatlara KDV
-            dahil değildir. Abonelik aylıktır, istediğiniz
-            zaman bırakabilirsiniz; ödenen dönem bitene kadar kullanmaya devam edersiniz.</p>
+          <summary>Fiyatı nedir?</summary>
+          <p>Fiyat bilgisi için <a href="/iletisim/">iletişim formundan</a> ya da <a
+            href="mailto:info@peyrev.com">info@peyrev.com</a> adresinden bize yazın; size uygun paketin fiyatını
+            e-postayla iletelim. Abonelik aylıktır, istediğiniz zaman bırakabilirsiniz; ödenen dönem bitene kadar
+            kullanmaya devam edersiniz.</p>
         </details>
         <details>
           <summary>Peyrev'i nereden indiririm?</summary>
@@ -664,7 +667,7 @@
       <a href="/#ajanlar">Ajanlar</a>
       <a href="/cozumler/">Çözümler</a>
       <a href="/sablonlar/">Şablonlar</a>
-      <a href="/#paketler">Fiyatlar</a>
+      <a href="/#paketler">Paketler</a>
       <a href="/yenilikler/">Yenilikler</a>
     </nav>
     <nav aria-label="Kaynaklar">
@@ -690,7 +693,7 @@
       <a href="/yasal/iade/">İade ve iptal</a>
     </nav>
   </div>
-  <div class="wrap footer-note">© 2026 Peyrev · Fiyatlara KDV dahil değildir.</div>
+  <div class="wrap footer-note">© 2026 Peyrev</div>
 </footer>
 </body>
 </html>

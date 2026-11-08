@@ -33,10 +33,10 @@ CEVRILEN = ("/", "/cozumler/", "/cozumler/muhasebe-finans/", "/cozumler/insan-ka
             "/sablonlar/", "/iletisim/")
 
 NAV = [("/#ozellikler", "ozellikler"), ("/cozumler/", "cozumler"), ("/sablonlar/", "sablonlar"), ("/egitim/", "egitim"),
-       ("/topluluk/", "topluluk"), ("/#paketler", "fiyatlar")]
+       ("/topluluk/", "topluluk"), ("/#paketler", "paketler")]
 FOOTER = [
     ("urun", [("/#ozellikler", "ozellikler"), ("/#ajanlar", "ajanlar"), ("/cozumler/", "cozumler"),
-              ("/sablonlar/", "sablonlar"), ("/#paketler", "fiyatlar"), ("/yenilikler/", "yenilikler")]),
+              ("/sablonlar/", "sablonlar"), ("/#paketler", "paketler"), ("/yenilikler/", "yenilikler")]),
     ("kaynaklar", [("/egitim/", "videolar"), ("/egitim/adimlar/", "rehber"), ("/egitim/deneme/", "deneme"),
                    ("/topluluk/", "topluluk"), ("/#indir", "nasil_alirim"), ("/#sss", "sss")]),
     ("hesap", [("/hesabim/", "hesabim"), ("/#basvuru", "basvuru_formu"), ("/iletisim/", "iletisim")]),
@@ -45,7 +45,7 @@ FOOTER = [
 ]
 METIN = {
     "tr": {"ozellikler": "Özellikler", "cozumler": "Çözümler", "sablonlar": "Şablonlar", "egitim": "Eğitim",
-           "topluluk": "Topluluk", "fiyatlar": "Fiyatlar", "ajanlar": "Ajanlar", "yenilikler": "Yenilikler",
+           "topluluk": "Topluluk", "paketler": "Paketler", "ajanlar": "Ajanlar", "yenilikler": "Yenilikler",
            "videolar": "Eğitim videoları", "rehber": "Adım rehberi", "deneme": "Deneme akışları",
            "nasil_alirim": "Peyrev'i nasıl alırım?", "sss": "Sık sorulanlar", "hesabim": "Hesabım",
            "basvuru_formu": "Hesap başvurusu", "iletisim": "İletişim", "kvkk": "KVKK aydınlatma metni",
@@ -53,9 +53,9 @@ METIN = {
            "urun": "Ürün", "kaynaklar": "Kaynaklar", "hesap": "Hesap", "yasal": "Yasal", "sayfalar": "Sayfalar",
            "basvuru": "Başvuru", "dil": "Dil", "turkce": "Türkçe sayfa",
            "slogan": "Windows ve macOS için masaüstü akış stüdyosu.",
-           "not": "© 2026 Peyrev · Fiyatlara KDV dahil değildir."},
+           "not": "© 2026 Peyrev"},
     "en": {"ozellikler": "Features", "cozumler": "Solutions", "sablonlar": "Templates", "egitim": "Training",
-           "topluluk": "Community", "fiyatlar": "Pricing", "ajanlar": "Agents", "yenilikler": "What's new",
+           "topluluk": "Community", "paketler": "Plans", "ajanlar": "Agents", "yenilikler": "What's new",
            "videolar": "Training videos", "rehber": "Step guide", "deneme": "Practice flows",
            "nasil_alirim": "How do I get Peyrev?", "sss": "FAQ", "hesabim": "My account",
            "basvuru_formu": "Account application", "iletisim": "Contact", "kvkk": "Personal data notice (KVKK)",
@@ -63,9 +63,9 @@ METIN = {
            "urun": "Product", "kaynaklar": "Resources", "hesap": "Account", "yasal": "Legal", "sayfalar": "Pages",
            "basvuru": "Apply", "dil": "Language", "turkce": "Page in Turkish",
            "slogan": "Desktop flow studio for Windows and macOS.",
-           "not": "© 2026 Peyrev · Prices exclude VAT."},
+           "not": "© 2026 Peyrev"},
     "fr": {"ozellikler": "Fonctionnalités", "cozumler": "Solutions", "sablonlar": "Modèles", "egitim": "Formation",
-           "topluluk": "Communauté", "fiyatlar": "Tarifs", "ajanlar": "Agents", "yenilikler": "Nouveautés",
+           "topluluk": "Communauté", "paketler": "Formules", "ajanlar": "Agents", "yenilikler": "Nouveautés",
            "videolar": "Vidéos de formation", "rehber": "Guide des étapes", "deneme": "Flux d'exercice",
            "nasil_alirim": "Comment obtenir Peyrev ?", "sss": "Questions fréquentes", "hesabim": "Mon compte",
            "basvuru_formu": "Demande de compte", "iletisim": "Contact",
@@ -74,9 +74,9 @@ METIN = {
            "urun": "Produit", "kaynaklar": "Ressources", "hesap": "Compte", "yasal": "Mentions légales",
            "sayfalar": "Pages", "basvuru": "Demande", "dil": "Langue", "turkce": "Page en turc",
            "slogan": "Studio de flux de bureau pour Windows et macOS.",
-           "not": "© 2026 Peyrev · Prix hors TVA."},
+           "not": "© 2026 Peyrev"},
     "es": {"ozellikler": "Funciones", "cozumler": "Soluciones", "sablonlar": "Plantillas", "egitim": "Formación",
-           "topluluk": "Comunidad", "fiyatlar": "Precios", "ajanlar": "Agentes", "yenilikler": "Novedades",
+           "topluluk": "Comunidad", "paketler": "Paquetes", "ajanlar": "Agentes", "yenilikler": "Novedades",
            "videolar": "Vídeos de formación", "rehber": "Guía de pasos", "deneme": "Flujos de práctica",
            "nasil_alirim": "¿Cómo consigo Peyrev?", "sss": "Preguntas frecuentes", "hesabim": "Mi cuenta",
            "basvuru_formu": "Solicitud de cuenta", "iletisim": "Contacto",
@@ -85,9 +85,9 @@ METIN = {
            "urun": "Producto", "kaynaklar": "Recursos", "hesap": "Cuenta", "yasal": "Legal", "sayfalar": "Páginas",
            "basvuru": "Solicitar", "dil": "Idioma", "turkce": "Página en turco",
            "slogan": "Estudio de flujos de escritorio para Windows y macOS.",
-           "not": "© 2026 Peyrev · Los precios no incluyen IVA."},
+           "not": "© 2026 Peyrev"},
     "ar": {"ozellikler": "الميزات", "cozumler": "الحلول", "sablonlar": "القوالب", "egitim": "التدريب",
-           "topluluk": "المجتمع", "fiyatlar": "الأسعار", "ajanlar": "الوكلاء", "yenilikler": "الجديد",
+           "topluluk": "المجتمع", "paketler": "الباقات", "ajanlar": "الوكلاء", "yenilikler": "الجديد",
            "videolar": "فيديوهات التدريب", "rehber": "دليل الخطوات", "deneme": "تدفقات للتجربة",
            "nasil_alirim": "كيف أحصل على Peyrev؟", "sss": "الأسئلة الشائعة", "hesabim": "حسابي",
            "basvuru_formu": "طلب حساب", "iletisim": "اتصل بنا", "kvkk": "إشعار البيانات الشخصية (KVKK)",
@@ -95,9 +95,9 @@ METIN = {
            "iade": "الاسترداد والإلغاء", "urun": "المنتج", "kaynaklar": "الموارد", "hesap": "الحساب",
            "yasal": "قانوني", "sayfalar": "الصفحات", "basvuru": "قدّم طلبًا", "dil": "اللغة",
            "turkce": "صفحة باللغة التركية", "slogan": "استوديو تدفقات سطح المكتب لنظامي Windows وmacOS.",
-           "not": "© 2026 Peyrev · الأسعار لا تشمل ضريبة القيمة المضافة."},
+           "not": "© 2026 Peyrev"},
     "fa": {"ozellikler": "ویژگی‌ها", "cozumler": "راهکارها", "sablonlar": "الگوها", "egitim": "آموزش",
-           "topluluk": "انجمن", "fiyatlar": "قیمت‌ها", "ajanlar": "عامل‌ها", "yenilikler": "تازه‌ها",
+           "topluluk": "انجمن", "paketler": "بسته‌ها", "ajanlar": "عامل‌ها", "yenilikler": "تازه‌ها",
            "videolar": "ویدیوهای آموزشی", "rehber": "راهنمای گام‌ها", "deneme": "جریان‌های تمرینی",
            "nasil_alirim": "چگونه Peyrev را تهیه کنم؟", "sss": "پرسش‌های متداول", "hesabim": "حساب من",
            "basvuru_formu": "درخواست حساب", "iletisim": "تماس", "kvkk": "اطلاعیه داده‌های شخصی (KVKK)",
@@ -105,7 +105,7 @@ METIN = {
            "urun": "محصول", "kaynaklar": "منابع", "hesap": "حساب", "yasal": "حقوقی", "sayfalar": "صفحه‌ها",
            "basvuru": "درخواست", "dil": "زبان", "turkce": "صفحه به زبان ترکی",
            "slogan": "استودیوی جریان کار دسکتاپ برای Windows و macOS.",
-           "not": "© 2026 Peyrev · قیمت‌ها بدون مالیات بر ارزش افزوده است."},
+           "not": "© 2026 Peyrev"},
 }
 
 
