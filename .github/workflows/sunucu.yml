@@ -22,6 +22,7 @@ on:
           - eposta-tani
           - destek-eposta
           - alan-tani
+          - ikiz-okuma
 
 permissions:
   contents: read
@@ -60,6 +61,7 @@ jobs:
             eposta-tani) betik=deploy/eposta-tani.sh; ortam='{}' ;;
             destek-eposta) betik=deploy/destek-eposta.sh; ortam='{}' ;;
             alan-tani) betik=deploy/alan-tani.sh; ortam='{}' ;;
+            ikiz-okuma) betik=deploy/ikiz-okuma.sh; ortam='{}' ;;
             *) echo "Bilinmeyen iş"; exit 1 ;;
           esac
           { echo "betik=$betik"; echo "ortam=$ortam"; } >> "$GITHUB_OUTPUT"
