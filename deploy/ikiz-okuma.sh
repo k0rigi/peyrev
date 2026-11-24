@@ -50,8 +50,10 @@ done
 echo "== bağlanabildiği veritabanları"
 psql_su -d postgres -At -c "SELECT datname FROM pg_database WHERE has_database_privilege('$ROL', datname, 'CONNECT')
   ORDER BY 1"
+# postgres, template0 ve template1 PostgreSQL'in veri taşımayan sistem veritabanlarıdır; her rol varsayılan olarak bağlanır.
 DIGER=$(psql_su -d postgres -At -c "SELECT count(*) FROM pg_database WHERE has_database_privilege('$ROL', datname,
-  'CONNECT') AND NOT (datname = 'ikiz' OR (datname LIKE 'ikiz\_%' AND pg_get_userbyid(datdba) = datname))")
+  'CONNECT') AND datname NOT IN ('postgres', 'template0', 'template1')
+  AND NOT (datname = 'ikiz' OR (datname LIKE 'ikiz\_%' AND pg_get_userbyid(datdba) = datname))")
 echo "== pg_hba (yerel TCP)"
 psql_su -d postgres -At -c "SELECT line_number, type, database, user_name, address, auth_method FROM pg_hba_file_rules
   ORDER BY line_number" || true
